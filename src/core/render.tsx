@@ -1,9 +1,9 @@
 import React from 'preact/compat'
 import { renderToStaticMarkup } from 'preact/compat/server'
-import { SkelentonDesc } from './skelenton-desc'
+import { SkeletonDesc } from './skeleton-desc'
 
 
-function renderNode(params: {node: SkelentonDesc, list: SkelentonDesc[]}) {
+function renderNode(params: {node: SkeletonDesc, list: SkeletonDesc[]}) {
   const { node, list } = params;
   const isLeaf = !list.find(item => item.parentId === node.id);
 
@@ -27,7 +27,7 @@ function renderNode(params: {node: SkelentonDesc, list: SkelentonDesc[]}) {
   </div>
 }
 
-export function renderToHtml(list: SkelentonDesc[]) {
+export function renderToHtml(list: SkeletonDesc[]) {
   // console.log(list);
   // console.log(list.filter(item => item.$node.nodeName === 'NAV'));
   // const root = list.find(item => !item.parentId);

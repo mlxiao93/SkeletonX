@@ -1,18 +1,18 @@
-import {SkelentonDesc, generateSkeletonDescList } from './skelenton-desc'
+import {SkeletonDesc, generateSkeletonDescList } from './skeleton-desc'
 import { renderToHtml } from './render'
 
 export default class Skeletion {
 
   private root: Node
 
-  private skelentonDescList: SkelentonDesc[];
+  private skeletonDescList: SkeletonDesc[];
 
   constructor (root: Node) {
     this.root = root
-    this.skelentonDescList = generateSkeletonDescList({node: root, list: [], level: 0, index: 0});
+    this.skeletonDescList = generateSkeletonDescList({node: root, list: [], level: 0, index: 0});
   }
 
   public renderToHtml(): string {
-    return renderToHtml(this.skelentonDescList);
+    return renderToHtml(this.skeletonDescList);
   }
 }

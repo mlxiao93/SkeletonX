@@ -8,7 +8,7 @@ import Skeletion from '../../core'
     console.log('onload');
   
     skltContainer = document.createElement('div');
-    skltContainer.id = 'skelentonx-container'
+    skltContainer.id = 'skeletonx-container'
   
     
     // 

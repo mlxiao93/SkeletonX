@@ -3,7 +3,7 @@
 /**
  * 提取骨架描述
  */
-function getSkelentonDesc(opt) {
+function getSkeletonDesc(opt) {
   const {
     node,
     level,
@@ -71,20 +71,20 @@ function generateSkeletonDescList(opt) {
     index = 0,
     list = []
   } = opt;
-  const skelentonDesc = getSkelentonDesc({
+  const skeletonDesc = getSkeletonDesc({
     node,
     level,
     index,
     parentDesc
   });
-  if (!skelentonDesc) return;
-  list.push(skelentonDesc);
+  if (!skeletonDesc) return;
+  list.push(skeletonDesc);
 
   if (node.hasChildNodes()) {
     for (let i = 0; i < node.childNodes.length; i++) {
       generateSkeletonDescList({
         node: node.childNodes[i],
-        parentDesc: skelentonDesc,
+        parentDesc: skeletonDesc,
         level: level + 1,
         index: i,
         list
@@ -759,7 +759,7 @@ function renderToHtml(list) {
 class Skeletion {
   constructor(root) {
     this.root = root;
-    this.skelentonDescList = generateSkeletonDescList({
+    this.skeletonDescList = generateSkeletonDescList({
       node: root,
       list: [],
       level: 0,
@@ -768,7 +768,7 @@ class Skeletion {
   }
 
   renderToHtml() {
-    return renderToHtml(this.skelentonDescList);
+    return renderToHtml(this.skeletonDescList);
   }
 
 }
@@ -778,7 +778,7 @@ class Skeletion {
   window.addEventListener('load', () => {
     console.log('onload');
     skltContainer = document.createElement('div');
-    skltContainer.id = 'skelentonx-container'; // 
+    skltContainer.id = 'skeletonx-container'; // 
 
     document.body.appendChild(skltContainer);
   });

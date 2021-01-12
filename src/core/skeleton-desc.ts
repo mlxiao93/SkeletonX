@@ -1,5 +1,5 @@
 /** 骨架元素描述 */
-export interface SkelentonDesc {
+export interface SkeletonDesc {
 
   /** 基础属性 */
   id: string,     // json path
@@ -33,12 +33,12 @@ export interface SkelentonDesc {
 /**
  * 提取骨架描述
  */
-export function getSkelentonDesc(opt: {
+export function getSkeletonDesc(opt: {
   node: Node,
   index: number,
   level: number
-  parentDesc?: SkelentonDesc
-}): SkelentonDesc | null {
+  parentDesc?: SkeletonDesc
+}): SkeletonDesc | null {
   const { node, level, index, parentDesc} = opt;
   if (![Node.ELEMENT_NODE, Node.TEXT_NODE].includes(node.nodeType)) {   // 只处理元素节点和文本节点
     return null
@@ -97,23 +97,23 @@ export function getSkelentonDesc(opt: {
  */
 export function generateSkeletonDescList(opt: {
   node: Node
-  parentDesc?: SkelentonDesc,
+  parentDesc?: SkeletonDesc,
   level: number,
   index: number,
-  list: SkelentonDesc[]
-}): SkelentonDesc[] {
+  list: SkeletonDesc[]
+}): SkeletonDesc[] {
   const { node, parentDesc, level = 0, index = 0, list = [] } = opt
   
-  const skelentonDesc = getSkelentonDesc({node, level, index, parentDesc})
-  if (!skelentonDesc) return;
+  const skeletonDesc = getSkeletonDesc({node, level, index, parentDesc})
+  if (!skeletonDesc) return;
 
-  list.push(skelentonDesc);
+  list.push(skeletonDesc);
 
   if (node.hasChildNodes()) {
     for ( let i = 0; i < node.childNodes.length; i++ ) {
       generateSkeletonDescList({
         node: node.childNodes[i],
-        parentDesc: skelentonDesc,
+        parentDesc: skeletonDesc,
         level: level + 1,
         index: i,
         list
@@ -126,7 +126,7 @@ export function generateSkeletonDescList(opt: {
 /**
  * 精简骨架节点
  */
-export function reduceSkeletonDescList(list: SkelentonDesc[]) {
+export function reduceSkeletonDescList(list: SkeletonDesc[]) {
   // 同级文本节点合并为一个
   return list;
 }
