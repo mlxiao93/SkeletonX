@@ -1,40 +1,29 @@
-import React from 'preact/compat'
-import { renderToStaticMarkup } from 'preact/compat/server'
-import { SkeletonDesc } from './skeleton-desc'
+import { parseStringToRenderDesc, RenderDesc, renderDescToString, transforRenderDescToRenderProps } from './skeleton'
 
-
-function renderNode(params: {node: SkeletonDesc, list: SkeletonDesc[]}) {
-  const { node, list } = params;
-  const isLeaf = !list.find(item => item.parentId === node.id);
-
-  const hasBackground = node.background && !node.background.startsWith('rgba(0, 0, 0, 0)')
-
-  return <div style={{
-    zIndex: 9999999,
-    position: 'absolute',
-    left: node.x,
-    top: node.y,
-    width: node.offsetWidth,
-    height: node.offsetHeight,
-    border: node.border,
-    borderLeft: node.borderLeft,
-    borderRight: node.borderRight,
-    borderBottom: node.borderBottom,
-    borderTop: node.borderTop,
-    borderRadius: node.borderRadius,
-    background: hasBackground ? node.background : isLeaf ? '#D3D4D7' : undefined
-  }}>
-  </div>
+export function renderToHtml(descString: string): string {
+  const html = new Function(`return ${getRenderToHtmlCode(descString)}`)();
+  return html;
 }
 
-export function renderToHtml(list: SkeletonDesc[]) {
-  // console.log(list);
-  // console.log(list.filter(item => item.$node.nodeName === 'NAV'));
-  // const root = list.find(item => !item.parentId);
-  // return renderToStaticMarkup(<>
-  //   {renderNode({node: root, list})}
-  // </>)
-  return renderToStaticMarkup(<>
-    {list.map(node => renderNode({node, list}))}
-  </>)
+export function getRenderToHtmlCode(descString: string): string {
+  const code = `(function() {
+    ${parseStringToRenderDesc.toString()};
+    ${transforRenderDescToRenderProps.toString()};
+    var descString = '${descString}';
+    var renderDescList = descString.split(',').map(str => {
+      return parseStringToRenderDesc(str);
+    });
+    var html = '';
+    for (var i = 0; i < renderDescList.length; i++) {
+      var renderProps = transforRenderDescToRenderProps(renderDescList[i]);
+      var style = 'z-index:9999999;position:absolute;';
+      for (var key in renderProps) {
+        style += key.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase() + ':' + renderProps[key] + ';'
+      };
+      html += '<div style=" '+ style +' "></div>';
+    };
+    return '<div skeletonx-ignore>' + html + '</div>';
+  })()`;
+  console.log(code);
+  return code; 
 }

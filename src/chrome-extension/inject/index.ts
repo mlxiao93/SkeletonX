@@ -1,30 +1,37 @@
 import './index.scss'
-import Skeletion from '../../core'
+import Skeleton from '../../core'
 
 (function () {
-  let skltContainer: HTMLDivElement;
+  let _skltContainer: HTMLDivElement;
+
+  function getSkltContainer() {
+    if (_skltContainer) return _skltContainer;
+    _skltContainer = document.createElement('div');
+    document.body.appendChild(_skltContainer);
+    return _skltContainer;
+  }
+
+  function clearSkltContainer() {
+    if (_skltContainer) {
+      document.body.removeChild(_skltContainer);
+      _skltContainer = undefined;
+    }
+  }
 
   window.addEventListener('load', () => {  
-    console.log('onload');
-  
-    skltContainer = document.createElement('div');
-    skltContainer.id = 'skeletonx-container'
-  
-    
-    // 
-    document.body.appendChild(skltContainer);
+    // console.log('onload');
   });
 
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'generate-skeleton') {
-      const skeletion = new Skeletion(document.body);
-      skltContainer.innerHTML = skeletion.renderToHtml();
+      const skeleton = new Skeleton(document.body);
+      getSkltContainer().innerHTML = skeleton.getHtml();
     }
     if (request.action === 'clear-skeleton') {
-      skltContainer.innerHTML = '';
+      clearSkltContainer();
     }
     if (request.action === 'set-skeleton-container-opcity') {
-      skltContainer.style.opacity = request.data;
+      getSkltContainer().style.opacity = request.data;
     }
   });
 })()

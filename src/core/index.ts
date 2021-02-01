@@ -1,18 +1,24 @@
-import {SkeletonDesc, generateSkeletonDescList } from './skeleton-desc'
-import { renderToHtml } from './render'
+import {RenderDesc, getSkeletonRenderList, renderDescToString } from './skeleton'
+import { getRenderToHtmlCode, renderToHtml } from './render'
 
-export default class Skeletion {
+export default class Skeleton {
 
   private root: Node
 
-  private skeletonDescList: SkeletonDesc[];
+  private renderList: RenderDesc[];
+  private descString: string;
 
   constructor (root: Node) {
     this.root = root
-    this.skeletonDescList = generateSkeletonDescList({node: root, list: [], level: 0, index: 0});
+    this.renderList = getSkeletonRenderList(root);
+    this.descString = this.renderList.map(item => renderDescToString(item)).join(',')
   }
 
-  public renderToHtml(): string {
-    return renderToHtml(this.skeletonDescList);
+  public getHtml(): string {
+    return renderToHtml(this.descString);
+  }
+
+  public getRenderToHtmlCode(): string {
+    return getRenderToHtmlCode(this.descString);
   }
 }
