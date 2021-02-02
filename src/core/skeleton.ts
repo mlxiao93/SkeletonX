@@ -18,7 +18,8 @@ export interface SkeletonDesc {
   id: string,     // json path
   parentId?: string,
 
-  moduleId?: string[] // 模块id，用于局部骨架
+  moduleId?: string[], // 模块id，用于局部骨架
+  moduleRoot?: boolean,
 
   /** 标签名 */
   tagName: string,
@@ -110,10 +111,10 @@ export function getSkeletonDesc(opt: {
   const clientRect = element.getBoundingClientRect();
 
   let moduleId = undefined;
-  const NodeSkltId = element.getAttribute('skeletonx-id') ?? undefined;
+  const nodeSkltId = element.getAttribute('skeletonx-id') ?? undefined;
   const parentModuleId = parentDesc?.moduleId ?? [];
-  if (NodeSkltId || parentModuleId?.length) {
-    moduleId = [...parentModuleId, NodeSkltId].filter(i => i)
+  if (nodeSkltId || parentModuleId?.length) {
+    moduleId = [...parentModuleId, nodeSkltId].filter(i => i)
   }
   if (!moduleId?.length) moduleId = undefined;
 
@@ -121,6 +122,7 @@ export function getSkeletonDesc(opt: {
     parentId: parentDesc ? parentDesc.id : null,
     id: parentDesc ? `${parentDesc.id}[${index}]` : '',
 
+    moduleRoot: nodeSkltId ? true : undefined,
     moduleId,
 
     tagName: element.tagName,
@@ -237,6 +239,10 @@ export function reduceSkeletonDescList(list: SkeletonDesc[]): SkeletonDesc[] {
       return true
     }
 
+    if (node.moduleRoot) {
+      return true;
+    }
+
     // 无背景色
     const noBg = node.backgroundColor === 'rgba(0, 0, 0, 0)' && node.backgroundImage === 'none';
     // 无文本
@@ -271,7 +277,6 @@ export function reduceSkeletonDescList(list: SkeletonDesc[]): SkeletonDesc[] {
 }
 
 
-
 export interface RenderDesc {
   top: number,
   left: number,
@@ -286,6 +291,30 @@ export interface RenderDesc {
   borderColor?: number,
 
   backgroundColor?: number,
+}
+
+export interface ModuleMap {
+  [key: string/*module id*/]: [number/*start index*/, number/*end index*/]
+}
+
+export function getModuleMap(descList: SkeletonDesc[]): ModuleMap | undefined {
+  let ModuleMap: ModuleMap;
+  for (const i in descList) {
+    const desc = descList[i];
+    const moduleId = desc.moduleId;
+    if (moduleId?.length) {
+      ModuleMap = ModuleMap || {};
+      for (const id of moduleId) {
+        if (!ModuleMap[id]) {
+          ModuleMap[id] = [Number(i), Number(i)];
+        } else {
+          ModuleMap[id][1] = Number(i);
+        }
+      }
+    }
+  };
+
+  return ModuleMap;
 }
 
 /**
@@ -331,11 +360,20 @@ export function toRenderDescList(descList: SkeletonDesc[]): RenderDesc[] {
   return res;
 }
 
-export function getSkeletonRenderList(root: Node): RenderDesc[] {
+export function getRenderData(root: Node): {
+  data: RenderDesc[],
+  moduleMap?: ModuleMap
+} {
   const descList = getSkeletonDescList(root);
   const renderList = toRenderDescList(descList);
-  console.log('render', renderList);
-  return renderList;
+  const moduleMap = getModuleMap(descList);
+  console.log('render data', renderList);
+  console.log('module map', moduleMap);
+
+  return {
+    data: renderList,
+    moduleMap
+  }
 }
 
 /**

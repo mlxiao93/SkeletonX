@@ -163,17 +163,18 @@ function getSkeletonDesc(opt) {
 
   const clientRect = element.getBoundingClientRect();
   let moduleId = undefined;
-  const NodeSkltId = element.getAttribute('skeletonx-id') ?? undefined;
+  const nodeSkltId = element.getAttribute('skeletonx-id') ?? undefined;
   const parentModuleId = parentDesc?.moduleId ?? [];
 
-  if (NodeSkltId || parentModuleId?.length) {
-    moduleId = [...parentModuleId, NodeSkltId].filter(i => i);
+  if (nodeSkltId || parentModuleId?.length) {
+    moduleId = [...parentModuleId, nodeSkltId].filter(i => i);
   }
 
   if (!moduleId?.length) moduleId = undefined;
   return {
     parentId: parentDesc ? parentDesc.id : null,
     id: parentDesc ? `${parentDesc.id}[${index}]` : '',
+    moduleRoot: nodeSkltId ? true : undefined,
     moduleId,
     tagName: element.tagName,
     // nodeType: node.nodeType,
@@ -282,6 +283,10 @@ function reduceSkeletonDescList(list) {
   const res = list.filter((node, index) => {
     if (['img', 'svg'].includes(node.tagName.toLowerCase())) {
       return true;
+    }
+
+    if (node.moduleRoot) {
+      return true;
     } // 无背景色
 
 
@@ -318,10 +323,31 @@ function reduceSkeletonDescList(list) {
   console.log('reduce', res);
   return res;
 }
+function getModuleMap(descList) {
+  let ModuleMap;
 
+  for (const i in descList) {
+    const desc = descList[i];
+    const moduleId = desc.moduleId;
+
+    if (moduleId?.length) {
+      ModuleMap = ModuleMap || {};
+
+      for (const id of moduleId) {
+        if (!ModuleMap[id]) {
+          ModuleMap[id] = [Number(i), Number(i)];
+        } else {
+          ModuleMap[id][1] = Number(i);
+        }
+      }
+    }
+  }
+  return ModuleMap;
+}
 /**
  * 骨架描述转为骨架渲染描述
  */
+
 function toRenderDescList(descList) {
   const res = []; // borderColor:  #8e9097
 
@@ -356,11 +382,16 @@ function toRenderDescList(descList) {
 
   return res;
 }
-function getSkeletonRenderList(root) {
+function getRenderData(root) {
   const descList = getSkeletonDescList(root);
   const renderList = toRenderDescList(descList);
-  console.log('render', renderList);
-  return renderList;
+  const moduleMap = getModuleMap(descList);
+  console.log('render data', renderList);
+  console.log('module map', moduleMap);
+  return {
+    data: renderList,
+    moduleMap
+  };
 }
 /**
  * 使用'|'分隔RenderDesc的属性值，固化属性的顺序
@@ -437,16 +468,22 @@ function getRenderToHtmlCode(descString) {
 class Skeleton {
   constructor(root) {
     this.root = root;
-    this.renderList = getSkeletonRenderList(root);
-    this.descString = this.renderList.map(item => renderDescToString(item)).join(',');
+    const {
+      data,
+      moduleMap
+    } = getRenderData(root);
+    this.renderData = data;
+    this.renderString = this.renderData.map(item => renderDescToString(item)).join(',');
+    this.moduleMap = moduleMap;
+    this.moduleString = moduleMap ? JSON.stringify(moduleMap) : undefined;
   }
 
   getHtml() {
-    return renderToHtml(this.descString);
+    return renderToHtml(this.renderString);
   }
 
   getRenderToHtmlCode() {
-    return getRenderToHtmlCode(this.descString);
+    return getRenderToHtmlCode(this.renderString);
   }
 
   getScript() {
