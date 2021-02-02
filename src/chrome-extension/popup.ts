@@ -1,6 +1,7 @@
 const createBtn = document.querySelector('#btn-create') as HTMLButtonElement;
 const rangeInput = document.querySelector('#input-range') as HTMLInputElement;
 const clearBtn = document.querySelector('#btn-clear') as HTMLButtonElement
+const copyBtn = document.querySelector('#btn-copy') as HTMLButtonElement
 
 let currentTabId: number;
 
@@ -17,6 +18,12 @@ createBtn.onclick = () => {
 clearBtn.onclick = () => {
   chrome.tabs.sendMessage(currentTabId, {
     action: 'clear-skeleton'
+  })
+}
+
+copyBtn.onclick = () => {
+  chrome.tabs.sendMessage(currentTabId, {
+    action: 'copy-skeleton'
   })
 }
 

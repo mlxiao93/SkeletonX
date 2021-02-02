@@ -4,6 +4,7 @@
  * 2. 响应式
  * 3. 节点层级太深处理
  * 4. overflow裁剪bug(阿里内外可发现)
+ * 4. 颜色层级还有问题
  */
 
 import { isPartInViewPort } from "./dom";
@@ -277,10 +278,10 @@ function isIntersect(node1: SkeletonDesc, node2: SkeletonDesc): boolean {
   const y2 = node2.y;
   const w2 = node2.width;
   const h2 = node2.height;
-  if (x1 + w1 < x2) return false;
-  if (x1 > x2 + w2) return false;
-  if (y1 + h1 < y2) return false;
-  if (y1 > y2 + h2) return false;
+  if (x1 + w1 <= x2) return false;
+  if (x1 >= x2 + w2) return false;
+  if (y1 + h1 <= y2) return false;
+  if (y1 >= y2 + h2) return false;
   return true;
 }
 
@@ -365,8 +366,6 @@ export interface RenderDesc {
   backgroundColor?: number,
 }
 
-
-
 /**
  * 骨架描述转为骨架渲染描述
  */
@@ -417,6 +416,43 @@ export function getSkeletonRenderList(root: Node): RenderDesc[] {
   return renderList;
 }
 
+/**
+ * 使用'|'分隔RenderDesc的属性值，固化属性的顺序
+ * @return top|left|height|width|borderTopWidth|borderRightWidth|borderBottomWidth|borderLeftWidth|borderRadius|borderColor|backgroundColor|
+ */
+export function renderDescToString(desc: RenderDesc): string {
+  return [
+    desc.top, 
+    desc.left, 
+    desc.height, 
+    desc.width,
+    desc.borderTopWidth,
+    desc.borderRightWidth,
+    desc.borderBottomWidth,
+    desc.borderLeftWidth,
+    desc.borderRadius,
+    desc.borderColor,
+    desc.backgroundColor
+  ].join('|');
+}
+
+export function parseStringToRenderDesc(str: string): RenderDesc {
+  const values: any[] = str.split('|');
+  return {
+    top: values[0] || undefined,
+    left: values[1] || undefined,
+    height: values[2] || undefined,
+    width: values[3] || undefined,
+    borderTopWidth: values[4] || undefined,
+    borderRightWidth: values[5] || undefined,
+    borderBottomWidth: values[6] || undefined,
+    borderLeftWidth: values[7] || undefined,
+    borderRadius: values[8] || undefined,
+    borderColor: values[9] || undefined,
+    backgroundColor: values[10] || undefined
+  }
+}
+
 export interface RenderProps {
   top: CSSStyleDeclaration['top'],
   left: CSSStyleDeclaration['left'],
@@ -457,41 +493,4 @@ export function transforRenderDescToRenderProps(desc: RenderDesc): RenderProps {
   if (desc.borderRightWidth !== undefined) props.borderRightWidth = desc.borderRightWidth + 'px';
   if (desc.borderLeftWidth !== undefined) props.borderLeftWidth = desc.borderLeftWidth + 'px';
   return props;
-}
-
-/**
- * 使用'|'分隔RenderDesc的属性值，固化属性的顺序
- * @return top|left|height|width|borderTopWidth|borderRightWidth|borderBottomWidth|borderLeftWidth|borderRadius|borderColor|backgroundColor|
- */
-export function renderDescToString(desc: RenderDesc): string {
-  return [
-    desc.top, 
-    desc.left, 
-    desc.height, 
-    desc.width,
-    desc.borderTopWidth,
-    desc.borderRightWidth,
-    desc.borderBottomWidth,
-    desc.borderLeftWidth,
-    desc.borderRadius,
-    desc.borderColor,
-    desc.backgroundColor
-  ].join('|');
-}
-
-export function parseStringToRenderDesc(str: string): RenderDesc {
-  const values: any[] = str.split('|');
-  return {
-    top: values[0] || undefined,
-    left: values[1] || undefined,
-    height: values[2] || undefined,
-    width: values[3] || undefined,
-    borderTopWidth: values[4] || undefined,
-    borderRightWidth: values[5] || undefined,
-    borderBottomWidth: values[6] || undefined,
-    borderLeftWidth: values[7] || undefined,
-    borderRadius: values[8] || undefined,
-    borderColor: values[9] || undefined,
-    backgroundColor: values[10] || undefined
-  }
 }

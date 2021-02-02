@@ -24,6 +24,7 @@ function isPartInViewPort(element) {
  * 2. 响应式
  * 3. 节点层级太深处理
  * 4. overflow裁剪bug(阿里内外可发现)
+ * 4. 颜色层级还有问题
  */
 /** 骨架元素描述 */
 
@@ -248,10 +249,10 @@ function isIntersect(node1, node2) {
   const y2 = node2.y;
   const w2 = node2.width;
   const h2 = node2.height;
-  if (x1 + w1 < x2) return false;
-  if (x1 > x2 + w2) return false;
-  if (y1 + h1 < y2) return false;
-  if (y1 > y2 + h2) return false;
+  if (x1 + w1 <= x2) return false;
+  if (x1 >= x2 + w2) return false;
+  if (y1 + h1 <= y2) return false;
+  if (y1 >= y2 + h2) return false;
   return true;
 } // 节点是否被覆盖
 
@@ -363,27 +364,6 @@ function getSkeletonRenderList(root) {
   console.log('render', renderList);
   return renderList;
 }
-
-/**
- * 骨架渲染描述转为骨架节点render props
- */
-function transforRenderDescToRenderProps(desc) {
-  const BorderColor = '#8e9097';
-  const ColorLevelMap = ['#D3D4D7', '#E9EAEB', '#F4F4F5', '#FFF'];
-  const props = {
-    top: desc.top + 'px',
-    left: desc.left + 'px',
-    height: desc.height + 'px',
-    width: desc.width + 'px'
-  };
-  if (desc.backgroundColor !== undefined) props.backgroundColor = ColorLevelMap[desc.backgroundColor];
-  if (desc.borderColor !== undefined) props.borderColor = BorderColor;
-  if (desc.borderBottomWidth !== undefined) props.borderBottomWidth = desc.borderBottomWidth + 'px';
-  if (desc.borderTopWidth !== undefined) props.borderTopWidth = desc.borderTopWidth + 'px';
-  if (desc.borderRightWidth !== undefined) props.borderRightWidth = desc.borderRightWidth + 'px';
-  if (desc.borderLeftWidth !== undefined) props.borderLeftWidth = desc.borderLeftWidth + 'px';
-  return props;
-}
 /**
  * 使用'|'分隔RenderDesc的属性值，固化属性的顺序
  * @return top|left|height|width|borderTopWidth|borderRightWidth|borderBottomWidth|borderLeftWidth|borderRadius|borderColor|backgroundColor|
@@ -409,6 +389,27 @@ function parseStringToRenderDesc(str) {
   };
 }
 
+/**
+ * 骨架渲染描述转为骨架节点render props
+ */
+function transforRenderDescToRenderProps(desc) {
+  const BorderColor = '#8e9097';
+  const ColorLevelMap = ['#D3D4D7', '#E9EAEB', '#F4F4F5', '#FFF'];
+  const props = {
+    top: desc.top + 'px',
+    left: desc.left + 'px',
+    height: desc.height + 'px',
+    width: desc.width + 'px'
+  };
+  if (desc.backgroundColor !== undefined) props.backgroundColor = ColorLevelMap[desc.backgroundColor];
+  if (desc.borderColor !== undefined) props.borderColor = BorderColor;
+  if (desc.borderBottomWidth !== undefined) props.borderBottomWidth = desc.borderBottomWidth + 'px';
+  if (desc.borderTopWidth !== undefined) props.borderTopWidth = desc.borderTopWidth + 'px';
+  if (desc.borderRightWidth !== undefined) props.borderRightWidth = desc.borderRightWidth + 'px';
+  if (desc.borderLeftWidth !== undefined) props.borderLeftWidth = desc.borderLeftWidth + 'px';
+  return props;
+}
+
 function renderToHtml(descString) {
   const html = new Function(`return ${getRenderToHtmlCode(descString)}`)();
   return html;
@@ -428,7 +429,7 @@ function getRenderToHtmlCode(descString) {
       for (var key in renderProps) {
         style += key.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase() + ':' + renderProps[key] + ';'
       };
-      html += '<div style=" '+ style +' "></div>';
+      html += '<div style="' + style + '"></div>';
     };
     return '<div skeletonx-ignore>' + html + '</div>';
   })()`;
@@ -449,6 +450,10 @@ class Skeleton {
 
   getRenderToHtmlCode() {
     return getRenderToHtmlCode(this.descString);
+  }
+
+  getScript() {
+    return '<script>document.write(' + this.getRenderToHtmlCode() + ')</script>';
   }
 
 }
@@ -472,9 +477,10 @@ class Skeleton {
 
   window.addEventListener('load', () => {// console.log('onload');
   });
+  let skeleton;
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'generate-skeleton') {
-      const skeleton = new Skeleton(document.body);
+      skeleton = new Skeleton(document.body);
       getSkltContainer().innerHTML = skeleton.getHtml();
     }
 
@@ -484,6 +490,19 @@ class Skeleton {
 
     if (request.action === 'set-skeleton-container-opcity') {
       getSkltContainer().style.opacity = request.data;
+    }
+
+    if (request.action === 'copy-skeleton') {
+      const textarea = document.createElement('textarea');
+      textarea.style.position = 'fixed';
+      textarea.style.top = '-200px';
+      document.body.appendChild(textarea);
+      textarea.value = skeleton.getScript();
+      textarea.select(); // 选中文本
+
+      document.execCommand("copy");
+      alert('骨架代码已拷贝到剪切板');
+      document.body.removeChild(textarea);
     }
   });
 })();

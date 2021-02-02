@@ -20,7 +20,7 @@ export function getRenderToHtmlCode(descString: string): string {
       for (var key in renderProps) {
         style += key.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase() + ':' + renderProps[key] + ';'
       };
-      html += '<div style=" '+ style +' "></div>';
+      html += '<div style="' + style + '"></div>';
     };
     return '<div skeletonx-ignore>' + html + '</div>';
   })()`;

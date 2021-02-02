@@ -1,6 +1,7 @@
 const createBtn = document.querySelector('#btn-create');
 const rangeInput = document.querySelector('#input-range');
 const clearBtn = document.querySelector('#btn-clear');
+const copyBtn = document.querySelector('#btn-copy');
 let currentTabId;
 chrome.tabs.query({
   active: true,
@@ -18,6 +19,12 @@ createBtn.onclick = () => {
 clearBtn.onclick = () => {
   chrome.tabs.sendMessage(currentTabId, {
     action: 'clear-skeleton'
+  });
+};
+
+copyBtn.onclick = () => {
+  chrome.tabs.sendMessage(currentTabId, {
+    action: 'copy-skeleton'
   });
 };
 

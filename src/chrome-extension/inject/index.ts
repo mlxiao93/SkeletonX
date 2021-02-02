@@ -22,9 +22,10 @@ import Skeleton from '../../core'
     // console.log('onload');
   });
 
+  let skeleton: Skeleton;
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'generate-skeleton') {
-      const skeleton = new Skeleton(document.body);
+      skeleton = new Skeleton(document.body);
       getSkltContainer().innerHTML = skeleton.getHtml();
     }
     if (request.action === 'clear-skeleton') {
@@ -32,6 +33,17 @@ import Skeleton from '../../core'
     }
     if (request.action === 'set-skeleton-container-opcity') {
       getSkltContainer().style.opacity = request.data;
+    }
+    if (request.action === 'copy-skeleton') {
+      const textarea = document.createElement('textarea');
+      textarea.style.position = 'fixed';
+      textarea.style.top = '-200px';
+      document.body.appendChild(textarea);
+      textarea.value = skeleton.getScript();
+      textarea.select(); // 选中文本
+      document.execCommand("copy");
+      alert('骨架代码已拷贝到剪切板');
+      document.body.removeChild(textarea);
     }
   });
 })()

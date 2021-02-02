@@ -21,4 +21,8 @@ export default class Skeleton {
   public getRenderToHtmlCode(): string {
     return getRenderToHtmlCode(this.descString);
   }
+
+  public getScript(): string {
+    return '<script>document.write(' + this.getRenderToHtmlCode() + ')</script>';
+  }
 }

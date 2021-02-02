@@ -1,0 +1,25 @@
+body {
+  margin: 0;
+}
+
+.layout {
+  .header {
+    height: 52px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .content {
+    padding-top: 52px;
+    min-height: calc(100vh - 124px);
+  }
+  .footer {
+    display: flex;
+    justify-content: space-between;
+  }
+}
+
