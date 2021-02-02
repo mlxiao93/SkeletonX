@@ -2,7 +2,7 @@ import React from 'react'
 
 export default function Home() {
   return <div>
-    <div skeletonx-id="1" style={{
+    <div skeletonx-module-id="1" style={{
       background: '#eee',
       padding: 16,
       margin: '6px 16px',
@@ -18,7 +18,7 @@ export default function Home() {
       </p>
     </div>
 
-    <div skeletonx-id="2"
+    <div skeletonx-module-id="2"
       style={{
         background: '#eee',
         padding: 16,

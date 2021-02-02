@@ -39,7 +39,7 @@ import Skeleton from '../../core'
       textarea.style.position = 'fixed';
       textarea.style.top = '-200px';
       document.body.appendChild(textarea);
-      textarea.value = skeleton.getScript();
+      textarea.value = skeleton.getDataString();
       textarea.select(); // 选中文本
       document.execCommand("copy");
       alert('骨架代码已拷贝到剪切板');

@@ -163,7 +163,7 @@ function getSkeletonDesc(opt) {
 
   const clientRect = element.getBoundingClientRect();
   let moduleId = undefined;
-  const nodeSkltId = element.getAttribute('skeletonx-id') ?? undefined;
+  const nodeSkltId = element.getAttribute('skeletonx-module-id') ?? undefined;
   const parentModuleId = parentDesc?.moduleId ?? [];
 
   if (nodeSkltId || parentModuleId?.length) {
@@ -439,30 +439,54 @@ function transforRenderDescToRenderProps(desc) {
   return props;
 }
 
-function renderToHtml(descString) {
-  const html = new Function(`return ${getRenderToHtmlCode(descString)}`)();
-  return html;
+/**
+ * @param desc 
+ * @param moduleRootDesc 如果传递了moduleRootDesc，则骨架基于moduleRootDesc定位
+ */
+
+function descToHtml(desc, moduleRootDesc) {
+  desc = { ...desc
+  };
+
+  if (moduleRootDesc) {
+    desc.left = desc.left - moduleRootDesc.left;
+    desc.top = desc.top = moduleRootDesc.top;
+  }
+
+  let renderProps = transforRenderDescToRenderProps(desc);
+  let style = 'z-index:9999999;position:absolute;';
+
+  for (let key in renderProps) {
+    style += key.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase() + ':' + renderProps[key] + ';';
+  }
+  return '<div style="' + style + '"></div>';
 }
-function getRenderToHtmlCode(descString) {
-  const code = `(function() {
-    ${parseStringToRenderDesc.toString()};
-    ${transforRenderDescToRenderProps.toString()};
-    var descString = '${descString}';
-    var renderDescList = descString.split(',').map(str => {
-      return parseStringToRenderDesc(str);
-    });
-    var html = '';
-    for (var i = 0; i < renderDescList.length; i++) {
-      var renderProps = transforRenderDescToRenderProps(renderDescList[i]);
-      var style = 'z-index:9999999;position:absolute;';
-      for (var key in renderProps) {
-        style += key.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase() + ':' + renderProps[key] + ';'
-      };
-      html += '<div style="' + style + '"></div>';
-    };
-    return '<div skeletonx-ignore>' + html + '</div>';
-  })()`;
-  return code;
+
+function renderToHtml(dataString, moduleId) {
+  const [renderString, moduleString] = dataString.split('::');
+  let renderDescList = renderString.split(',').map(str => {
+    return parseStringToRenderDesc(str);
+  }); // 渲染模块骨架的情况
+
+  let moduleRootDesc;
+
+  if (moduleId !== undefined) {
+    const moduleMap = moduleString ? JSON.parse(moduleString) : undefined;
+    const moduleRootIndex = moduleMap[moduleId]?.[0];
+    const moduleLastIndex = moduleMap[moduleId]?.[1];
+
+    if (moduleRootIndex !== undefined) {
+      moduleRootDesc = renderDescList[moduleRootIndex];
+      renderDescList = renderDescList.slice(moduleRootIndex, moduleLastIndex + 1);
+    }
+  }
+
+  let html = '';
+
+  for (let i = 0; i < renderDescList.length; i++) {
+    html += descToHtml(renderDescList[i], moduleRootDesc);
+  }
+  return html;
 }
 
 class Skeleton {
@@ -482,12 +506,11 @@ class Skeleton {
     return renderToHtml(this.renderString);
   }
 
-  getRenderToHtmlCode() {
-    return getRenderToHtmlCode(this.renderString);
-  }
-
-  getScript() {
-    return '<script>document.write(' + this.getRenderToHtmlCode() + ')</script>';
+  getDataString() {
+    if (this.moduleString) {
+      return this.renderString + '::' + this.moduleString;
+    }
+    return this.renderString;
   }
 
 }
@@ -531,7 +554,7 @@ class Skeleton {
       textarea.style.position = 'fixed';
       textarea.style.top = '-200px';
       document.body.appendChild(textarea);
-      textarea.value = skeleton.getScript();
+      textarea.value = skeleton.getDataString();
       textarea.select(); // 选中文本
 
       document.execCommand("copy");

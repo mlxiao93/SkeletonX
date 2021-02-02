@@ -10,7 +10,6 @@ export default class Skeleton {
   private moduleMap?: ModuleMap;
   private moduleString?: string;
 
-
   constructor (root: Node) {
     this.root = root
     const { data, moduleMap } = getRenderData(root);
@@ -24,11 +23,10 @@ export default class Skeleton {
     return renderToHtml(this.renderString);
   }
 
-  public getRenderToHtmlCode(): string {
-    return getRenderToHtmlCode(this.renderString);
-  }
-
-  public getScript(): string {
-    return '<script>document.write(' + this.getRenderToHtmlCode() + ')</script>';
+  public getDataString(): string {
+    if (this.moduleString) {
+      return this.renderString + '::' + this.moduleString;
+    };
+    return this.renderString;
   }
 }

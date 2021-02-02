@@ -111,7 +111,7 @@ export function getSkeletonDesc(opt: {
   const clientRect = element.getBoundingClientRect();
 
   let moduleId = undefined;
-  const nodeSkltId = element.getAttribute('skeletonx-id') ?? undefined;
+  const nodeSkltId = element.getAttribute('skeletonx-module-id') ?? undefined;
   const parentModuleId = parentDesc?.moduleId ?? [];
   if (nodeSkltId || parentModuleId?.length) {
     moduleId = [...parentModuleId, nodeSkltId].filter(i => i)
