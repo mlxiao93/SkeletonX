@@ -24,6 +24,5 @@ export function getRenderToHtmlCode(descString: string): string {
     };
     return '<div skeletonx-ignore>' + html + '</div>';
   })()`;
-  console.log(code);
   return code; 
 }
