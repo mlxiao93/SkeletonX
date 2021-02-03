@@ -6,16 +6,19 @@
     "start": "npm run dev",
     "build:ext": "rollup --config scripts/build-ext.config.js",
     "build:panel": "rollup --config scripts/build-panel.config.js",
+    "build:lib": "rollup --config scripts/build-lib.config.js",
     "dev:ext": "NODE_ENV=dev rollup --config scripts/build-ext.config.js --watch",
     "dev:panel": "NODE_ENV=dev rollup --config scripts/build-panel.config.js --watch",
-    "build": "npm run build:ext & npm run build:panel",
-    "dev": "npm run dev:ext & npm run dev:panel"
+    "dev:lib": "rollup --config scripts/build-lib.config.js --watch",
+    "build": "npm run build:ext & npm run build:panel & npm run build:lib",
+    "dev": "npm run dev:ext & npm run dev:panel & npm run dev:lib"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@babel/core": "^7.12.10",
     "@babel/plugin-transform-react-jsx": "^7.12.12",
+    "@babel/preset-env": "^7.12.11",
     "@babel/preset-typescript": "^7.12.7",
     "@rollup/plugin-alias": "^3.1.1",
     "@rollup/plugin-babel": "^5.2.2",

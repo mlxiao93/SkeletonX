@@ -1,7 +1,7 @@
-import React, { Suspense } from 'react'
+import React, { Suspense, useEffect } from 'react'
 import {
   HashRouter as Router,
-  // Router,
+  useLocation,
   Switch,
   Route,
   Link
@@ -22,7 +22,7 @@ const Layout: React.FC<{}> = (props) => {
       <Link to="/">React Demo</Link>
       <Link to="/users">Users</Link>
     </div>
-    <div className="content">
+    <div className="content" skeletonx-module-id="layout-content">
       {props.children}
     </div>
     <div className="footer">
@@ -40,16 +40,26 @@ const Layout: React.FC<{}> = (props) => {
   </div>
 }
 
+function getSuspenseFallback() {
+  const innerHtml = window.__skeleton__x__lib.renderToHtml(undefined, 'layout-content');
+  const size = window.__skeleton__x__lib.getModuleSize(undefined, 'layout-content');
+  return <div style={{position: 'relative', top: '-52px', ...size}} dangerouslySetInnerHTML={{__html: innerHtml}} />
+}
+
 export default function App() {
-  return <Router>
-    <Layout>
-      <Suspense fallback={<div>Loading...</div>}>
-        <Switch>
-          <Route path="/about" component={About} />
-          <Route path="/users" component={Users} />
-          <Route path="/" component={Home} />
-        </Switch>
-      </Suspense>
-    </Layout>
-  </Router>
+
+  const { path } = useLocation();
+  console.log(location.hash);
+
+  window.__skeleton__x__lib.setData(window.__skeleton__x__data_map[location.hash])
+
+  return <Layout>
+    <Suspense fallback={getSuspenseFallback()}>
+      <Switch>
+        <Route path="/about" component={About} />
+        <Route path="/users" component={Users} />
+        <Route path="/" component={Home} />
+      </Switch>
+    </Suspense>
+  </Layout>
 }

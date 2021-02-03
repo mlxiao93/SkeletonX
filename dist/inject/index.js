@@ -439,41 +439,155 @@ function transforRenderDescToRenderProps(desc) {
   return props;
 }
 
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+}
+
+function ownKeys(object, enumerableOnly) {
+  var keys = Object.keys(object);
+
+  if (Object.getOwnPropertySymbols) {
+    var symbols = Object.getOwnPropertySymbols(object);
+    if (enumerableOnly) symbols = symbols.filter(function (sym) {
+      return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+    });
+    keys.push.apply(keys, symbols);
+  }
+
+  return keys;
+}
+
+function _objectSpread2(target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i] != null ? arguments[i] : {};
+
+    if (i % 2) {
+      ownKeys(Object(source), true).forEach(function (key) {
+        _defineProperty(target, key, source[key]);
+      });
+    } else if (Object.getOwnPropertyDescriptors) {
+      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+    } else {
+      ownKeys(Object(source)).forEach(function (key) {
+        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+      });
+    }
+  }
+
+  return target;
+}
+
+function _slicedToArray(arr, i) {
+  return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest();
+}
+
+function _arrayWithHoles(arr) {
+  if (Array.isArray(arr)) return arr;
+}
+
+function _iterableToArrayLimit(arr, i) {
+  if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return;
+  var _arr = [];
+  var _n = true;
+  var _d = false;
+  var _e = undefined;
+
+  try {
+    for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+      _arr.push(_s.value);
+
+      if (i && _arr.length === i) break;
+    }
+  } catch (err) {
+    _d = true;
+    _e = err;
+  } finally {
+    try {
+      if (!_n && _i["return"] != null) _i["return"]();
+    } finally {
+      if (_d) throw _e;
+    }
+  }
+
+  return _arr;
+}
+
+function _unsupportedIterableToArray(o, minLen) {
+  if (!o) return;
+  if (typeof o === "string") return _arrayLikeToArray(o, minLen);
+  var n = Object.prototype.toString.call(o).slice(8, -1);
+  if (n === "Object" && o.constructor) n = o.constructor.name;
+  if (n === "Map" || n === "Set") return Array.from(o);
+  if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
+}
+
+function _arrayLikeToArray(arr, len) {
+  if (len == null || len > arr.length) len = arr.length;
+
+  for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
+
+  return arr2;
+}
+
+function _nonIterableRest() {
+  throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+}
+
 /**
  * @param desc 
  * @param moduleRootDesc 如果传递了moduleRootDesc，则骨架基于moduleRootDesc定位
  */
 
 function descToHtml(desc, moduleRootDesc) {
-  desc = { ...desc
-  };
+  desc = _objectSpread2({}, desc); // TODO 
 
   if (moduleRootDesc) {
     desc.left = desc.left - moduleRootDesc.left;
-    desc.top = desc.top = moduleRootDesc.top;
+    desc.top = desc.top - moduleRootDesc.top;
   }
 
-  let renderProps = transforRenderDescToRenderProps(desc);
-  let style = 'z-index:9999999;position:absolute;';
+  var renderProps = transforRenderDescToRenderProps(desc);
+  var style = 'z-index:9999999;position:absolute;';
 
-  for (let key in renderProps) {
+  for (var key in renderProps) {
     style += key.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase() + ':' + renderProps[key] + ';';
   }
   return '<div style="' + style + '"></div>';
 }
 
-function renderToHtml(dataString, moduleId) {
-  const [renderString, moduleString] = dataString.split('::');
-  let renderDescList = renderString.split(',').map(str => {
+function renderToHtml() {
+  var dataString = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.__skeleton__x__data;
+  var moduleId = arguments.length > 1 ? arguments[1] : undefined;
+  if (!dataString) return '';
+
+  var _dataString$split = dataString.split('::'),
+      _dataString$split2 = _slicedToArray(_dataString$split, 2),
+      renderString = _dataString$split2[0],
+      moduleString = _dataString$split2[1];
+
+  var renderDescList = renderString.split(',').map(function (str) {
     return parseStringToRenderDesc(str);
   }); // 渲染模块骨架的情况
 
-  let moduleRootDesc;
+  var moduleRootDesc;
 
   if (moduleId !== undefined) {
-    const moduleMap = moduleString ? JSON.parse(moduleString) : undefined;
-    const moduleRootIndex = moduleMap[moduleId]?.[0];
-    const moduleLastIndex = moduleMap[moduleId]?.[1];
+    var _moduleMap$moduleId, _moduleMap$moduleId2;
+
+    var moduleMap = moduleString ? JSON.parse(moduleString) : undefined;
+    var moduleRootIndex = (_moduleMap$moduleId = moduleMap[moduleId]) === null || _moduleMap$moduleId === void 0 ? void 0 : _moduleMap$moduleId[0];
+    var moduleLastIndex = (_moduleMap$moduleId2 = moduleMap[moduleId]) === null || _moduleMap$moduleId2 === void 0 ? void 0 : _moduleMap$moduleId2[1];
 
     if (moduleRootIndex !== undefined) {
       moduleRootDesc = renderDescList[moduleRootIndex];
@@ -481,9 +595,9 @@ function renderToHtml(dataString, moduleId) {
     }
   }
 
-  let html = '';
+  var html = '';
 
-  for (let i = 0; i < renderDescList.length; i++) {
+  for (var i = 0; i < renderDescList.length; i++) {
     html += descToHtml(renderDescList[i], moduleRootDesc);
   }
   return html;

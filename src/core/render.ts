@@ -5,10 +5,10 @@ import { parseStringToRenderDesc, RenderDesc, renderDescToString, transforRender
  * @param moduleRootDesc 如果传递了moduleRootDesc，则骨架基于moduleRootDesc定位
  */
 function descToHtml(desc: RenderDesc, moduleRootDesc?: RenderDesc) {
-  desc =  {...desc};
+  desc = {...desc};    // TODO 
   if (moduleRootDesc) {
     desc.left = desc.left - moduleRootDesc.left;
-    desc.top = desc.top = moduleRootDesc.top;
+    desc.top = desc.top - moduleRootDesc.top;
   }
   let renderProps = transforRenderDescToRenderProps(desc)
 
@@ -19,8 +19,10 @@ function descToHtml(desc: RenderDesc, moduleRootDesc?: RenderDesc) {
   return '<div style="' + style + '"></div>';
 }
 
-export function renderToHtml(dataString: string, moduleId?: string): string {
+export function renderToHtml(dataString: string = (window as any).__skeleton__x__data, moduleId?: string): string {
   
+  if (!dataString) return ''
+
   const [ renderString, moduleString ] = dataString.split('::');
   let renderDescList = renderString.split(',').map(str => {
     return parseStringToRenderDesc(str);
@@ -45,7 +47,7 @@ export function renderToHtml(dataString: string, moduleId?: string): string {
   return html;
 }
 
-export function getModuleSize(dataString: string, moduleId: string): {width: string, height: string} {
+export function getModuleSize(dataString: string = (window as any).__skeleton__x__data, moduleId: string): {width: string, height: string} {
   const size = {
     width: '0px',
     height: '0px'
@@ -64,4 +66,3 @@ export function getModuleSize(dataString: string, moduleId: string): {width: str
   size.height = renderProps.height;
   return size;
 }
-
