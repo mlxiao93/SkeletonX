@@ -5,7 +5,7 @@ import { parseStringToRenderDesc, RenderDesc, renderDescToString, transforRender
  * @param moduleRootDesc 如果传递了moduleRootDesc，则骨架基于moduleRootDesc定位
  */
 function descToHtml(desc: RenderDesc, moduleRootDesc?: RenderDesc) {
-  desc = {...desc};    // TODO 
+  desc = JSON.parse(JSON.stringify(desc));
   if (moduleRootDesc) {
     desc.left = desc.left - moduleRootDesc.left;
     desc.top = desc.top - moduleRootDesc.top;
@@ -52,6 +52,7 @@ export function getModuleSize(dataString: string = (window as any).__skeleton__x
     width: '0px',
     height: '0px'
   }
+  if (!dataString) return size;
   const [ renderString, moduleString ] = dataString.split('::');
   const renderDescList = renderString.split(',').map(str => {
     return parseStringToRenderDesc(str);

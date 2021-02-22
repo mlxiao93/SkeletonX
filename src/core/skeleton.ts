@@ -243,8 +243,9 @@ export function reduceSkeletonDescList(list: SkeletonDesc[]): SkeletonDesc[] {
       return true;
     }
 
+    
     // 无背景色
-    const noBg = node.backgroundColor === 'rgba(0, 0, 0, 0)' && node.backgroundImage === 'none';
+    const noBg = /rgba\((\d+,\s*){3}0\)/.test(node.backgroundColor) && node.backgroundImage === 'none';
     // 无文本
     const noText = !node.containTextNode;
     // 无边框
