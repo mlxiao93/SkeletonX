@@ -1,32 +1,52 @@
-import {RenderDesc, getRenderData, renderDescToString, ModuleMap } from './skeleton'
-import { getRenderToHtmlCode, renderToHtml } from './render'
+import 'regenerator-runtime/runtime';
+import { RenderDesc, getRenderData, renderDescToString, ModuleMap } from './skeleton'
+import { renderToHtml } from './render'
 
 export default class Skeleton {
 
-  private root: Node
-
-  private renderData: RenderDesc[];
-  private renderString: string;
-  private moduleMap?: ModuleMap;
-  private moduleString?: string;
-
-  constructor (root: Node) {
-    this.root = root
-    const { data, moduleMap } = getRenderData(root);
-    this.renderData = data;
-    this.renderString = this.renderData.map(item => renderDescToString(item)).join(',');
-    this.moduleMap = moduleMap;
-    this.moduleString = moduleMap ? JSON.stringify(moduleMap) : undefined
+  public async getHtml(): Promise<string> {
+    const dataString = await this.getDataString()
+    return renderToHtml(dataString);
   }
 
-  public getHtml(): string {
-    return renderToHtml(this.renderString);
-  }
+  public async getDataString(): Promise<string> {
 
-  public getDataString(): string {
-    if (this.moduleString) {
-      return this.renderString + '::' + this.moduleString;
+    const iframe = document.createElement('iframe');
+    const innerHtml = document.body.innerHTML.replace(/<script\s.*?src=".+?"/, "<script")
+    const {
+      body: body2,
+      window: window2,
+    } = await new Promise<{
+      body: typeof document.body,
+      window: Window
+    }>((resolve) => {
+      iframe.style.width = '96vw';
+      iframe.style.height = '96vh';
+      iframe.style.position = 'fixed';
+      iframe.style.zIndex = '-1';
+      iframe.style.top = '0';
+      iframe.style.visibility = 'hidden';
+      document.body.appendChild(iframe);
+      iframe.src = location.href;  
+      iframe.onload = function () {
+        iframe.contentDocument.body.innerHTML = innerHtml;
+        resolve({
+          body: iframe.contentDocument.body,
+          window: iframe.contentWindow
+        });
+      }
+    })
+
+    const { data, moduleMap } = getRenderData(document.body, body2);
+    const renderData = data;
+    const renderString = renderData.map(item => renderDescToString(item)).join(',');
+    const moduleString = moduleMap ? JSON.stringify(moduleMap) : undefined
+
+    document.body.removeChild(iframe);
+
+    if (moduleString) {
+      return renderString + '::' + moduleString;
     };
-    return this.renderString;
+    return renderString;
   }
 }

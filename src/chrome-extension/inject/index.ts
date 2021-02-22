@@ -23,10 +23,10 @@ import Skeleton from '../../core'
   });
 
   let skeleton: Skeleton;
-  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
     if (request.action === 'generate-skeleton') {
-      skeleton = new Skeleton(document.body);
-      getSkltContainer().innerHTML = skeleton.getHtml();
+      skeleton = new Skeleton();
+      getSkltContainer().innerHTML = await skeleton.getHtml();
     }
     if (request.action === 'clear-skeleton') {
       clearSkltContainer();
@@ -39,7 +39,7 @@ import Skeleton from '../../core'
       textarea.style.position = 'fixed';
       textarea.style.top = '-200px';
       document.body.appendChild(textarea);
-      textarea.value = skeleton.getDataString();
+      textarea.value = await skeleton.getDataString();
       textarea.select(); // 选中文本
       document.execCommand("copy");
       alert('骨架代码已拷贝到剪切板');

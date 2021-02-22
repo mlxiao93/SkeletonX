@@ -3,8 +3,8 @@
  * 只要有一部分在视口返回true
  */
 export function isPartInViewPort(element: Element) {
-  const viewWidth = window.innerWidth || document.documentElement.clientWidth;
-  const viewHeight = window.innerHeight || document.documentElement.clientHeight;
+  const viewWidth = window.innerWidth;
+  const viewHeight = window.innerHeight;
   const {
     top,
     right,

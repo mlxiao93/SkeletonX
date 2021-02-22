@@ -10,6 +10,7 @@ import {nodeNeedBg, nodeNeedBorder, isCovered, getColorLevelList} from './utils'
  */
 
 import { isPartInViewPort } from "./dom";
+import { setResponsive } from './responsive';
 
 /** 骨架元素描述 */
 export interface SkeletonDesc {
@@ -38,6 +39,10 @@ export interface SkeletonDesc {
   height: number
   width: number
 
+  /** 响应式 */
+  responsive?: boolean   // 是否响应式
+  responsiveWidth?: string    // 做响应式转换之后的width
+
   /** 边框 */
   borderLeftWidth: CSSStyleDeclaration['borderWidth']
   borderRightWidth: CSSStyleDeclaration['borderWidth']
@@ -60,8 +65,12 @@ export interface SkeletonDesc {
  * 获取骨架节点描述扁平数据
  * @param root 根元素
  */
-export function getSkeletonDescList(root: Node): SkeletonDesc[] {
+export function getSkeletonDescList(root: Node, root2: Node): SkeletonDesc[] {
   let list = generateSkeletonDescList({ node: root });
+  const list2 = generateSkeletonDescList({ node: root2 });
+
+  setResponsive(list, list2);
+
   list = clipSkeletonDescList(list);
   list = reduceSkeletonDescList(list);
   return list;
@@ -73,7 +82,7 @@ export function getSkeletonDescList(root: Node): SkeletonDesc[] {
 export function getSkeletonDesc(opt: {
   node: Node,
   index: number,
-  parentDesc?: SkeletonDesc
+  parentDesc?: SkeletonDesc,
 }): SkeletonDesc | null {
   const { node, index, parentDesc } = opt;
 
@@ -159,11 +168,11 @@ export function generateSkeletonDescList(opt: {
   node: Node
   parentDesc?: SkeletonDesc,
   index?: number,
-  list?: SkeletonDesc[]
+  list?: SkeletonDesc[],
 }): SkeletonDesc[] {
   const { node, parentDesc, index = 0, list = [] } = opt
 
-  const skeletonDesc = getSkeletonDesc({ node, index, parentDesc })
+  const skeletonDesc = getSkeletonDesc({ node, index, parentDesc})
   if (!skeletonDesc) return;
 
   list.push(skeletonDesc);
@@ -176,7 +185,7 @@ export function generateSkeletonDescList(opt: {
         node: node.childNodes[i],
         parentDesc: skeletonDesc,
         index: i,
-        list
+        list,
       });
     }
   }
@@ -361,11 +370,11 @@ export function toRenderDescList(descList: SkeletonDesc[]): RenderDesc[] {
   return res;
 }
 
-export function getRenderData(root: Node): {
+export function getRenderData(root: Node, root2: Node): {
   data: RenderDesc[],
   moduleMap?: ModuleMap
 } {
-  const descList = getSkeletonDescList(root);
+  const descList = getSkeletonDescList(root, root2);
   const renderList = toRenderDescList(descList);
   const moduleMap = getModuleMap(descList);
   console.log('render data', renderList);
