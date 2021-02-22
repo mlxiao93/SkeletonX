@@ -10,10 +10,10 @@ export default function Home() {
   useEffect(() => {
     setTimeout(() => {
       setFormData({});
-    }, 2000)
+    }, 0)
     setTimeout(() => {
       setTableData({});
-    }, 4000)
+    }, 0)
   }, []);
 
   return <div>
