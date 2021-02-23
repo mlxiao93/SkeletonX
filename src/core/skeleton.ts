@@ -42,6 +42,10 @@ export interface SkeletonDesc {
   /** 响应式 */
   responsive?: boolean   // 是否响应式
   responsiveWidth?: string    // 做响应式转换之后的width
+  left?: string,
+  right?: string,
+  top?: string,
+  bottom?: string,
 
   /** 边框 */
   borderLeftWidth: CSSStyleDeclaration['borderWidth']
@@ -291,7 +295,7 @@ export interface RenderDesc {
   top: number,
   left: number,
   height: number,
-  width: number,
+  width: string,
 
   borderTopWidth?: number,
   borderRightWidth?: number,
@@ -352,7 +356,7 @@ export function toRenderDescList(descList: SkeletonDesc[]): RenderDesc[] {
       left: node.x,
       top: node.y,
       height: node.height,
-      width: node.width,
+      width: node.responsiveWidth ?? node.width + 'px',
     }
     if (node.borderLeftWidth !== '0px') renderDesc.borderLeftWidth = Number(node.borderLeftWidth.replace('px', ''));
     if (node.borderRightWidth !== '0px') renderDesc.borderRightWidth = Number(node.borderRightWidth.replace('px', ''));
@@ -455,7 +459,7 @@ export function transforRenderDescToRenderProps(desc: RenderDesc): RenderProps {
     top: desc.top + 'px',
     left: desc.left + 'px',
     height: desc.height + 'px',
-    width: desc.width + 'px',
+    width: desc.width,
   };
   if (desc.backgroundColor !== undefined) props.backgroundColor = ColorLevelMap[desc.backgroundColor];
   if (desc.borderColor !== undefined) props.borderColor = BorderColor;

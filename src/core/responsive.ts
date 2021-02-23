@@ -29,8 +29,8 @@ export function setResponsive(list: SkeletonDesc[], refList: SkeletonDesc[]) {
         item.responsiveWidth = `${ratio.toFixed(2)}vw`
       } else {
         // 固定左右边距缩放
-        item.responsiveWidth = `calc(100vw-)${window.innerWidth - item.width}`
+        item.responsiveWidth = `calc(100vw - ${window.innerWidth - item.width}px)`
       }
-    } 
+    }
   });
 }

@@ -1054,7 +1054,7 @@ function setResponsive(list, refList) {
         item.responsiveWidth = "".concat(ratio.toFixed(2), "vw");
       } else {
         // 固定左右边距缩放
-        item.responsiveWidth = "calc(100vw-)".concat(window.innerWidth - item.width);
+        item.responsiveWidth = "calc(100vw - ".concat(window.innerWidth - item.width, "px)");
       }
     }
   });
@@ -1355,12 +1355,14 @@ function toRenderDescList(descList) {
   console.log('colorLevelList', colorLevelList);
 
   for (var index in descList) {
+    var _node$responsiveWidth;
+
     var node = descList[index];
     var renderDesc = {
       left: node.x,
       top: node.y,
       height: node.height,
-      width: node.width
+      width: (_node$responsiveWidth = node.responsiveWidth) !== null && _node$responsiveWidth !== void 0 ? _node$responsiveWidth : node.width + 'px'
     };
     if (node.borderLeftWidth !== '0px') renderDesc.borderLeftWidth = Number(node.borderLeftWidth.replace('px', ''));
     if (node.borderRightWidth !== '0px') renderDesc.borderRightWidth = Number(node.borderRightWidth.replace('px', ''));
@@ -1427,7 +1429,7 @@ function transforRenderDescToRenderProps(desc) {
     top: desc.top + 'px',
     left: desc.left + 'px',
     height: desc.height + 'px',
-    width: desc.width + 'px'
+    width: desc.width
   };
   if (desc.backgroundColor !== undefined) props.backgroundColor = ColorLevelMap[desc.backgroundColor];
   if (desc.borderColor !== undefined) props.borderColor = BorderColor;
