@@ -1021,6 +1021,45 @@ function isPartInViewPort(element) {
   return true;
 }
 
+var RefViewportRatio = 0.95;
+/**
+ * 响应式处理
+ * @param list  骨架数据
+ * @param refList 改变视口尺寸后的骨架数据
+ */
+
+function setResponsive(list, refList) {
+  list.map(function (item) {
+    var refItem = refList.find(function (i) {
+      return i.id === item.id;
+    });
+    if (!refItem) return;
+
+    if (Math.abs(item.width - refItem.width) >= 0.5) {
+      // 标记出响应式节点
+      item.responsive = true;
+      /**
+       * 计算响应式宽度
+       * 两种形式
+       * 1.完全缩放的： xx vw
+       * 2.固定左右边距缩放的：calc(100vw - xx)
+       */
+
+      var ratio = item.width / window.innerWidth;
+
+      var _refItemWidth = window.innerWidth * RefViewportRatio * ratio;
+
+      if (Math.abs(_refItemWidth - refItem.width) <= 0.1) {
+        // 完全缩放
+        item.responsiveWidth = "".concat(ratio.toFixed(2), "vw");
+      } else {
+        // 固定左右边距缩放
+        item.responsiveWidth = "calc(100vw-)".concat(window.innerWidth - item.width);
+      }
+    }
+  });
+}
+
 /** 骨架元素描述 */
 
 /**
@@ -1034,6 +1073,7 @@ function getSkeletonDescList(root, root2) {
   var list2 = generateSkeletonDescList({
     node: root2
   });
+  setResponsive(list, list2);
   list = clipSkeletonDescList(list);
   list = reduceSkeletonDescList(list);
   return list;
@@ -1506,8 +1546,8 @@ var Skeleton = /*#__PURE__*/function () {
                 innerHtml = document.body.innerHTML.replace(/<script\s.*?src=".+?"/, "<script");
                 _context2.next = 4;
                 return new Promise(function (resolve) {
-                  iframe.style.width = '96vw';
-                  iframe.style.height = '96vh';
+                  iframe.style.width = "".concat(RefViewportRatio * 100, "vw");
+                  iframe.style.height = '100vh';
                   iframe.style.position = 'fixed';
                   iframe.style.zIndex = '-1';
                   iframe.style.top = '0';

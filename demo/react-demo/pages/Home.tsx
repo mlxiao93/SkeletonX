@@ -24,7 +24,8 @@ export default function Home() {
       background: '#eee',
       padding: 16,
       margin: '6px 16px',
-      borderRadius: 10
+      borderRadius: 10,
+      width: '220px'
     }}>
       <p>
         <label>keywords</label>
@@ -43,7 +44,7 @@ export default function Home() {
         background: '#eee',
         padding: 16,
         margin: '16px 16px',
-        borderRadius: 10
+        borderRadius: 10,
       }}>
       <div>
         <p>11111111111</p>

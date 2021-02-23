@@ -1,6 +1,8 @@
 import 'regenerator-runtime/runtime';
 import { RenderDesc, getRenderData, renderDescToString, ModuleMap } from './skeleton'
 import { renderToHtml } from './render'
+import { RefViewportRatio } from './responsive';
+
 
 export default class Skeleton {
 
@@ -20,8 +22,8 @@ export default class Skeleton {
       body: typeof document.body,
       window: Window
     }>((resolve) => {
-      iframe.style.width = '96vw';
-      iframe.style.height = '96vh';
+      iframe.style.width = `${RefViewportRatio * 100}vw`;
+      iframe.style.height = '100vh';
       iframe.style.position = 'fixed';
       iframe.style.zIndex = '-1';
       iframe.style.top = '0';
