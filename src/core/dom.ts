@@ -17,3 +17,35 @@ export function isPartInViewPort(element: Element) {
   if (right < 0) return false;
   return true;
 }
+
+export function getFixedPosition(element: Element, viewport: Window = window): {
+  left: number,
+  top: number,
+  right: number,
+  bottom: number,
+  width: number,
+  height: number
+} {
+
+  const {
+    top,
+    right,
+    bottom,
+    left,
+    width,
+    height
+  } = element.getBoundingClientRect();
+
+  const viewportWidth = viewport.innerWidth;
+  const viewportHeight = viewport.innerHeight;
+
+  return {
+    left,
+    top,
+    right: viewportWidth - right,
+    bottom: viewportHeight - bottom,
+    width,
+    height
+  }
+
+}

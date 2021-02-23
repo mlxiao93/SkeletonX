@@ -9,7 +9,7 @@ import {nodeNeedBg, nodeNeedBorder, isCovered, getColorLevelList} from './utils'
  * 4. 颜色层级还有问题
  */
 
-import { isPartInViewPort } from "./dom";
+import { getFixedPosition, isPartInViewPort } from "./dom";
 import { setResponsive } from './responsive';
 
 /** 骨架元素描述 */
@@ -35,6 +35,11 @@ export interface SkeletonDesc {
   x: number
   y: number
 
+  left: number,
+  right: number,
+  top: number,
+  bottom: number,
+
   /** 尺寸 */
   height: number
   width: number
@@ -42,10 +47,6 @@ export interface SkeletonDesc {
   /** 响应式 */
   responsive?: boolean   // 是否响应式
   responsiveWidth?: string    // 做响应式转换之后的width
-  left?: string,
-  right?: string,
-  top?: string,
-  bottom?: string,
 
   /** 边框 */
   borderLeftWidth: CSSStyleDeclaration['borderWidth']
@@ -69,9 +70,9 @@ export interface SkeletonDesc {
  * 获取骨架节点描述扁平数据
  * @param root 根元素
  */
-export function getSkeletonDescList(root: Node, root2: Node): SkeletonDesc[] {
-  let list = generateSkeletonDescList({ node: root });
-  const list2 = generateSkeletonDescList({ node: root2 });
+export function getSkeletonDescList(root: Node, root2: Node, viewport2: Window): SkeletonDesc[] {
+  let list = generateSkeletonDescList({ node: root, viewport: window });
+  const list2 = generateSkeletonDescList({ node: root2, viewport: viewport2 });
 
   setResponsive(list, list2);
 
@@ -87,8 +88,9 @@ export function getSkeletonDesc(opt: {
   node: Node,
   index: number,
   parentDesc?: SkeletonDesc,
+  viewport?: Window
 }): SkeletonDesc | null {
-  const { node, index, parentDesc } = opt;
+  const { node, index, parentDesc, viewport = window } = opt;
 
   if (![Node.ELEMENT_NODE, Node.TEXT_NODE].includes(node.nodeType)) {   // 只处理元素节点和文本节点
     return null
@@ -144,8 +146,7 @@ export function getSkeletonDesc(opt: {
     x: clientRect.left,
     y: clientRect.top,
 
-    height: clientRect.height,
-    width: clientRect.width,
+    ...getFixedPosition(element, viewport),
 
     borderBottomWidth: style.borderBottomWidth,
     borderLeftWidth: style.borderLeftWidth,
@@ -160,6 +161,7 @@ export function getSkeletonDesc(opt: {
     overflowX: style.overflowX,
     overflowY: style.overflowY,
     position: style.position,
+
     // @ts-ignore
     $node: node,    // for debug TODO delete 
   }
@@ -173,8 +175,9 @@ export function generateSkeletonDescList(opt: {
   parentDesc?: SkeletonDesc,
   index?: number,
   list?: SkeletonDesc[],
+  viewport?: Window
 }): SkeletonDesc[] {
-  const { node, parentDesc, index = 0, list = [] } = opt
+  const { node, parentDesc, index = 0, list = [], viewport = window } = opt
 
   const skeletonDesc = getSkeletonDesc({ node, index, parentDesc})
   if (!skeletonDesc) return;
@@ -190,6 +193,7 @@ export function generateSkeletonDescList(opt: {
         parentDesc: skeletonDesc,
         index: i,
         list,
+        viewport
       });
     }
   }
@@ -374,11 +378,11 @@ export function toRenderDescList(descList: SkeletonDesc[]): RenderDesc[] {
   return res;
 }
 
-export function getRenderData(root: Node, root2: Node): {
+export function getRenderData(root: Node, root2: Node, viewport2: Window): {
   data: RenderDesc[],
   moduleMap?: ModuleMap
 } {
-  const descList = getSkeletonDescList(root, root2);
+  const descList = getSkeletonDescList(root, root2, viewport2);
   const renderList = toRenderDescList(descList);
   const moduleMap = getModuleMap(descList);
   console.log('render data', renderList);

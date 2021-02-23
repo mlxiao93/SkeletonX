@@ -39,7 +39,7 @@ export default class Skeleton {
       }
     })
 
-    const { data, moduleMap } = getRenderData(document.body, body2);
+    const { data, moduleMap } = getRenderData(document.body, body2, window2);
     const renderData = data;
     const renderString = renderData.map(item => renderDescToString(item)).join(',');
     const moduleString = moduleMap ? JSON.stringify(moduleMap) : undefined

@@ -56,6 +56,55 @@ function _createClass(Constructor, protoProps, staticProps) {
   return Constructor;
 }
 
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+}
+
+function ownKeys(object, enumerableOnly) {
+  var keys = Object.keys(object);
+
+  if (Object.getOwnPropertySymbols) {
+    var symbols = Object.getOwnPropertySymbols(object);
+    if (enumerableOnly) symbols = symbols.filter(function (sym) {
+      return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+    });
+    keys.push.apply(keys, symbols);
+  }
+
+  return keys;
+}
+
+function _objectSpread2(target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i] != null ? arguments[i] : {};
+
+    if (i % 2) {
+      ownKeys(Object(source), true).forEach(function (key) {
+        _defineProperty(target, key, source[key]);
+      });
+    } else if (Object.getOwnPropertyDescriptors) {
+      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+    } else {
+      ownKeys(Object(source)).forEach(function (key) {
+        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+      });
+    }
+  }
+
+  return target;
+}
+
 function _slicedToArray(arr, i) {
   return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest();
 }
@@ -196,7 +245,7 @@ function createCommonjsModule(fn) {
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-var runtime_1 = createCommonjsModule(function (module) {
+createCommonjsModule(function (module) {
   var runtime = function (exports) {
 
     var Op = Object.prototype;
@@ -896,7 +945,7 @@ var runtime_1 = createCommonjsModule(function (module) {
   // as the regeneratorRuntime namespace. Otherwise create a new empty
   // object. Either way, the resulting object will be used to initialize
   // the regeneratorRuntime variable at the top of this file.
-   module.exports );
+  module.exports );
 
   try {
     regeneratorRuntime = runtime;
@@ -922,14 +971,14 @@ function nodeNeedBorder(node) {
 } // 两个元素是否有重叠部分
 
 function isIntersect(node1, node2) {
-  const x1 = node1.x;
-  const y1 = node1.y;
-  const w1 = node1.width;
-  const h1 = node1.height;
-  const x2 = node2.x;
-  const y2 = node2.y;
-  const w2 = node2.width;
-  const h2 = node2.height;
+  var x1 = node1.x;
+  var y1 = node1.y;
+  var w1 = node1.width;
+  var h1 = node1.height;
+  var x2 = node2.x;
+  var y2 = node2.y;
+  var w2 = node2.width;
+  var h2 = node2.height;
   if (x1 + w1 <= x2) return false;
   if (x1 >= x2 + w2) return false;
   if (y1 + h1 <= y2) return false;
@@ -938,10 +987,10 @@ function isIntersect(node1, node2) {
 } // 节点是否被覆盖
 
 function isCovered(list, targetIndex) {
-  const target = list[targetIndex];
+  var target = list[targetIndex];
 
-  for (let i = targetIndex + 1; i < list.length; i++) {
-    const node = list[i];
+  for (var i = targetIndex + 1; i < list.length; i++) {
+    var node = list[i];
     if (!nodeNeedBg(node)) continue;
 
     if (node.x <= target.x && node.y <= target.y && node.x + node.width >= target.x + target.width && node.y + node.height >= target.y + target.height) {
@@ -961,17 +1010,17 @@ function isCovered(list, targetIndex) {
 
 function getColorLevelList(descList, maxLevel) {
   // 初始级别都为0
-  const colorLevelList = Array(descList.length).fill(0); // 按照是否相交
+  var colorLevelList = Array(descList.length).fill(0); // 按照是否相交
 
-  for (let i = descList.length - 1; i > 0; i--) {
-    const nodeI = descList[i];
+  for (var i = descList.length - 1; i > 0; i--) {
+    var nodeI = descList[i];
 
-    for (let j = i - 1; j >= 0; j--) {
-      const nodeJ = descList[j];
+    for (var j = i - 1; j >= 0; j--) {
+      var nodeJ = descList[j];
       if (!nodeNeedBg(nodeJ)) continue;
 
       if (isIntersect(nodeI, nodeJ)) {
-        const adjustLevel = Math.min(maxLevel, colorLevelList[i] + 1); // 最大level限制
+        var adjustLevel = Math.min(maxLevel, colorLevelList[i] + 1); // 最大level限制
 
         colorLevelList[j] = Math.max(adjustLevel, colorLevelList[j]);
       }
@@ -1020,6 +1069,28 @@ function isPartInViewPort(element) {
   if (right < 0) return false;
   return true;
 }
+function getFixedPosition(element) {
+  var viewport = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : window;
+
+  var _element$getBoundingC2 = element.getBoundingClientRect(),
+      top = _element$getBoundingC2.top,
+      right = _element$getBoundingC2.right,
+      bottom = _element$getBoundingC2.bottom,
+      left = _element$getBoundingC2.left,
+      width = _element$getBoundingC2.width,
+      height = _element$getBoundingC2.height;
+
+  var viewportWidth = viewport.innerWidth;
+  var viewportHeight = viewport.innerHeight;
+  return {
+    left: left,
+    top: top,
+    right: viewportWidth - right,
+    bottom: viewportHeight - bottom,
+    width: width,
+    height: height
+  };
+}
 
 var RefViewportRatio = 0.95;
 /**
@@ -1066,12 +1137,14 @@ function setResponsive(list, refList) {
  * 获取骨架节点描述扁平数据
  * @param root 根元素
  */
-function getSkeletonDescList(root, root2) {
+function getSkeletonDescList(root, root2, viewport2) {
   var list = generateSkeletonDescList({
-    node: root
+    node: root,
+    viewport: window
   });
   var list2 = generateSkeletonDescList({
-    node: root2
+    node: root2,
+    viewport: viewport2
   });
   setResponsive(list, list2);
   list = clipSkeletonDescList(list);
@@ -1087,7 +1160,9 @@ function getSkeletonDesc(opt) {
 
   var node = opt.node,
       index = opt.index,
-      parentDesc = opt.parentDesc;
+      parentDesc = opt.parentDesc,
+      _opt$viewport = opt.viewport,
+      viewport = _opt$viewport === void 0 ? window : _opt$viewport;
 
   if (![Node.ELEMENT_NODE, Node.TEXT_NODE].includes(node.nodeType)) {
     // 只处理元素节点和文本节点
@@ -1133,7 +1208,7 @@ function getSkeletonDesc(opt) {
   }
 
   if (!((_moduleId = moduleId) !== null && _moduleId !== void 0 && _moduleId.length)) moduleId = undefined;
-  return {
+  return _objectSpread2(_objectSpread2({
     parentId: parentDesc ? parentDesc.id : null,
     id: parentDesc ? "".concat(parentDesc.id, "[").concat(index, "]") : '',
     moduleRoot: nodeSkltId ? true : undefined,
@@ -1141,9 +1216,8 @@ function getSkeletonDesc(opt) {
     tagName: element.tagName,
     // nodeType: node.nodeType,
     x: clientRect.left,
-    y: clientRect.top,
-    height: clientRect.height,
-    width: clientRect.width,
+    y: clientRect.top
+  }, getFixedPosition(element, viewport)), {}, {
     borderBottomWidth: style.borderBottomWidth,
     borderLeftWidth: style.borderLeftWidth,
     borderRightWidth: style.borderRightWidth,
@@ -1158,7 +1232,7 @@ function getSkeletonDesc(opt) {
     // @ts-ignore
     $node: node // for debug TODO delete 
 
-  };
+  });
 }
 /**
  * 递归生成骨架元素扁平数据
@@ -1170,7 +1244,9 @@ function generateSkeletonDescList(opt) {
       _opt$index = opt.index,
       index = _opt$index === void 0 ? 0 : _opt$index,
       _opt$list = opt.list,
-      list = _opt$list === void 0 ? [] : _opt$list;
+      list = _opt$list === void 0 ? [] : _opt$list,
+      _opt$viewport2 = opt.viewport,
+      viewport = _opt$viewport2 === void 0 ? window : _opt$viewport2;
   var skeletonDesc = getSkeletonDesc({
     node: node,
     index: index,
@@ -1186,7 +1262,8 @@ function generateSkeletonDescList(opt) {
         node: node.childNodes[i],
         parentDesc: skeletonDesc,
         index: i,
-        list: list
+        list: list,
+        viewport: viewport
       });
     }
   }
@@ -1383,8 +1460,8 @@ function toRenderDescList(descList) {
 
   return res;
 }
-function getRenderData(root, root2) {
-  var descList = getSkeletonDescList(root, root2);
+function getRenderData(root, root2, viewport2) {
+  var descList = getSkeletonDescList(root, root2, viewport2);
   var renderList = toRenderDescList(descList);
   var moduleMap = getModuleMap(descList);
   console.log('render data', renderList);
@@ -1570,7 +1647,7 @@ var Skeleton = /*#__PURE__*/function () {
                 _yield$Promise = _context2.sent;
                 body2 = _yield$Promise.body;
                 window2 = _yield$Promise.window;
-                _getRenderData = getRenderData(document.body, body2), data = _getRenderData.data, moduleMap = _getRenderData.moduleMap;
+                _getRenderData = getRenderData(document.body, body2, window2), data = _getRenderData.data, moduleMap = _getRenderData.moduleMap;
                 renderData = data;
                 renderString = renderData.map(function (item) {
                   return renderDescToString(item);
