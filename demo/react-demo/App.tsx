@@ -6,6 +6,7 @@ import {
   Route,
   Link
 } from 'react-router-dom';
+import SkeletonContainer, { SkeletonSupspense } from './components/SkeletonContainer';
 
 const Home = React.lazy(() => import('./pages/Home'));
 const Users = React.lazy(() => import('./pages/Users'));
@@ -22,9 +23,9 @@ const Layout: React.FC<{}> = (props) => {
       <Link to="/">React Demo</Link>
       <Link to="/users">Users</Link>
     </div>
-    <div className="content" skeletonx-module-id="layout-content">
+    <SkeletonContainer className="content" moduleId="layout-content">
       {props.children}
-    </div>
+    </SkeletonContainer>
     <div className="footer">
       <div>
         <div><Link to="/about">About</Link></div>
@@ -40,19 +41,12 @@ const Layout: React.FC<{}> = (props) => {
   </div>
 }
 
-function getSuspenseFallback() {
-  const innerHtml = window.__skeleton__x__lib.renderToHtml(undefined, 'layout-content');
-  const size = window.__skeleton__x__lib.getModuleSize(undefined, 'layout-content');
-  return <div style={{position: 'relative', top: '-52px', ...size}} dangerouslySetInnerHTML={{__html: innerHtml}} />
-}
-
 export default function App() {
 
   const { path } = useLocation();
-  console.log(location.hash);
 
   return <Layout>
-    <Suspense fallback={getSuspenseFallback()}>
+    <Suspense fallback={<SkeletonSupspense moduleId="layout-content" style={{top: -52}} />}>
       <Switch>
         <Route path="/about" component={About} />
         <Route path="/users" component={Users} />
