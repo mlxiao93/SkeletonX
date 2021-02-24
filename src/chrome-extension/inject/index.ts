@@ -22,11 +22,11 @@ import Skeleton from '../../core'
     // console.log('onload');
   });
 
-  let skeleton: Skeleton;
+  const skeleton: Skeleton = new Skeleton();
   chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
     if (request.action === 'generate-skeleton') {
-      skeleton = new Skeleton();
-      getSkltContainer().innerHTML = await skeleton.getHtml();
+      getSkltContainer().innerHTML =  `<div style="position: absolute; z-index: 9999998; background: #fff; left: 0; right: 0; top: 0; bottom: 0"></div>` 
+        + await skeleton.getHtml();
     }
     if (request.action === 'clear-skeleton') {
       clearSkltContainer();

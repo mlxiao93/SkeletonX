@@ -245,7 +245,7 @@ function createCommonjsModule(fn) {
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-createCommonjsModule(function (module) {
+var runtime_1 = createCommonjsModule(function (module) {
   var runtime = function (exports) {
 
     var Op = Object.prototype;
@@ -945,7 +945,7 @@ createCommonjsModule(function (module) {
   // as the regeneratorRuntime namespace. Otherwise create a new empty
   // object. Either way, the resulting object will be used to initialize
   // the regeneratorRuntime variable at the top of this file.
-  module.exports );
+   module.exports );
 
   try {
     regeneratorRuntime = runtime;
@@ -970,27 +970,11 @@ function nodeNeedBorder(node) {
   return node.borderTopWidth + node.borderTopWidth + node.borderBottomWidth + node.borderLeftWidth !== '0px0px0px0px';
 } // 两个元素是否有重叠部分
 
-function isIntersect(node1, node2) {
-  var x1 = node1.x;
-  var y1 = node1.y;
-  var w1 = node1.width;
-  var h1 = node1.height;
-  var x2 = node2.x;
-  var y2 = node2.y;
-  var w2 = node2.width;
-  var h2 = node2.height;
-  if (x1 + w1 <= x2) return false;
-  if (x1 >= x2 + w2) return false;
-  if (y1 + h1 <= y2) return false;
-  if (y1 >= y2 + h2) return false;
-  return true;
-} // 节点是否被覆盖
-
 function isCovered(list, targetIndex) {
-  var target = list[targetIndex];
+  const target = list[targetIndex];
 
-  for (var i = targetIndex + 1; i < list.length; i++) {
-    var node = list[i];
+  for (let i = targetIndex + 1; i < list.length; i++) {
+    const node = list[i];
     if (!nodeNeedBg(node)) continue;
 
     if (node.x <= target.x && node.y <= target.y && node.x + node.width >= target.x + target.width && node.y + node.height >= target.y + target.height) {
@@ -999,54 +983,6 @@ function isCovered(list, targetIndex) {
   }
 
   return false;
-}
-/**
- * 重叠元素色差处理
- * 初始颜色级别都为0
- * 位于重叠下一层的元素，颜色级别+1
- * 
- * descList
- */
-
-function getColorLevelList(descList, maxLevel) {
-  // 初始级别都为0
-  var colorLevelList = Array(descList.length).fill(0); // 按照是否相交
-
-  for (var i = descList.length - 1; i > 0; i--) {
-    var nodeI = descList[i];
-
-    for (var j = i - 1; j >= 0; j--) {
-      var nodeJ = descList[j];
-      if (!nodeNeedBg(nodeJ)) continue;
-
-      if (isIntersect(nodeI, nodeJ)) {
-        var adjustLevel = Math.min(maxLevel, colorLevelList[i] + 1); // 最大level限制
-
-        colorLevelList[j] = Math.max(adjustLevel, colorLevelList[j]);
-      }
-    }
-  } // 按照父子关系
-  // for (const index in descList) {
-  //   const node = descList[index];
-  //   const isLeaf = descList.every(item => item.parentId !== node.id);
-  //   if (!isLeaf) continue;
-  //   let parentIndex = descList.findIndex(item => item.id === node.parentId);
-  //   let count = 1;
-  //   while (parentIndex >= 0) {
-  //     const parent = descList[parentIndex];
-  //     if (!nodeNeedBg(parent)) {
-  //       parentIndex = descList.findIndex(item => item.id === parent.parentId);
-  //       continue;
-  //     }
-  //     const colorLevel = Math.min(maxLevel, count);
-  //     colorLevelList[parentIndex] = Math.max(colorLevel, colorLevelList[parentIndex]);
-  //     parentIndex = descList.findIndex(item => item.id === parent.parentId);
-  //     count++;
-  //   }
-  // }
-
-
-  return colorLevelList;
 }
 
 /**
@@ -1426,20 +1362,22 @@ function getModuleMap(descList) {
 
 function toRenderDescList(descList) {
   var res = []; // borderColor:  #8e9097
-
-  var ColorLevelMap = ['#D3D4D7', '#E9EAEB', '#F4F4F5', '#FFF'];
-  var colorLevelList = getColorLevelList(descList, ColorLevelMap.length - 1);
-  console.log('colorLevelList', colorLevelList);
+  // const ColorLevelMap = [
+  //   '#D3D4D7',
+  //   '#E9EAEB',
+  //   '#F4F4F5',
+  //   '#FFF'
+  // ]
+  // const colorLevelList = getColorLevelList(descList, ColorLevelMap.length - 1);
+  // console.log('colorLevelList', colorLevelList);
 
   for (var index in descList) {
-    var _node$responsiveWidth;
-
     var node = descList[index];
     var renderDesc = {
       left: node.x,
       top: node.y,
       height: node.height,
-      width: (_node$responsiveWidth = node.responsiveWidth) !== null && _node$responsiveWidth !== void 0 ? _node$responsiveWidth : node.width + 'px'
+      width: node.width
     };
     if (node.borderLeftWidth !== '0px') renderDesc.borderLeftWidth = Number(node.borderLeftWidth.replace('px', ''));
     if (node.borderRightWidth !== '0px') renderDesc.borderRightWidth = Number(node.borderRightWidth.replace('px', ''));
@@ -1452,7 +1390,8 @@ function toRenderDescList(descList) {
     }
 
     if (nodeNeedBg(node)) {
-      renderDesc.backgroundColor = colorLevelList[index];
+      // renderDesc.backgroundColor = colorLevelList[index];
+      renderDesc.backgroundColor = 1;
     }
 
     res.push(renderDesc);
@@ -1500,15 +1439,20 @@ function parseStringToRenderDesc(str) {
  * 骨架渲染描述转为骨架节点render props
  */
 function transforRenderDescToRenderProps(desc) {
-  var BorderColor = '#8e9097';
-  var ColorLevelMap = ['#D3D4D7', '#E9EAEB', '#F4F4F5', '#FFF'];
+  var BorderColor = '#8e9097'; // const ColorLevelMap = [
+  //   '#D3D4D7',
+  //   '#E9EAEB',
+  //   '#F4F4F5',
+  //   '#FFF'
+  // ];
+
   var props = {
     top: desc.top + 'px',
     left: desc.left + 'px',
     height: desc.height + 'px',
-    width: desc.width
+    width: desc.width + 'px'
   };
-  if (desc.backgroundColor !== undefined) props.backgroundColor = ColorLevelMap[desc.backgroundColor];
+  if (desc.backgroundColor !== undefined) props.background = 'linear-gradient(90deg,rgb(190 190 190 / 20%) 25%,hsla(0,0%,50.6%,.24) 37%,hsla(0,0%,74.5%,.2) 63%); background-size: 400% 100%;';
   if (desc.borderColor !== undefined) props.borderColor = BorderColor;
   if (desc.borderBottomWidth !== undefined) props.borderBottomWidth = desc.borderBottomWidth + 'px';
   if (desc.borderTopWidth !== undefined) props.borderTopWidth = desc.borderTopWidth + 'px';
@@ -1536,12 +1480,13 @@ function descToHtml(desc, moduleRootDesc) {
   for (var key in renderProps) {
     style += key.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase() + ':' + renderProps[key] + ';';
   }
-  return '<div style="' + style + '"></div>';
+  return '<div class="skeleton-x-node" style="' + style + '"></div>';
 }
 
-function renderToHtml() {
-  var dataString = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.__skeleton__x__data;
-  var moduleId = arguments.length > 1 ? arguments[1] : undefined;
+function renderToHtml(dataString, moduleId) {
+  var _dataString;
+
+  dataString = (_dataString = dataString) !== null && _dataString !== void 0 ? _dataString : window.__skeleton__x__lib.getData();
   if (!dataString) return '';
 
   var _dataString$split = dataString.split('::'),
@@ -1615,15 +1560,24 @@ var Skeleton = /*#__PURE__*/function () {
     key: "getDataString",
     value: function () {
       var _getDataString = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2() {
-        var iframe, innerHtml, _yield$Promise, body2, window2, _getRenderData, data, moduleMap, renderData, renderString, moduleString;
+        var iframe, innerHtml, _yield$Promise, body2, window2, _getRenderData, data, moduleMap, renderData, renderString, moduleString, res;
 
         return regeneratorRuntime.wrap(function _callee2$(_context2) {
           while (1) {
             switch (_context2.prev = _context2.next) {
               case 0:
+                if (!this.dataString) {
+                  _context2.next = 2;
+                  break;
+                }
+
+                return _context2.abrupt("return", this.dataString);
+
+              case 2:
+                console.log('do get date string');
                 iframe = document.createElement('iframe');
                 innerHtml = document.body.innerHTML.replace(/<script\s.*?src=".+?"/, "<script");
-                _context2.next = 4;
+                _context2.next = 7;
                 return new Promise(function (resolve) {
                   iframe.style.width = "".concat(RefViewportRatio * 100, "vw");
                   iframe.style.height = '100vh';
@@ -1643,7 +1597,7 @@ var Skeleton = /*#__PURE__*/function () {
                   };
                 });
 
-              case 4:
+              case 7:
                 _yield$Promise = _context2.sent;
                 body2 = _yield$Promise.body;
                 window2 = _yield$Promise.window;
@@ -1654,23 +1608,20 @@ var Skeleton = /*#__PURE__*/function () {
                 }).join(',');
                 moduleString = moduleMap ? JSON.stringify(moduleMap) : undefined;
                 document.body.removeChild(iframe);
+                res = renderString;
 
-                if (!moduleString) {
-                  _context2.next = 14;
-                  break;
+                if (moduleString) {
+                  res = renderString + '::' + moduleString;
                 }
+                this.dataString = res;
+                return _context2.abrupt("return", res);
 
-                return _context2.abrupt("return", renderString + '::' + moduleString);
-
-              case 14:
-                return _context2.abrupt("return", renderString);
-
-              case 16:
+              case 20:
               case "end":
                 return _context2.stop();
             }
           }
-        }, _callee2);
+        }, _callee2, this);
       }));
 
       function getDataString() {
@@ -1703,7 +1654,7 @@ var Skeleton = /*#__PURE__*/function () {
 
   window.addEventListener('load', function () {// console.log('onload');
   });
-  var skeleton;
+  var skeleton = new Skeleton();
   chrome.runtime.onMessage.addListener( /*#__PURE__*/function () {
     var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(request, sender, sendResponse) {
       var textarea;
@@ -1716,12 +1667,12 @@ var Skeleton = /*#__PURE__*/function () {
                 break;
               }
 
-              skeleton = new Skeleton();
-              _context.next = 4;
+              _context.next = 3;
               return skeleton.getHtml();
 
-            case 4:
-              getSkltContainer().innerHTML = _context.sent;
+            case 3:
+              _context.t0 = _context.sent;
+              getSkltContainer().innerHTML = "<div style=\"position: absolute; z-index: 9999998; background: #fff; left: 0; right: 0; top: 0; bottom: 0\"></div>" + _context.t0;
 
             case 5:
               if (request.action === 'clear-skeleton') {

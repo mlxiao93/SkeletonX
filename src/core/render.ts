@@ -16,11 +16,14 @@ function descToHtml(desc: RenderDesc, moduleRootDesc?: RenderDesc) {
   for (let key in renderProps) {
     style += key.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase() + ':' + renderProps[key] + ';'
   };
-  return '<div style="' + style + '"></div>';
+  return '<div class="skeleton-x-node" style="' + style + '"></div>';
 }
 
-export function renderToHtml(dataString: string = (window as any).__skeleton__x__data, moduleId?: string): string {
+export function renderToHtml(dataString?: string, moduleId?: string): string {
   
+  dataString = dataString ?? (window as any).__skeleton__x__lib.getData();
+
+
   if (!dataString) return ''
 
   const [ renderString, moduleString ] = dataString.split('::');
@@ -47,12 +50,13 @@ export function renderToHtml(dataString: string = (window as any).__skeleton__x_
   return html;
 }
 
-export function getModuleSize(dataString: string = (window as any).__skeleton__x__data, moduleId: string): {width: string, height: string} {
+export function getModuleSize(dataString?: string, moduleId?: string): {width: string, height: string} {
+  dataString = dataString ?? (window as any).__skeleton__x__lib.getData();
   const size = {
     width: '0px',
     height: '0px'
   }
-  if (!dataString) return size;
+  if (!dataString || !moduleId) return size;
   const [ renderString, moduleString ] = dataString.split('::');
   const renderDescList = renderString.split(',').map(str => {
     return parseStringToRenderDesc(str);

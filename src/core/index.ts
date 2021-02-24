@@ -6,12 +6,17 @@ import { RefViewportRatio } from './responsive';
 
 export default class Skeleton {
 
+  private dataString?: string;
+
   public async getHtml(): Promise<string> {
     const dataString = await this.getDataString()
     return renderToHtml(dataString);
   }
 
   public async getDataString(): Promise<string> {
+    if (this.dataString) return this.dataString;
+
+    console.log('do get date string');
 
     const iframe = document.createElement('iframe');
     const innerHtml = document.body.innerHTML.replace(/<script\s.*?src=".+?"/, "<script")
@@ -46,9 +51,14 @@ export default class Skeleton {
 
     document.body.removeChild(iframe);
 
+    let res = renderString
+
     if (moduleString) {
-      return renderString + '::' + moduleString;
+      res = renderString + '::' + moduleString;
     };
-    return renderString;
+
+    this.dataString = res;
+
+    return res;
   }
 }

@@ -76,6 +76,8 @@ export function getSkeletonDescList(root: Node, root2: Node, viewport2: Window):
 
   setResponsive(list, list2);
 
+
+
   list = clipSkeletonDescList(list);
   list = reduceSkeletonDescList(list);
   return list;
@@ -299,7 +301,7 @@ export interface RenderDesc {
   top: number,
   left: number,
   height: number,
-  width: string,
+  width: number,
 
   borderTopWidth?: number,
   borderRightWidth?: number,
@@ -343,16 +345,16 @@ export function toRenderDescList(descList: SkeletonDesc[]): RenderDesc[] {
 
   // borderColor:  #8e9097
 
-  const ColorLevelMap = [
-    '#D3D4D7',
-    '#E9EAEB',
-    '#F4F4F5',
-    '#FFF'
-  ]
+  // const ColorLevelMap = [
+  //   '#D3D4D7',
+  //   '#E9EAEB',
+  //   '#F4F4F5',
+  //   '#FFF'
+  // ]
 
-  const colorLevelList = getColorLevelList(descList, ColorLevelMap.length - 1);
+  // const colorLevelList = getColorLevelList(descList, ColorLevelMap.length - 1);
 
-  console.log('colorLevelList', colorLevelList);
+  // console.log('colorLevelList', colorLevelList);
 
   for (const index in descList) {
     const node = descList[index];
@@ -360,7 +362,7 @@ export function toRenderDescList(descList: SkeletonDesc[]): RenderDesc[] {
       left: node.x,
       top: node.y,
       height: node.height,
-      width: node.responsiveWidth ?? node.width + 'px',
+      width: node.width,
     }
     if (node.borderLeftWidth !== '0px') renderDesc.borderLeftWidth = Number(node.borderLeftWidth.replace('px', ''));
     if (node.borderRightWidth !== '0px') renderDesc.borderRightWidth = Number(node.borderRightWidth.replace('px', ''));
@@ -371,7 +373,8 @@ export function toRenderDescList(descList: SkeletonDesc[]): RenderDesc[] {
       renderDesc.borderColor = 0;
     }
     if (nodeNeedBg(node)) {
-      renderDesc.backgroundColor = colorLevelList[index];
+      // renderDesc.backgroundColor = colorLevelList[index];
+      renderDesc.backgroundColor = 1;
     }
     res.push(renderDesc)
   }
@@ -438,7 +441,7 @@ export interface RenderProps {
   height: CSSStyleDeclaration['height'],
   width: CSSStyleDeclaration['width'],
 
-  backgroundColor?: CSSStyleDeclaration['backgroundColor']
+  background?: CSSStyleDeclaration['backgroundColor']
   borderColor?: CSSStyleDeclaration['borderColor']
   borderRadius?: CSSStyleDeclaration['borderRadius'],
 
@@ -453,19 +456,19 @@ export interface RenderProps {
  */
 export function transforRenderDescToRenderProps(desc: RenderDesc): RenderProps {
   const BorderColor = '#8e9097';
-  const ColorLevelMap = [
-    '#D3D4D7',
-    '#E9EAEB',
-    '#F4F4F5',
-    '#FFF'
-  ];
+  // const ColorLevelMap = [
+  //   '#D3D4D7',
+  //   '#E9EAEB',
+  //   '#F4F4F5',
+  //   '#FFF'
+  // ];
   const props: RenderProps = {
     top: desc.top + 'px',
     left: desc.left + 'px',
     height: desc.height + 'px',
-    width: desc.width,
+    width: desc.width + 'px',
   };
-  if (desc.backgroundColor !== undefined) props.backgroundColor = ColorLevelMap[desc.backgroundColor];
+  if (desc.backgroundColor !== undefined) props.background = 'linear-gradient(90deg,rgb(190 190 190 / 20%) 25%,hsla(0,0%,50.6%,.24) 37%,hsla(0,0%,74.5%,.2) 63%); background-size: 400% 100%;';
   if (desc.borderColor !== undefined) props.borderColor = BorderColor;
   if (desc.borderBottomWidth !== undefined) props.borderBottomWidth = desc.borderBottomWidth + 'px';
   if (desc.borderTopWidth !== undefined) props.borderTopWidth = desc.borderTopWidth + 'px';

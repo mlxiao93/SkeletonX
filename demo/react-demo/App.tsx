@@ -51,8 +51,6 @@ export default function App() {
   const { path } = useLocation();
   console.log(location.hash);
 
-  window.__skeleton__x__lib.setData(window.__skeleton__x__data_map[location.hash])
-
   return <Layout>
     <Suspense fallback={getSuspenseFallback()}>
       <Switch>

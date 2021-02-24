@@ -5,6 +5,21 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SkeletonX React Demo</title>
+  <style>
+    .skeleton-x-node {
+      animation: skeleton-loading 2.4s ease infinite;
+    }
+
+    @keyframes skeleton-loading {
+      0% {
+        background-position: 100% 50%;
+      }
+
+      100% {
+        background-position: 0 50%;
+      }
+    }
+  </style>
   <script>
     var __skeleton__x__lib = (function (exports) {
       'use strict';
@@ -86,15 +101,20 @@
        * 骨架渲染描述转为骨架节点render props
        */
       function transforRenderDescToRenderProps(desc) {
-        var BorderColor = '#8e9097';
-        var ColorLevelMap = ['#D3D4D7', '#E9EAEB', '#F4F4F5', '#FFF'];
+        var BorderColor = '#8e9097'; // const ColorLevelMap = [
+        //   '#D3D4D7',
+        //   '#E9EAEB',
+        //   '#F4F4F5',
+        //   '#FFF'
+        // ];
+
         var props = {
           top: desc.top + 'px',
           left: desc.left + 'px',
           height: desc.height + 'px',
-          width: desc.width
+          width: desc.width + 'px'
         };
-        if (desc.backgroundColor !== undefined) props.backgroundColor = ColorLevelMap[desc.backgroundColor];
+        if (desc.backgroundColor !== undefined) props.background = 'linear-gradient(90deg,rgb(190 190 190 / 20%) 25%,hsla(0,0%,50.6%,.24) 37%,hsla(0,0%,74.5%,.2) 63%); background-size: 400% 100%;';
         if (desc.borderColor !== undefined) props.borderColor = BorderColor;
         if (desc.borderBottomWidth !== undefined) props.borderBottomWidth = desc.borderBottomWidth + 'px';
         if (desc.borderTopWidth !== undefined) props.borderTopWidth = desc.borderTopWidth + 'px';
@@ -122,12 +142,13 @@
         for (var key in renderProps) {
           style += key.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase() + ':' + renderProps[key] + ';';
         }
-        return '<div style="' + style + '"></div>';
+        return '<div class="skeleton-x-node" style="' + style + '"></div>';
       }
 
-      function renderToHtml() {
-        var dataString = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.__skeleton__x__data;
-        var moduleId = arguments.length > 1 ? arguments[1] : undefined;
+      function renderToHtml(dataString, moduleId) {
+        var _dataString;
+
+        dataString = (_dataString = dataString) !== null && _dataString !== void 0 ? _dataString : window.__skeleton__x__lib.getData();
         if (!dataString) return '';
 
         var _dataString$split = dataString.split('::'),
@@ -161,16 +182,15 @@
         }
         return html;
       }
-      function getModuleSize() {
-        var _moduleMap$moduleId3;
+      function getModuleSize(dataString, moduleId) {
+        var _dataString2, _moduleMap$moduleId3;
 
-        var dataString = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : window.__skeleton__x__data;
-        var moduleId = arguments.length > 1 ? arguments[1] : undefined;
+        dataString = (_dataString2 = dataString) !== null && _dataString2 !== void 0 ? _dataString2 : window.__skeleton__x__lib.getData();
         var size = {
           width: '0px',
           height: '0px'
         };
-        if (!dataString) return size;
+        if (!dataString || !moduleId) return size;
 
         var _dataString$split3 = dataString.split('::'),
           _dataString$split4 = _slicedToArray(_dataString$split3, 2),
@@ -191,13 +211,13 @@
         return size;
       }
 
-      function setData(data) {
-        window.__skeleton__x__data = data;
+      function getData() {
+        return undefined;
       }
 
+      exports.getData = getData;
       exports.getModuleSize = getModuleSize;
       exports.renderToHtml = renderToHtml;
-      exports.setData = setData;
 
       Object.defineProperty(exports, '__esModule', { value: true });
 
@@ -205,17 +225,17 @@
 
     }({}));
 
-
   </script>
   </script>
   <script>
-    var __skeleton__x__data_map = {
-      '#/': '15|0|22|43.46875|||||||1,15|142.25|22|91.640625|||||||1,15|332.671875|22|42.3125|||||||1,0|0|595|375|||||||,58|16|126|343|||||10||1,90|32|22|70.046875|||||||0,92|102.046875|21|153|2|2|2|2||0|0,129|32|22|32.34375|||||||0,131|64.34375|21|153|2|2|2|2||0|0,200|16|238|343|||||10||1,232|32|22|311|||||||0,270|32|22|311|||||||0,308|32|22|311|||||||0,346|32|22|311|||||||0,384|32|22|311|||||||0,595|0|22|43.90625|||||||0,617|0|22|43.90625|||||||0,639|0|22|43.90625|||||||0,595|331.09375|22|43.90625|||||||0,617|331.09375|22|43.90625|||||||0,639|331.09375|22|43.90625|||||||0::{"1":[4,8],"2":[9,14],"layout-content":[3,14]}',
+    window.__skeleton__x__data_map = {
+      '#/': '15|0|22|43.46875|||||||1,15|142.25|22|91.640625|||||||1,15|332.671875|22|42.3125|||||||1,0|0|595|375|||||||,58|16|148|252|||||10||1,90|32|22|70.046875|||||||0,114|32|21|153|2|2|2|2||0|0,151|32|22|32.34375|||||||0,153|64.34375|21|153|2|2|2|2||0|0,222|16|238|343|||||10||1,254|32|22|311|||||||0,292|32|22|311|||||||0,330|32|22|311|||||||0,368|32|22|311|||||||0,406|32|22|311|||||||0,595|0|22|43.90625|||||||0,617|0|22|43.90625|||||||0,639|0|22|43.90625|||||||0,595|331.09375|22|43.90625|||||||0,617|331.09375|22|43.90625|||||||0,639|331.09375|22|43.90625|||||||0::{"1":[4,8],"2":[9,14],"layout-content":[3,14]}',
       '#/users': '15|0|22|43.46875|||||||1,15|142.25|22|91.640625|||||||1,15|332.671875|22|42.3125|||||||1,0|0|595|375|||||||,52|0|60|375|||||||1,90|0|22|375|||||||0,595|0|22|43.90625|||||||0,617|0|22|43.90625|||||||0,639|0|22|43.90625|||||||0,595|331.09375|22|43.90625|||||||0,617|331.09375|22|43.90625|||||||0,639|331.09375|22|43.90625|||||||0::{"layout-content":[3,5]}',
       '#/about': '15|0|22|43.46875|||||||1,15|142.25|22|91.640625|||||||1,15|332.671875|22|42.3125|||||||1,0|0|595|375|||||||,52|0|22|375|||||||0,595|0|22|43.90625|||||||0,617|0|22|43.90625|||||||0,639|0|22|43.90625|||||||0,595|331.09375|22|43.90625|||||||0,617|331.09375|22|43.90625|||||||0,639|331.09375|22|43.90625|||||||0::{"layout-content":[3,4]}'
     }
-
-    __skeleton__x__lib.setData(__skeleton__x__data_map[location.hash])
+    __skeleton__x__lib.getData = function () {
+      return __skeleton__x__data_map[location.hash]
+    }
 
   </script>
 </head>
