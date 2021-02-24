@@ -1,18 +1,17 @@
-import * as React from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 
 export default function SkeletonContainer(props: {
   children?: React.ReactNode
-  moduleId: string
+  moduleId?: string
   showSkeleton?: boolean
   className?: string
   style?: React.CSSProperties
 }) {
-  if (props.showSkeleton) {
+  if (window.__skeleton__x__lib && props.showSkeleton) {
     const innerHtml = window.__skeleton__x__lib.renderToHtml(undefined, props.moduleId);
     const size = window.__skeleton__x__lib.getModuleSize(undefined, props.moduleId);
 
-    return <div className={props.className} style={{ ...props.style, padding: '0!important'/*把之前的padding去掉，消除影响*/ }}>
+    return <div className={props.className} style={{ ...props.style, padding: 0 }}>
       <div style={{ position: 'relative', background: '#fff', ...size }} dangerouslySetInnerHTML={{ __html: innerHtml }} />
     </div>
   }
@@ -41,6 +40,7 @@ export function SkeletonSupspense(props: {
   //     left: '-' + computedStyle.paddingLeft,
   //   })
   // }, [])
+  if (!window.__skeleton__x__lib) return null
 
   const innerHtml = window.__skeleton__x__lib.renderToHtml(undefined, moduleId);
   const size = window.__skeleton__x__lib.getModuleSize(undefined, moduleId);
