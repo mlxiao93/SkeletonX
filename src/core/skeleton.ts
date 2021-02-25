@@ -11,7 +11,7 @@ import {nodeNeedBg, nodeNeedBorder, isCovered, getColorLevelList} from './utils'
 
 import { getFixedPosition, isPartInViewPort } from "./dom";
 import { setResponsive } from './responsive';
-import { toRenderDescList } from './data-transform';
+import { RenderDesc, toRenderDescList } from './data-transform';
 import { getModuleId, getModuleMap, ModuleMap } from './module';
 
 /** 骨架元素描述 */
@@ -287,23 +287,6 @@ export function reduceSkeletonDescList(list: SkeletonDesc[]): SkeletonDesc[] {
 
   console.log('reduce', res);
   return res;
-}
-
-
-export interface RenderDesc {
-  top: number,
-  left: number,
-  height: number,
-  width: number,
-
-  borderTopWidth?: number,
-  borderRightWidth?: number,
-  borderBottomWidth?: number,
-  borderLeftWidth?: number,
-  borderRadius?: number,
-  borderColor?: number,
-
-  backgroundColor?: number,
 }
 
 export function getRenderData(root: Node, root2: Node, viewport2: Window): {

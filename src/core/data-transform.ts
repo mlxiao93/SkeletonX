@@ -2,9 +2,66 @@
 // RenderDesc -> RenderProps
 // RenderDesc <-> RenderString
 
-import { RenderDesc, SkeletonDesc } from './skeleton'
+import { SkeletonDesc } from './skeleton'
 import { nodeNeedBg, nodeNeedBorder } from './utils';
 
+export interface RenderDesc {
+  top: number,
+  left: number,
+  height: number,
+  width: number,
+
+  borderTopWidth?: number,
+  borderRightWidth?: number,
+  borderBottomWidth?: number,
+  borderLeftWidth?: number,
+  borderRadius?: number,
+  borderColor?: number,
+
+  backgroundColor?: number,
+}
+
+/**
+ * 骨架描述转为骨架渲染描述
+ */
+export function toRenderDescList(descList: SkeletonDesc[]): RenderDesc[] {
+  const res: RenderDesc[] = [];
+
+  // borderColor:  #8e9097
+  // const ColorLevelMap = [
+  //   '#D3D4D7',
+  //   '#E9EAEB',
+  //   '#F4F4F5',
+  //   '#FFF'
+  // ]
+  // const colorLevelList = getColorLevelList(descList, ColorLevelMap.length - 1);
+
+  // console.log('colorLevelList', colorLevelList);
+
+  for (const index in descList) {
+    const node = descList[index];
+    const renderDesc: RenderDesc = {
+      left: node.x,
+      top: node.y,
+      height: node.height,
+      width: node.width,
+    }
+    if (node.borderLeftWidth !== '0px') renderDesc.borderLeftWidth = Number(node.borderLeftWidth.replace('px', ''));
+    if (node.borderRightWidth !== '0px') renderDesc.borderRightWidth = Number(node.borderRightWidth.replace('px', ''));
+    if (node.borderTopWidth !== '0px') renderDesc.borderTopWidth = Number(node.borderTopWidth.replace('px', ''));
+    if (node.borderBottomWidth !== '0px') renderDesc.borderBottomWidth = Number(node.borderBottomWidth.replace('px', ''));
+    if (node.borderRadius !== '0px') renderDesc.borderRadius = Number(node.borderRadius.replace('px', ''));
+    if (nodeNeedBorder(node)) {
+      renderDesc.borderColor = 0;
+    }
+    if (nodeNeedBg(node)) {
+      // renderDesc.backgroundColor = colorLevelList[index];
+      renderDesc.backgroundColor = 1;
+    }
+    res.push(renderDesc)
+  }
+  return res;
+}
 export interface RenderProps {
   top: CSSStyleDeclaration['top'],
   left: CSSStyleDeclaration['left'],
@@ -40,6 +97,7 @@ export function transforRenderDescToRenderProps(desc: RenderDesc): RenderProps {
   };
   if (desc.backgroundColor !== undefined) props.background = 'linear-gradient(90deg,rgb(190 190 190 / 20%) 25%,hsla(0,0%,50.6%,.24) 37%,hsla(0,0%,74.5%,.2) 63%); background-size: 400% 100%;';
   if (desc.borderColor !== undefined) props.borderColor = BorderColor;
+  if (desc.borderRadius !== undefined) props.borderRadius = desc.borderRadius + 'px';
   if (desc.borderBottomWidth !== undefined) props.borderBottomWidth = desc.borderBottomWidth + 'px';
   if (desc.borderTopWidth !== undefined) props.borderTopWidth = desc.borderTopWidth + 'px';
   if (desc.borderRightWidth !== undefined) props.borderRightWidth = desc.borderRightWidth + 'px';
@@ -82,48 +140,4 @@ export function parseStringToRenderDesc(str: string): RenderDesc {
     borderColor: values[9] || undefined,
     backgroundColor: values[10] || undefined
   }
-}
-
-/**
- * 骨架描述转为骨架渲染描述
- */
-export function toRenderDescList(descList: SkeletonDesc[]): RenderDesc[] {
-  const res: RenderDesc[] = [];
-
-  // borderColor:  #8e9097
-
-  // const ColorLevelMap = [
-  //   '#D3D4D7',
-  //   '#E9EAEB',
-  //   '#F4F4F5',
-  //   '#FFF'
-  // ]
-
-  // const colorLevelList = getColorLevelList(descList, ColorLevelMap.length - 1);
-
-  // console.log('colorLevelList', colorLevelList);
-
-  for (const index in descList) {
-    const node = descList[index];
-    const renderDesc: RenderDesc = {
-      left: node.x,
-      top: node.y,
-      height: node.height,
-      width: node.width,
-    }
-    if (node.borderLeftWidth !== '0px') renderDesc.borderLeftWidth = Number(node.borderLeftWidth.replace('px', ''));
-    if (node.borderRightWidth !== '0px') renderDesc.borderRightWidth = Number(node.borderRightWidth.replace('px', ''));
-    if (node.borderTopWidth !== '0px') renderDesc.borderTopWidth = Number(node.borderTopWidth.replace('px', ''));
-    if (node.borderBottomWidth !== '0px') renderDesc.borderBottomWidth = Number(node.borderBottomWidth.replace('px', ''));
-    if (node.borderRadius !== '0px') renderDesc.borderRadius = Number(node.borderRadius.replace('px', ''));
-    if (nodeNeedBorder(node)) {
-      renderDesc.borderColor = 0;
-    }
-    if (nodeNeedBg(node)) {
-      // renderDesc.backgroundColor = colorLevelList[index];
-      renderDesc.backgroundColor = 1;
-    }
-    res.push(renderDesc)
-  }
-  return res;
 }
