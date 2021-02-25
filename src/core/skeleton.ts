@@ -10,7 +10,7 @@ import {nodeNeedBg, nodeNeedBorder, isCovered, getColorLevelList} from './utils'
  */
 
 import { getFixedPosition, isPartInViewPort } from "./dom";
-import { setResponsive } from './responsive';
+import { getComputedSizeList } from './responsive';
 import { RenderDesc, toRenderDescList } from './data-transform';
 import { getModuleId, getModuleMap, ModuleMap } from './module';
 
@@ -49,14 +49,11 @@ export interface SkeletonDesc {
   width: number
 
   /** 响应式 */
-  responsive?: boolean   // 是否响应式
-  responsiveWidth?: string    // 做响应式转换之后的width
+  // responsive?: boolean   // 是否响应式
+  // responsiveWidth?: string    // 做响应式转换之后的width
 
   /** 边框 */
-  borderLeftWidth: CSSStyleDeclaration['borderWidth']
-  borderRightWidth: CSSStyleDeclaration['borderWidth']
-  borderTopWidth: CSSStyleDeclaration['borderWidth']
-  borderBottomWidth: CSSStyleDeclaration['borderWidth']
+  borderWidth: CSSStyleDeclaration['borderWidth']
   borderRadius: CSSStyleDeclaration['borderRadius']
   boxShadow: CSSStyleDeclaration['boxShadow']
 
@@ -143,10 +140,7 @@ export function getSkeletonDesc(opt: {
 
     ...getFixedPosition(element, viewport),
 
-    borderBottomWidth: style.borderBottomWidth,
-    borderLeftWidth: style.borderLeftWidth,
-    borderRightWidth: style.borderRightWidth,
-    borderTopWidth: style.borderTopWidth,
+    borderWidth: style.borderWidth,
     borderRadius: style.borderRadius,
     boxShadow: style.boxShadow,
 
@@ -261,7 +255,7 @@ export function reduceSkeletonDescList(list: SkeletonDesc[]): SkeletonDesc[] {
     // 无文本
     const noText = !node.containTextNode;
     // 无边框
-    const noBorder = node.borderTopWidth + node.borderTopWidth + node.borderBottomWidth + node.borderLeftWidth === '0px0px0px0px';
+    const noBorder = node.borderWidth === '0px 0px 0px 0px' || node.borderWidth === '0px';
     // 无阴影
     const noShadow = node.boxShadow === 'none';
     // 无尺寸
@@ -298,8 +292,11 @@ export function getRenderData(root: Node, root2: Node, viewport2: Window): {
 
   console.log('desclist1', descList);
   console.log('desclist2', descList2)
+  const computedSizeList = getComputedSizeList(descList, descList2);
 
-  const renderList = toRenderDescList(descList);
+  console.log('computedSizeList', computedSizeList);
+
+  const renderList = toRenderDescList(descList, computedSizeList);
   const moduleMap = getModuleMap(descList);
   console.log('render data', renderList);
   console.log('module map', moduleMap);

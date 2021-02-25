@@ -8,8 +8,8 @@ export function nodeNeedBg(node: SkeletonDesc) {
     || node.boxShadow !== 'none';
 }
 
-export function nodeNeedBorder(node: SkeletonDesc) {
-  return node.borderTopWidth + node.borderTopWidth + node.borderBottomWidth + node.borderLeftWidth !== '0px0px0px0px'
+export function needBorder(borderWidth: string) {
+  return borderWidth !== '0px 0px 0px 0px' && borderWidth !== '0px';
 }
 
 // 两个元素是否有重叠部分

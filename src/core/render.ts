@@ -1,4 +1,4 @@
-import { RenderDesc } from './skeleton'
+import { RenderDesc } from './data-transform'
 import { parseStringToRenderDesc, transforRenderDescToRenderProps } from './data-transform'
 import { ModuleMap, toModuleRelativeDesc } from './module'
 
@@ -12,6 +12,8 @@ function descToHtml(desc: RenderDesc, moduleRootDesc?: RenderDesc) {
 
   let style = 'z-index:9999999;position:absolute;';
   for (let key in renderProps) {
+    const value = renderProps[key];
+    if (!value) continue;
     style += key.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase() + ':' + renderProps[key] + ';'
   };
   return '<div class="skeleton-x-node" style="' + style + '"></div>';
