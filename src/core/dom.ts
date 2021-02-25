@@ -38,7 +38,8 @@ export function getFixedPosition(element: Element, viewport: Window = window): {
     height
   } = element.getBoundingClientRect();
 
-  const viewportWidth = viewport.innerWidth;
+  // const viewportWidth = viewport.innerWidth;
+  const viewportWidth = viewport.document.documentElement.clientWidth;
   const viewportHeight = viewport.innerHeight;
 
   return {

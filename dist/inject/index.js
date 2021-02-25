@@ -245,7 +245,7 @@ function createCommonjsModule(fn) {
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-var runtime_1 = createCommonjsModule(function (module) {
+createCommonjsModule(function (module) {
   var runtime = function (exports) {
 
     var Op = Object.prototype;
@@ -945,7 +945,7 @@ var runtime_1 = createCommonjsModule(function (module) {
   // as the regeneratorRuntime namespace. Otherwise create a new empty
   // object. Either way, the resulting object will be used to initialize
   // the regeneratorRuntime variable at the top of this file.
-   module.exports );
+  module.exports );
 
   try {
     regeneratorRuntime = runtime;
@@ -1014,9 +1014,10 @@ function getFixedPosition(element) {
       bottom = _element$getBoundingC2.bottom,
       left = _element$getBoundingC2.left,
       width = _element$getBoundingC2.width,
-      height = _element$getBoundingC2.height;
+      height = _element$getBoundingC2.height; // const viewportWidth = viewport.innerWidth;
 
-  var viewportWidth = viewport.innerWidth;
+
+  var viewportWidth = viewport.document.documentElement.clientWidth;
   var viewportHeight = viewport.innerHeight;
   return {
     left: left,
@@ -1033,25 +1034,69 @@ function getFixedPosition(element) {
 var RefViewportRatio = 0.95;
 function getComputedSizeList(list, refList) {
   var res = [];
-  list.map(function (item) {
+  list.map(function (item, index) {
     var refItem = refList.find(function (i) {
       return i.id === item.id;
     });
-    res.push(getComputedSize(item));
+    res.push(getComputedSize(item, refItem));
   });
   return res;
 }
-function getComputedSize(item, refItem) {
+function getComputedSize(item, refItem, index) {
   var itemSize = getSkeletonDescSize(item);
-  var defaultComputedSize = {
+  var computedSize = {
     left: "".concat(itemSize.pLeft, "vw"),
-    // left: `${itemSize.left}px`,
     top: "".concat(itemSize.top, "px"),
     width: "".concat(itemSize.pWidth, "vw"),
-    // width: `${itemSize.width}px`,
     height: "".concat(itemSize.height, "px")
   };
-  return defaultComputedSize;
+  if (!refItem) return computedSize;
+  var refItemSize = getSkeletonDescSize(refItem);
+
+  var _widthEqual = widthEqual(itemSize, refItemSize);
+
+  var _leftEqual = leftEqual(itemSize, refItemSize);
+
+  var _rightEqual = rightEqual(itemSize, refItemSize);
+
+  heightEqual(itemSize, refItemSize);
+
+  topEqual(itemSize, refItemSize);
+
+  bottomEqual(itemSize, refItemSize);
+  /** 计算水平方向的尺寸 */
+
+
+  if (_widthEqual + _leftEqual + _rightEqual === 0) ; else if (_widthEqual + _leftEqual + _rightEqual >= 30) {
+    // 三个值相等取左右vw
+    delete computedSize.width;
+    computedSize.left = "".concat(itemSize.pLeft, "vw");
+    computedSize.right = "".concat(itemSize.pRight, "vw");
+  } else if (_widthEqual + _leftEqual + _rightEqual >= 20) {
+    // 两个值相等的情况，哪个不等，取另外两个
+    computedSize.width = _widthEqual === 10 ? "".concat(itemSize.width, "px") : "".concat(itemSize.pWidth, "vw");
+    computedSize.left = _leftEqual === 10 ? "".concat(itemSize.left, "px") : "".concat(itemSize.pLeft, "vw");
+    computedSize.right = _rightEqual === 10 ? "".concat(itemSize.right, "px") : "".concat(itemSize.pRight, "vw");
+
+    if (!_widthEqual) {
+      delete computedSize.width;
+    } else if (!_leftEqual) {
+      delete computedSize.left;
+    } else {
+      delete computedSize.right;
+    }
+  } else {
+    // 只有一个值相等的情况
+    // 这种情况只可能是width相等（元素居中的情况）
+    delete computedSize.right;
+    computedSize.width = _widthEqual === 10 ? "".concat(itemSize.width, "px") : "".concat(itemSize.pWidth, "vw");
+    var midOffset = window.innerWidth * 0.5 - itemSize.left;
+    computedSize.left = midOffset > 0 ? "calc(50vw - ".concat(midOffset, "px)") : "calc(50vw + ".concat(-midOffset, "px)");
+  }
+  /** 计算垂直方向的尺寸 */
+
+
+  return computedSize;
 }
 
 function getSkeletonDescSize(item) {
@@ -1069,6 +1114,48 @@ function getSkeletonDescSize(item) {
     pTop: +(item.top / item.vh * 100).toFixed(2),
     pBottom: +(item.bottom / item.vh * 100).toFixed(2)
   };
+}
+/**
+ * 0代表不相等
+ * 10代表px相等
+ * 11代表vw相等
+ */
+
+
+function widthEqual(size1, size2) {
+  if (size1.width === size2.width) return 10;
+  if (Math.abs(size1.pWidth - size2.pWidth) < 0.1) return 11;
+  return 0;
+}
+
+function heightEqual(size1, size2) {
+  if (size1.height === size2.height) return 10;
+  if (Math.abs(size1.pHeight - size2.pHeight) < 0.1) return 11;
+  return 0;
+}
+
+function topEqual(size1, size2) {
+  if (size1.top === size2.top) return 10;
+  if (Math.abs(size1.pTop - size2.pTop) < 0.1) return 11;
+  return 0;
+}
+
+function bottomEqual(size1, size2) {
+  if (size1.bottom === size2.bottom) return 10;
+  if (Math.abs(size1.pBottom - size2.pBottom) < 0.1) return 11;
+  return 0;
+}
+
+function leftEqual(size1, size2) {
+  if (size1.left === size2.left) return 10;
+  if (Math.abs(size1.pLeft - size2.pLeft) < 0.1) return 11;
+  return 0;
+}
+
+function rightEqual(size1, size2) {
+  if (size1.right === size2.right) return 10;
+  if (Math.abs(size1.pRight - size2.pRight) < 0.1) return 11;
+  return 0;
 }
 
 // SkeletonDesc -> RenderDesc
@@ -1319,7 +1406,8 @@ function generateSkeletonDescList(opt) {
   var skeletonDesc = getSkeletonDesc({
     node: node,
     index: index,
-    parentDesc: parentDesc
+    parentDesc: parentDesc,
+    viewport: viewport
   });
   if (!skeletonDesc) return;
   list.push(skeletonDesc);
@@ -1403,7 +1491,6 @@ function clipSkeletonDescList(list) {
     _iterator.f();
   }
 
-  console.log('clip', list);
   return list;
 }
 /**
@@ -1454,13 +1541,12 @@ function reduceSkeletonDescList(list) {
 
     return node;
   });
-  console.log('reduce', res);
   return res;
 }
 function getRenderData(root, root2, viewport2) {
   var descList = getSkeletonDescList(root, window);
   var descList2 = getSkeletonDescList(root2, viewport2);
-  console.log('desclist1', descList);
+  console.log('desclist', descList);
   console.log('desclist2', descList2);
   var computedSizeList = getComputedSizeList(descList, descList2);
   console.log('computedSizeList', computedSizeList);

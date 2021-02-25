@@ -6,7 +6,6 @@ import {nodeNeedBg, nodeNeedBorder, isCovered, getColorLevelList} from './utils'
  * 2. 响应式
  * 3. 节点层级太深处理
  * 4. overflow裁剪bug(阿里内外可发现)
- * 4. 颜色层级还有问题
  */
 
 import { getFixedPosition, isPartInViewPort } from "./dom";
@@ -168,7 +167,7 @@ export function generateSkeletonDescList(opt: {
 }): SkeletonDesc[] {
   const { node, parentDesc, index = 0, list = [], viewport = window } = opt
 
-  const skeletonDesc = getSkeletonDesc({ node, index, parentDesc})
+  const skeletonDesc = getSkeletonDesc({ node, index, parentDesc, viewport})
   if (!skeletonDesc) return;
 
   list.push(skeletonDesc);
@@ -227,7 +226,6 @@ export function clipSkeletonDescList(list: SkeletonDesc[]): SkeletonDesc[] {
       nodesQueue.push(...grandChildren);
     }
   }
-  console.log('clip', list);
   return list;
 }
 
@@ -279,7 +277,6 @@ export function reduceSkeletonDescList(list: SkeletonDesc[]): SkeletonDesc[] {
     return node;
   });
 
-  console.log('reduce', res);
   return res;
 }
 
@@ -290,8 +287,8 @@ export function getRenderData(root: Node, root2: Node, viewport2: Window): {
   const descList = getSkeletonDescList(root, window);
   const descList2 = getSkeletonDescList(root2, viewport2);
 
-  console.log('desclist1', descList);
-  console.log('desclist2', descList2)
+  console.log('desclist', descList);
+  console.log('desclist2', descList2);
   const computedSizeList = getComputedSizeList(descList, descList2);
 
   console.log('computedSizeList', computedSizeList);
