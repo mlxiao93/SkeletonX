@@ -1,15 +1,13 @@
-import { parseStringToRenderDesc, RenderDesc, renderDescToString, transforRenderDescToRenderProps, ModuleMap } from './skeleton'
+import { RenderDesc } from './skeleton'
+import { parseStringToRenderDesc, transforRenderDescToRenderProps } from './data-transform'
+import { ModuleMap, toModuleRelativeDesc } from './module'
 
 /**
  * @param desc 
  * @param moduleRootDesc 如果传递了moduleRootDesc，则骨架基于moduleRootDesc定位
  */
 function descToHtml(desc: RenderDesc, moduleRootDesc?: RenderDesc) {
-  desc = JSON.parse(JSON.stringify(desc));
-  if (moduleRootDesc) {
-    desc.left = desc.left - moduleRootDesc.left;
-    desc.top = desc.top - moduleRootDesc.top;
-  }
+  desc = toModuleRelativeDesc(desc, moduleRootDesc);
   let renderProps = transforRenderDescToRenderProps(desc)
 
   let style = 'z-index:9999999;position:absolute;';

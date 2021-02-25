@@ -24,7 +24,9 @@ export function getFixedPosition(element: Element, viewport: Window = window): {
   right: number,
   bottom: number,
   width: number,
-  height: number
+  height: number,
+  vw: number,
+  vh: number
 } {
 
   const {
@@ -45,7 +47,9 @@ export function getFixedPosition(element: Element, viewport: Window = window): {
     right: viewportWidth - right,
     bottom: viewportHeight - bottom,
     width,
-    height
+    height,
+    vw: viewportWidth,
+    vh: viewportHeight
   }
 
 }

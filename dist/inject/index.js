@@ -1024,47 +1024,163 @@ function getFixedPosition(element) {
     right: viewportWidth - right,
     bottom: viewportHeight - bottom,
     width: width,
-    height: height
+    height: height,
+    vw: viewportWidth,
+    vh: viewportHeight
   };
 }
 
-var RefViewportRatio = 0.95;
+// SkeletonDesc -> RenderDesc
+
 /**
- * 响应式处理
- * @param list  骨架数据
- * @param refList 改变视口尺寸后的骨架数据
+ * 骨架渲染描述转为骨架节点render props
+ */
+function transforRenderDescToRenderProps(desc) {
+  var BorderColor = '#8e9097'; // const ColorLevelMap = [
+  //   '#D3D4D7',
+  //   '#E9EAEB',
+  //   '#F4F4F5',
+  //   '#FFF'
+  // ];
+
+  var props = {
+    top: desc.top + 'px',
+    left: desc.left + 'px',
+    height: desc.height + 'px',
+    width: desc.width + 'px'
+  };
+  if (desc.backgroundColor !== undefined) props.background = 'linear-gradient(90deg,rgb(190 190 190 / 20%) 25%,hsla(0,0%,50.6%,.24) 37%,hsla(0,0%,74.5%,.2) 63%); background-size: 400% 100%;';
+  if (desc.borderColor !== undefined) props.borderColor = BorderColor;
+  if (desc.borderBottomWidth !== undefined) props.borderBottomWidth = desc.borderBottomWidth + 'px';
+  if (desc.borderTopWidth !== undefined) props.borderTopWidth = desc.borderTopWidth + 'px';
+  if (desc.borderRightWidth !== undefined) props.borderRightWidth = desc.borderRightWidth + 'px';
+  if (desc.borderLeftWidth !== undefined) props.borderLeftWidth = desc.borderLeftWidth + 'px';
+  return props;
+}
+/**
+ * 使用'|'分隔RenderDesc的属性值，固化属性的顺序
+ * @return top|left|height|width|borderTopWidth|borderRightWidth|borderBottomWidth|borderLeftWidth|borderRadius|borderColor|backgroundColor|
  */
 
-function setResponsive(list, refList) {
-  list.map(function (item) {
-    var refItem = refList.find(function (i) {
-      return i.id === item.id;
+function renderDescToString(desc) {
+  return [desc.top, desc.left, desc.height, desc.width, desc.borderTopWidth, desc.borderRightWidth, desc.borderBottomWidth, desc.borderLeftWidth, desc.borderRadius, desc.borderColor, desc.backgroundColor].join('|');
+}
+function parseStringToRenderDesc(str) {
+  var values = str.split('|');
+  return {
+    top: values[0] || undefined,
+    left: values[1] || undefined,
+    height: values[2] || undefined,
+    width: values[3] || undefined,
+    borderTopWidth: values[4] || undefined,
+    borderRightWidth: values[5] || undefined,
+    borderBottomWidth: values[6] || undefined,
+    borderLeftWidth: values[7] || undefined,
+    borderRadius: values[8] || undefined,
+    borderColor: values[9] || undefined,
+    backgroundColor: values[10] || undefined
+  };
+}
+/**
+ * 骨架描述转为骨架渲染描述
+ */
+
+function toRenderDescList(descList) {
+  var res = []; // borderColor:  #8e9097
+  // const ColorLevelMap = [
+  //   '#D3D4D7',
+  //   '#E9EAEB',
+  //   '#F4F4F5',
+  //   '#FFF'
+  // ]
+  // const colorLevelList = getColorLevelList(descList, ColorLevelMap.length - 1);
+  // console.log('colorLevelList', colorLevelList);
+
+  for (var index in descList) {
+    var node = descList[index];
+    var renderDesc = {
+      left: node.x,
+      top: node.y,
+      height: node.height,
+      width: node.width
+    };
+    if (node.borderLeftWidth !== '0px') renderDesc.borderLeftWidth = Number(node.borderLeftWidth.replace('px', ''));
+    if (node.borderRightWidth !== '0px') renderDesc.borderRightWidth = Number(node.borderRightWidth.replace('px', ''));
+    if (node.borderTopWidth !== '0px') renderDesc.borderTopWidth = Number(node.borderTopWidth.replace('px', ''));
+    if (node.borderBottomWidth !== '0px') renderDesc.borderBottomWidth = Number(node.borderBottomWidth.replace('px', ''));
+    if (node.borderRadius !== '0px') renderDesc.borderRadius = Number(node.borderRadius.replace('px', ''));
+
+    if (nodeNeedBorder(node)) {
+      renderDesc.borderColor = 0;
+    }
+
+    if (nodeNeedBg(node)) {
+      // renderDesc.backgroundColor = colorLevelList[index];
+      renderDesc.backgroundColor = 1;
+    }
+
+    res.push(renderDesc);
+  }
+
+  return res;
+}
+
+// 提取moduleId
+function getModuleId(nodeSkltModuleId, parentDesc) {
+  var _parentDesc$moduleId, _moduleId;
+
+  var moduleId = undefined;
+  var parentModuleId = (_parentDesc$moduleId = parentDesc === null || parentDesc === void 0 ? void 0 : parentDesc.moduleId) !== null && _parentDesc$moduleId !== void 0 ? _parentDesc$moduleId : [];
+
+  if (nodeSkltModuleId || parentModuleId !== null && parentModuleId !== void 0 && parentModuleId.length) {
+    moduleId = [].concat(_toConsumableArray(parentModuleId), [nodeSkltModuleId]).filter(function (i) {
+      return i;
     });
-    if (!refItem) return;
+  }
 
-    if (Math.abs(item.width - refItem.width) >= 0.5) {
-      // 标记出响应式节点
-      item.responsive = true;
-      /**
-       * 计算响应式宽度
-       * 两种形式
-       * 1.完全缩放的： xx vw
-       * 2.固定左右边距缩放的：calc(100vw - xx)
-       */
+  if (!((_moduleId = moduleId) !== null && _moduleId !== void 0 && _moduleId.length)) moduleId = undefined;
+  return moduleId;
+}
+function getModuleMap(descList) {
+  var ModuleMap;
 
-      var ratio = item.width / window.innerWidth;
+  for (var i in descList) {
+    var desc = descList[i];
+    var moduleId = desc.moduleId;
 
-      var _refItemWidth = window.innerWidth * RefViewportRatio * ratio;
+    if (moduleId !== null && moduleId !== void 0 && moduleId.length) {
+      ModuleMap = ModuleMap || {};
 
-      if (Math.abs(_refItemWidth - refItem.width) <= 0.1) {
-        // 完全缩放
-        item.responsiveWidth = "".concat(ratio.toFixed(2), "vw");
-      } else {
-        // 固定左右边距缩放
-        item.responsiveWidth = "calc(100vw - ".concat(window.innerWidth - item.width, "px)");
+      var _iterator = _createForOfIteratorHelper(moduleId),
+          _step;
+
+      try {
+        for (_iterator.s(); !(_step = _iterator.n()).done;) {
+          var id = _step.value;
+
+          if (!ModuleMap[id]) {
+            ModuleMap[id] = [Number(i), Number(i)];
+          } else {
+            ModuleMap[id][1] = Number(i);
+          }
+        }
+      } catch (err) {
+        _iterator.e(err);
+      } finally {
+        _iterator.f();
       }
     }
-  });
+  }
+  return ModuleMap;
+}
+function toModuleRelativeDesc(desc, moduleRootDesc) {
+  desc = JSON.parse(JSON.stringify(desc));
+
+  if (moduleRootDesc) {
+    desc.left = desc.left - moduleRootDesc.left;
+    desc.top = desc.top - moduleRootDesc.top;
+  }
+  return desc;
 }
 
 /** 骨架元素描述 */
@@ -1073,16 +1189,12 @@ function setResponsive(list, refList) {
  * 获取骨架节点描述扁平数据
  * @param root 根元素
  */
-function getSkeletonDescList(root, root2, viewport2) {
+function getSkeletonDescList(root) {
+  var viewport = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : window;
   var list = generateSkeletonDescList({
     node: root,
-    viewport: window
+    viewport: viewport
   });
-  var list2 = generateSkeletonDescList({
-    node: root2,
-    viewport: viewport2
-  });
-  setResponsive(list, list2);
   list = clipSkeletonDescList(list);
   list = reduceSkeletonDescList(list);
   return list;
@@ -1092,7 +1204,7 @@ function getSkeletonDescList(root, root2, viewport2) {
  */
 
 function getSkeletonDesc(opt) {
-  var _element$getAttribute, _parentDesc$moduleId, _moduleId;
+  var _element$getAttribute;
 
   var node = opt.node,
       index = opt.index,
@@ -1133,22 +1245,12 @@ function getSkeletonDesc(opt) {
   }
 
   var clientRect = element.getBoundingClientRect();
-  var moduleId = undefined;
-  var nodeSkltId = (_element$getAttribute = element.getAttribute('skeletonx-module-id')) !== null && _element$getAttribute !== void 0 ? _element$getAttribute : undefined;
-  var parentModuleId = (_parentDesc$moduleId = parentDesc === null || parentDesc === void 0 ? void 0 : parentDesc.moduleId) !== null && _parentDesc$moduleId !== void 0 ? _parentDesc$moduleId : [];
-
-  if (nodeSkltId || parentModuleId !== null && parentModuleId !== void 0 && parentModuleId.length) {
-    moduleId = [].concat(_toConsumableArray(parentModuleId), [nodeSkltId]).filter(function (i) {
-      return i;
-    });
-  }
-
-  if (!((_moduleId = moduleId) !== null && _moduleId !== void 0 && _moduleId.length)) moduleId = undefined;
+  var nodeSkltModuleId = (_element$getAttribute = element.getAttribute('skeletonx-module-id')) !== null && _element$getAttribute !== void 0 ? _element$getAttribute : undefined;
   return _objectSpread2(_objectSpread2({
     parentId: parentDesc ? parentDesc.id : null,
     id: parentDesc ? "".concat(parentDesc.id, "[").concat(index, "]") : '',
-    moduleRoot: nodeSkltId ? true : undefined,
-    moduleId: moduleId,
+    moduleRoot: nodeSkltModuleId ? true : undefined,
+    moduleId: getModuleId(nodeSkltModuleId, parentDesc),
     tagName: element.tagName,
     // nodeType: node.nodeType,
     x: clientRect.left,
@@ -1324,83 +1426,11 @@ function reduceSkeletonDescList(list) {
   console.log('reduce', res);
   return res;
 }
-function getModuleMap(descList) {
-  var ModuleMap;
-
-  for (var i in descList) {
-    var desc = descList[i];
-    var moduleId = desc.moduleId;
-
-    if (moduleId !== null && moduleId !== void 0 && moduleId.length) {
-      ModuleMap = ModuleMap || {};
-
-      var _iterator2 = _createForOfIteratorHelper(moduleId),
-          _step2;
-
-      try {
-        for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-          var id = _step2.value;
-
-          if (!ModuleMap[id]) {
-            ModuleMap[id] = [Number(i), Number(i)];
-          } else {
-            ModuleMap[id][1] = Number(i);
-          }
-        }
-      } catch (err) {
-        _iterator2.e(err);
-      } finally {
-        _iterator2.f();
-      }
-    }
-  }
-  return ModuleMap;
-}
-/**
- * 骨架描述转为骨架渲染描述
- */
-
-function toRenderDescList(descList) {
-  var res = []; // borderColor:  #8e9097
-  // const ColorLevelMap = [
-  //   '#D3D4D7',
-  //   '#E9EAEB',
-  //   '#F4F4F5',
-  //   '#FFF'
-  // ]
-  // const colorLevelList = getColorLevelList(descList, ColorLevelMap.length - 1);
-  // console.log('colorLevelList', colorLevelList);
-
-  for (var index in descList) {
-    var node = descList[index];
-    var renderDesc = {
-      left: node.x,
-      top: node.y,
-      height: node.height,
-      width: node.width
-    };
-    if (node.borderLeftWidth !== '0px') renderDesc.borderLeftWidth = Number(node.borderLeftWidth.replace('px', ''));
-    if (node.borderRightWidth !== '0px') renderDesc.borderRightWidth = Number(node.borderRightWidth.replace('px', ''));
-    if (node.borderTopWidth !== '0px') renderDesc.borderTopWidth = Number(node.borderTopWidth.replace('px', ''));
-    if (node.borderBottomWidth !== '0px') renderDesc.borderBottomWidth = Number(node.borderBottomWidth.replace('px', ''));
-    if (node.borderRadius !== '0px') renderDesc.borderRadius = Number(node.borderRadius.replace('px', ''));
-
-    if (nodeNeedBorder(node)) {
-      renderDesc.borderColor = 0;
-    }
-
-    if (nodeNeedBg(node)) {
-      // renderDesc.backgroundColor = colorLevelList[index];
-      renderDesc.backgroundColor = 1;
-    }
-
-    res.push(renderDesc);
-  }
-
-  return res;
-}
 function getRenderData(root, root2, viewport2) {
-  var descList = getSkeletonDescList(root, root2, viewport2);
+  var descList = getSkeletonDescList(root, window);
+  var descList2 = getSkeletonDescList(root2, viewport2);
+  console.log('desclist1', descList);
+  console.log('desclist2', descList2);
   var renderList = toRenderDescList(descList);
   var moduleMap = getModuleMap(descList);
   console.log('render data', renderList);
@@ -1410,56 +1440,6 @@ function getRenderData(root, root2, viewport2) {
     moduleMap: moduleMap
   };
 }
-/**
- * 使用'|'分隔RenderDesc的属性值，固化属性的顺序
- * @return top|left|height|width|borderTopWidth|borderRightWidth|borderBottomWidth|borderLeftWidth|borderRadius|borderColor|backgroundColor|
- */
-
-function renderDescToString(desc) {
-  return [desc.top, desc.left, desc.height, desc.width, desc.borderTopWidth, desc.borderRightWidth, desc.borderBottomWidth, desc.borderLeftWidth, desc.borderRadius, desc.borderColor, desc.backgroundColor].join('|');
-}
-function parseStringToRenderDesc(str) {
-  var values = str.split('|');
-  return {
-    top: values[0] || undefined,
-    left: values[1] || undefined,
-    height: values[2] || undefined,
-    width: values[3] || undefined,
-    borderTopWidth: values[4] || undefined,
-    borderRightWidth: values[5] || undefined,
-    borderBottomWidth: values[6] || undefined,
-    borderLeftWidth: values[7] || undefined,
-    borderRadius: values[8] || undefined,
-    borderColor: values[9] || undefined,
-    backgroundColor: values[10] || undefined
-  };
-}
-
-/**
- * 骨架渲染描述转为骨架节点render props
- */
-function transforRenderDescToRenderProps(desc) {
-  var BorderColor = '#8e9097'; // const ColorLevelMap = [
-  //   '#D3D4D7',
-  //   '#E9EAEB',
-  //   '#F4F4F5',
-  //   '#FFF'
-  // ];
-
-  var props = {
-    top: desc.top + 'px',
-    left: desc.left + 'px',
-    height: desc.height + 'px',
-    width: desc.width + 'px'
-  };
-  if (desc.backgroundColor !== undefined) props.background = 'linear-gradient(90deg,rgb(190 190 190 / 20%) 25%,hsla(0,0%,50.6%,.24) 37%,hsla(0,0%,74.5%,.2) 63%); background-size: 400% 100%;';
-  if (desc.borderColor !== undefined) props.borderColor = BorderColor;
-  if (desc.borderBottomWidth !== undefined) props.borderBottomWidth = desc.borderBottomWidth + 'px';
-  if (desc.borderTopWidth !== undefined) props.borderTopWidth = desc.borderTopWidth + 'px';
-  if (desc.borderRightWidth !== undefined) props.borderRightWidth = desc.borderRightWidth + 'px';
-  if (desc.borderLeftWidth !== undefined) props.borderLeftWidth = desc.borderLeftWidth + 'px';
-  return props;
-}
 
 /**
  * @param desc 
@@ -1467,13 +1447,7 @@ function transforRenderDescToRenderProps(desc) {
  */
 
 function descToHtml(desc, moduleRootDesc) {
-  desc = JSON.parse(JSON.stringify(desc));
-
-  if (moduleRootDesc) {
-    desc.left = desc.left - moduleRootDesc.left;
-    desc.top = desc.top - moduleRootDesc.top;
-  }
-
+  desc = toModuleRelativeDesc(desc, moduleRootDesc);
   var renderProps = transforRenderDescToRenderProps(desc);
   var style = 'z-index:9999999;position:absolute;';
 
@@ -1520,6 +1494,8 @@ function renderToHtml(dataString, moduleId) {
   }
   return html;
 }
+
+var RefViewportRatio = 0.95;
 
 var Skeleton = /*#__PURE__*/function () {
   function Skeleton() {

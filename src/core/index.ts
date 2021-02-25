@@ -1,5 +1,6 @@
 import 'regenerator-runtime/runtime';
-import { RenderDesc, getRenderData, renderDescToString, ModuleMap } from './skeleton'
+import { getRenderData } from './skeleton'
+import { renderDescToString } from './data-transform'
 import { renderToHtml } from './render'
 import { RefViewportRatio } from './responsive';
 

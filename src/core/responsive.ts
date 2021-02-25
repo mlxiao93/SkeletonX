@@ -34,3 +34,6 @@ export function setResponsive(list: SkeletonDesc[], refList: SkeletonDesc[]) {
     }
   });
 }
+
+
+
