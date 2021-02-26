@@ -245,7 +245,7 @@ function createCommonjsModule(fn) {
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-createCommonjsModule(function (module) {
+var runtime_1 = createCommonjsModule(function (module) {
   var runtime = function (exports) {
 
     var Op = Object.prototype;
@@ -945,7 +945,7 @@ createCommonjsModule(function (module) {
   // as the regeneratorRuntime namespace. Otherwise create a new empty
   // object. Either way, the resulting object will be used to initialize
   // the regeneratorRuntime variable at the top of this file.
-  module.exports );
+   module.exports );
 
   try {
     regeneratorRuntime = runtime;
@@ -1018,7 +1018,7 @@ function getFixedPosition(element) {
 
 
   var viewportWidth = viewport.document.documentElement.clientWidth;
-  var viewportHeight = viewport.innerHeight;
+  var viewportHeight = viewport.document.documentElement.clientHeight;
   return {
     left: left,
     top: top,
@@ -1059,11 +1059,11 @@ function getComputedSize(item, refItem, index) {
 
   var _rightEqual = rightEqual(itemSize, refItemSize);
 
-  heightEqual(itemSize, refItemSize);
+  var _heightEqual = heightEqual(itemSize, refItemSize);
 
-  topEqual(itemSize, refItemSize);
+  var _topEqual = topEqual(itemSize, refItemSize);
 
-  bottomEqual(itemSize, refItemSize);
+  var _bottomEqual = bottomEqual(itemSize, refItemSize);
   /** 计算水平方向的尺寸 */
 
 
@@ -1088,13 +1088,44 @@ function getComputedSize(item, refItem, index) {
   } else {
     // 只有一个值相等的情况
     // 这种情况只可能是width相等（元素居中的情况）
+    // TODO 还有情况是改变视口计算的误差需要处理
     delete computedSize.right;
     computedSize.width = _widthEqual === 10 ? "".concat(itemSize.width, "px") : "".concat(itemSize.pWidth, "vw");
-    var midOffset = window.innerWidth * 0.5 - itemSize.left;
+    var midOffset = document.documentElement.clientWidth * 0.5 - itemSize.left;
     computedSize.left = midOffset > 0 ? "calc(50vw - ".concat(midOffset, "px)") : "calc(50vw + ".concat(-midOffset, "px)");
   }
   /** 计算垂直方向的尺寸 */
 
+
+  if (_heightEqual + _topEqual + _bottomEqual === 0) ; else if (_heightEqual + _topEqual + _bottomEqual >= 30) {
+    // 三个值相等取上下vh
+    delete computedSize.height;
+    computedSize.top = "".concat(itemSize.pTop, "vh");
+    computedSize.bottom = "".concat(itemSize.pBottom, "vh");
+  } else if (_heightEqual + _topEqual + _bottomEqual >= 20) {
+    // 两个值相等的情况，哪个不等，取另外两个
+    computedSize.height = _heightEqual === 10 ? "".concat(itemSize.height, "px") : "".concat(itemSize.pHeight, "vh");
+    computedSize.top = _topEqual === 10 ? "".concat(itemSize.top, "px") : "".concat(itemSize.pTop, "vh");
+    computedSize.bottom = _bottomEqual === 10 ? "".concat(itemSize.bottom, "px") : "".concat(itemSize.pBottom, "vh");
+
+    if (!_heightEqual) {
+      delete computedSize.height;
+    } else if (!topEqual) {
+      delete computedSize.top;
+    } else {
+      delete computedSize.bottom;
+    }
+  } else {
+    // 只有一个值相等的情况
+    // 这种情况只可能是height相等（元素居中的情况）
+    // TODO 还有情况是改变视口计算的误差需要处理
+    delete computedSize.bottom;
+    computedSize.height = _heightEqual === 10 ? "".concat(itemSize.height, "px") : "".concat(itemSize.pHeight, "vw");
+
+    var _midOffset = document.documentElement.clientHeight * 0.5 - itemSize.top;
+
+    computedSize.left = _midOffset > 0 ? "calc(50vh - ".concat(_midOffset, "px)") : "calc(50vh + ".concat(-_midOffset, "px)");
+  }
 
   return computedSize;
 }
@@ -1675,7 +1706,7 @@ var Skeleton = /*#__PURE__*/function () {
                 _context2.next = 7;
                 return new Promise(function (resolve) {
                   iframe.style.width = "".concat(RefViewportRatio * 100, "vw");
-                  iframe.style.height = '100vh';
+                  iframe.style.height = "".concat(RefViewportRatio * 100, "vh");
                   iframe.style.position = 'fixed';
                   iframe.style.zIndex = '-1';
                   iframe.style.top = '0';

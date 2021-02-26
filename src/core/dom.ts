@@ -40,7 +40,7 @@ export function getFixedPosition(element: Element, viewport: Window = window): {
 
   // const viewportWidth = viewport.innerWidth;
   const viewportWidth = viewport.document.documentElement.clientWidth;
-  const viewportHeight = viewport.innerHeight;
+  const viewportHeight = viewport.document.documentElement.clientHeight;
 
   return {
     left,

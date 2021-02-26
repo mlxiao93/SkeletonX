@@ -36,13 +36,13 @@ export function getComputedSize(item: SkeletonDesc, refItem?: SkeletonDesc, inde
   const _leftEqual = leftEqual(itemSize, refItemSize);
   const _rightEqual = rightEqual(itemSize, refItemSize);
 
-  const _height = heightEqual(itemSize, refItemSize);
-  const _top = topEqual(itemSize, refItemSize);
-  const _bottom = bottomEqual(itemSize, refItemSize);
+  const _heightEqual = heightEqual(itemSize, refItemSize);
+  const _topEqual = topEqual(itemSize, refItemSize);
+  const _bottomEqual = bottomEqual(itemSize, refItemSize);
 
   /** 计算水平方向的尺寸 */
   if (_widthEqual + _leftEqual + _rightEqual === 0) {
-    // 三个值都不等的情况不会出现，不用处理
+    // 三个值都不等的情况不会出现
   } else if (_widthEqual + _leftEqual + _rightEqual >= 30) { 
     // 三个值相等取左右vw
     delete computedSize.width;
@@ -63,13 +63,42 @@ export function getComputedSize(item: SkeletonDesc, refItem?: SkeletonDesc, inde
   } else {
     // 只有一个值相等的情况
     // 这种情况只可能是width相等（元素居中的情况）
+    // TODO 还有情况是改变视口计算的误差需要处理
     delete computedSize.right;
     computedSize.width = _widthEqual === 10 ? `${itemSize.width}px` : `${itemSize.pWidth}vw`
-    const midOffset = window.innerWidth * 0.5 - itemSize.left;
+    const midOffset = document.documentElement.clientWidth * 0.5 - itemSize.left;
     computedSize.left = midOffset > 0 ? `calc(50vw - ${midOffset}px)` : `calc(50vw + ${-midOffset}px)`
   }
 
   /** 计算垂直方向的尺寸 */
+  if (_heightEqual + _topEqual + _bottomEqual === 0) {
+    // 三个值都不等的情况不会出现
+  } else if (_heightEqual + _topEqual + _bottomEqual >= 30) {
+    // 三个值相等取上下vh
+    delete computedSize.height;
+    computedSize.top = `${itemSize.pTop}vh`;
+    computedSize.bottom = `${itemSize.pBottom}vh`
+  } else if (_heightEqual + _topEqual + _bottomEqual >= 20) {
+    // 两个值相等的情况，哪个不等，取另外两个
+    computedSize.height = _heightEqual === 10 ? `${itemSize.height}px` : `${itemSize.pHeight}vh`
+    computedSize.top = _topEqual === 10 ? `${itemSize.top}px` : `${itemSize.pTop}vh`;
+    computedSize.bottom = _bottomEqual === 10 ? `${itemSize.bottom}px` : `${itemSize.pBottom}vh`
+    if (!_heightEqual) {
+      delete computedSize.height
+    } else if (!topEqual) {
+      delete computedSize.top
+    } else {
+      delete computedSize.bottom
+    }
+  } else {
+    // 只有一个值相等的情况
+    // 这种情况只可能是height相等（元素居中的情况）
+    // TODO 还有情况是改变视口计算的误差需要处理
+    delete computedSize.bottom;
+    computedSize.height = _heightEqual === 10 ? `${itemSize.height}px` : `${itemSize.pHeight}vw`
+    const midOffset = document.documentElement.clientHeight * 0.5 - itemSize.top;
+    computedSize.left = midOffset > 0 ? `calc(50vh - ${midOffset}px)` : `calc(50vh + ${-midOffset}px)`
+  }
 
   return computedSize
 }

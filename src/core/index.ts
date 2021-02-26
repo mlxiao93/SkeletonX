@@ -29,7 +29,7 @@ export default class Skeleton {
       window: Window
     }>((resolve) => {
       iframe.style.width = `${RefViewportRatio * 100}vw`;
-      iframe.style.height = '100vh';
+      iframe.style.height = `${RefViewportRatio * 100}vh`;
       iframe.style.position = 'fixed';
       iframe.style.zIndex = '-1';
       iframe.style.top = '0';
