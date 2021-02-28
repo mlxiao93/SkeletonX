@@ -1,4 +1,5 @@
 import {SkeletonDesc} from './skeleton'
+import { keepDecimals } from './utils';
 
 export const RefViewportRatio = 0.95;
 export interface ComputedSize {
@@ -120,18 +121,18 @@ interface DescSize {
 
 function getSkeletonDescSize(item: SkeletonDesc): DescSize {
   return {
-    width: item.width,
-    height: item.height,
-    left: item.left,
-    right: item.right,
-    top: item.top,
-    bottom: item.bottom,
-    pWidth: +(item.width / item.vw * 100).toFixed(2),
-    pHeight: +(item.height / item.vh * 100).toFixed(2),
-    pLeft: +(item.left / item.vw * 100).toFixed(2),
-    pRight: +(item.right / item.vw * 100).toFixed(2),
-    pTop: +(item.top / item.vh * 100).toFixed(2),
-    pBottom: +(item.bottom / item.vh * 100).toFixed(2)
+    width: keepDecimals(item.width),
+    height: keepDecimals(item.height),
+    left: keepDecimals(item.left),
+    right: keepDecimals(item.right),
+    top: keepDecimals(item.top),
+    bottom: keepDecimals(item.bottom),
+    pWidth: keepDecimals(item.width / item.vw * 100),
+    pHeight: keepDecimals(item.height / item.vh * 100),
+    pLeft: keepDecimals(item.left / item.vw * 100),
+    pRight: keepDecimals(item.right / item.vw * 100),
+    pTop: keepDecimals(item.top / item.vh * 100),
+    pBottom: keepDecimals(item.bottom / item.vh * 100)
   }
 }
 

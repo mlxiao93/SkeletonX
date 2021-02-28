@@ -93,3 +93,12 @@ export function getColorLevelList(descList: SkeletonDesc[], maxLevel: number): n
 
   return colorLevelList;
 }
+
+/**
+ * 保留n为小数
+ * @param num 
+ * @param bit 
+ */
+export function keepDecimals(num: number, n: number = 2): number {
+  return +num.toFixed(n)
+}

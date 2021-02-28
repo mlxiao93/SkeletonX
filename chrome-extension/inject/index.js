@@ -984,6 +984,16 @@ function isCovered(list, targetIndex) {
 
   return false;
 }
+/**
+ * 保留n为小数
+ * @param num 
+ * @param bit 
+ */
+
+function keepDecimals(num) {
+  var n = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 2;
+  return +num.toFixed(n);
+}
 
 /**
  * 元素是否出现在视口
@@ -1178,18 +1188,18 @@ function getComputedSize(item, refItem, index) {
 
 function getSkeletonDescSize(item) {
   return {
-    width: item.width,
-    height: item.height,
-    left: item.left,
-    right: item.right,
-    top: item.top,
-    bottom: item.bottom,
-    pWidth: +(item.width / item.vw * 100).toFixed(2),
-    pHeight: +(item.height / item.vh * 100).toFixed(2),
-    pLeft: +(item.left / item.vw * 100).toFixed(2),
-    pRight: +(item.right / item.vw * 100).toFixed(2),
-    pTop: +(item.top / item.vh * 100).toFixed(2),
-    pBottom: +(item.bottom / item.vh * 100).toFixed(2)
+    width: keepDecimals(item.width),
+    height: keepDecimals(item.height),
+    left: keepDecimals(item.left),
+    right: keepDecimals(item.right),
+    top: keepDecimals(item.top),
+    bottom: keepDecimals(item.bottom),
+    pWidth: keepDecimals(item.width / item.vw * 100),
+    pHeight: keepDecimals(item.height / item.vh * 100),
+    pLeft: keepDecimals(item.left / item.vw * 100),
+    pRight: keepDecimals(item.right / item.vw * 100),
+    pTop: keepDecimals(item.top / item.vh * 100),
+    pBottom: keepDecimals(item.bottom / item.vh * 100)
   };
 }
 /**
