@@ -35,13 +35,13 @@ module.exports = {
       extensions: ['.tsx', '.ts', '.jsx', '.js'] 
     }),
     copy({
-      targets: [{ src: 'src/panel-app/index.html', dest: 'dist/panel-app' }]
+      targets: [{ src: 'src/panel-app/index.html', dest: 'chrome-extension/panel-app' }]
     })
     // html()
   ],
   output: {
     // sourcemap: true,
-    dir: 'dist/panel-app',
+    dir: 'chrome-extension/panel-app',
     entryFileNames: 'index.js'
   },
   watch: {

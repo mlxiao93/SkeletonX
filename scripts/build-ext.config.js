@@ -24,10 +24,10 @@ if (process.env.NODE_ENV === 'dev') {
 }
 
 function copyAssets() {
-  fs.existsSync('dist') || fs.mkdirSync('dist');
-  fs.copyFileSync('src/chrome-extension/manifest.json', 'dist/manifest.json')
-  fs.copyFileSync('src/chrome-extension/devtools.html', 'dist/devtools.html')
-  fs.copyFileSync('src/chrome-extension/popup.html', 'dist/popup.html')
+  fs.existsSync('chrome-extension') || fs.mkdirSync('chrome-extension');
+  fs.copyFileSync('src/chrome-extension/manifest.json', 'chrome-extension/manifest.json')
+  fs.copyFileSync('src/chrome-extension/devtools.html', 'chrome-extension/devtools.html')
+  fs.copyFileSync('src/chrome-extension/popup.html', 'chrome-extension/popup.html')
 }
 
 
@@ -48,7 +48,7 @@ module.exports = [
       }),
     ],
     output: {
-      dir: 'dist',
+      dir: 'chrome-extension',
       entryFileNames: '[name].js'
     },
     watch: {
@@ -86,7 +86,7 @@ module.exports = [
       }),
     ],
     output: {
-      dir: 'dist/inject',
+      dir: 'chrome-extension/inject',
       entryFileNames: '[name].js',
     },
     watch: {

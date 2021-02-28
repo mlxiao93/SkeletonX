@@ -1,4 +1,6 @@
-import { RenderDesc, SkeletonDesc } from './skeleton'
+import { RenderData, SkeletonDesc } from './skeleton'
+import { parseRenderString, RenderDesc, renderDescToString, transforRenderDescToRenderProps } from './data-transform'
+import { countCss } from './dom';
 
 export interface ModuleMap {
   [key: string/*module id*/]: [number/*start index*/, number/*end index*/]
@@ -35,12 +37,29 @@ export function getModuleMap(descList: SkeletonDesc[]): ModuleMap | undefined {
   return ModuleMap;
 }
 
+export function getModuleSize(renderString?: string, moduleId?: string): {width: string, height: string} {
+  renderString = renderString ?? (window as any).__skeleton__x__lib.getData();
+  const size = {
+    width: '0px',
+    height: '0px'
+  }
+  if (!renderString || !moduleId) return size;
+  let { data, moduleMap } = parseRenderString(renderString);
+  const moduleRootIndex = moduleMap[moduleId]?.[0];
+  if (moduleRootIndex === undefined) return size;
+  const desc = data[moduleRootIndex];
+  if (!desc) return size;
+  let renderProps = transforRenderDescToRenderProps(desc);
+  size.width = renderProps.width;
+  size.height = renderProps.height;
+  return size;
+}
+
 export function toModuleRelativeDesc(desc: RenderDesc, moduleRootDesc?: RenderDesc): RenderDesc {
   desc = JSON.parse(JSON.stringify(desc));
   if (moduleRootDesc) {
-    desc.left = desc.left - moduleRootDesc.left;
-    desc.top = desc.top - moduleRootDesc.top;
+    desc.left = countCss(`${desc.left} - ${moduleRootDesc.left}`) + 'px';
+    desc.top = countCss(`${desc.top} - ${moduleRootDesc.top}`) + 'px';
   };
   return desc;
 }
-

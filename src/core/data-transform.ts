@@ -2,9 +2,10 @@
 // RenderDesc -> RenderProps
 // RenderDesc <-> RenderString
 
-import { SkeletonDesc } from './skeleton'
+import { RenderData, SkeletonDesc } from './skeleton'
 import { nodeNeedBg, needBorder } from './utils';
 import { ComputedSize } from './responsive'
+import { ModuleMap } from './module';
 
 export interface RenderDesc {
   width?: string,
@@ -95,8 +96,10 @@ export function transforRenderDescToRenderProps(desc: RenderDesc): RenderProps {
   return props;
 }
 
+const SplitSymbol = '|'
+
 /**
- * 使用'|'分隔RenderDesc的属性值，固化属性的顺序
+ * 使用SplitSymbol分隔RenderDesc的属性值，固化属性的顺序
  * @return string
  */
 export function renderDescToString(desc: RenderDesc): string {
@@ -110,11 +113,11 @@ export function renderDescToString(desc: RenderDesc): string {
     desc.borderRadius,
     desc.borderWidth,
     desc.backgroundColor
-  ].join('|');
+  ].join(SplitSymbol);
 }
 
 export function parseStringToRenderDesc(str: string): RenderDesc {
-  const values: any[] = str.split('|');
+  const values: any[] = str.split(SplitSymbol);
   return {
     width: values[0] || undefined,
     height: values[1] || undefined,
@@ -125,5 +128,58 @@ export function parseStringToRenderDesc(str: string): RenderDesc {
     borderRadius: values[6] || undefined,
     borderWidth: values[7] || undefined,
     backgroundColor: values[8] || undefined,
+  }
+}
+
+export function getRenderDescFromSkeletonDom(root: Element): RenderDesc[] {
+  const nodeList = root.querySelectorAll('.skeleton-x-node');
+
+  const descList: RenderDesc[] = []
+
+  nodeList.forEach(node => {
+    const style = (node as HTMLDivElement).style;
+    const desc: RenderDesc = {
+      width: style.width || undefined,
+      height: style.height || undefined,
+      top: style.top || undefined,
+      right: style.right || undefined,
+      bottom: style.bottom || undefined,
+      left: style.left || undefined
+    };
+    if (style.borderRadius) {
+      desc.borderRadius = style.borderRadius;
+    }
+    if (style.borderWidth) {
+      desc.borderWidth = style.borderWidth;
+    }
+    if (style.background) {
+      desc.backgroundColor = 1;
+    }
+  });
+
+  return descList;
+}
+
+
+export function joinRenderString(renderData: RenderData): string {
+  const {data, moduleMap} = renderData;
+  const dataString = data.map(item => renderDescToString(item)).join(',');
+  const moduleString = moduleMap ? JSON.stringify(moduleMap) : undefined;
+  let res = dataString;
+  if (moduleString) {
+    res = dataString + '::' + moduleString;
+  };
+  return res;
+}
+
+export function parseRenderString(renderString: string): RenderData {
+  const [ dataString, moduleString ] = renderString.split('::');
+  let data = dataString.split(',').map(str => {
+    return parseStringToRenderDesc(str);
+  });
+  let moduleMap = moduleString ? JSON.parse(moduleString) as ModuleMap : undefined;
+  return {
+    data,
+    moduleMap
   }
 }

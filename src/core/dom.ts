@@ -3,8 +3,8 @@
  * 只要有一部分在视口返回true
  */
 export function isPartInViewPort(element: Element) {
-  const viewWidth = window.innerWidth;
-  const viewHeight = window.innerHeight;
+  const viewWidth = document.documentElement.clientWidth;
+  const viewHeight = document.documentElement.clientHeight;
   const {
     top,
     right,
@@ -52,5 +52,25 @@ export function getFixedPosition(element: Element, viewport: Window = window): {
     vw: viewportWidth,
     vh: viewportHeight
   }
+}
 
+export function countCss(size: string, viewport: Window = window): number {
+  if (!size) return 0;
+  
+  const vw = viewport.document.documentElement.clientWidth;
+  const vh = viewport.document.documentElement.clientHeight;
+
+  const match = size.match(/calc\((.+?)\)/) 
+  if (match?.[1]) {
+    size = match?.[1]
+  };
+
+  size = size.replace(/calc\((.+?)\)/g, '($1)')
+          .replace(/vw/g, ` * ${vw / 100}`)
+          .replace(/vh/g, ` * ${vh / 100}`)
+          .replace(/px/g, '');
+
+  const count = new Function(`return ${size}`)
+
+  return count();
 }

@@ -12,6 +12,7 @@ import { getFixedPosition, isPartInViewPort } from "./dom";
 import { getComputedSizeList } from './responsive';
 import { RenderDesc, toRenderDescList } from './data-transform';
 import { getModuleId, getModuleMap, ModuleMap } from './module';
+import { IgnoreAttrName, SkeletonRootId } from './consts';
 
 /** 骨架元素描述 */
 export interface SkeletonDesc {
@@ -106,7 +107,8 @@ export function getSkeletonDesc(opt: {
     return null;
   }
 
-  if (element.getAttribute('skeletonx-ignore') !== null) return null;   // skeletonx-ignore
+  if (element.id === SkeletonRootId || element.parentElement?.id === SkeletonRootId) return null;
+  if (element.getAttribute(IgnoreAttrName) !== null) return null;   // skeletonx-ignore
 
   const style = getComputedStyle(element);
 
@@ -280,10 +282,12 @@ export function reduceSkeletonDescList(list: SkeletonDesc[]): SkeletonDesc[] {
   return res;
 }
 
-export function getRenderData(root: Node, root2: Node, viewport2: Window): {
+export interface RenderData {
   data: RenderDesc[],
   moduleMap?: ModuleMap
-} {
+}
+
+export function getRenderData(root: Node, root2: Node, viewport2: Window): RenderData {
   const descList = getSkeletonDescList(root, window);
   const descList2 = getSkeletonDescList(root2, viewport2);
 

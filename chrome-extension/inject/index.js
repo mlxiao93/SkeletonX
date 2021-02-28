@@ -245,7 +245,7 @@ function createCommonjsModule(fn) {
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-var runtime_1 = createCommonjsModule(function (module) {
+createCommonjsModule(function (module) {
   var runtime = function (exports) {
 
     var Op = Object.prototype;
@@ -945,7 +945,7 @@ var runtime_1 = createCommonjsModule(function (module) {
   // as the regeneratorRuntime namespace. Otherwise create a new empty
   // object. Either way, the resulting object will be used to initialize
   // the regeneratorRuntime variable at the top of this file.
-   module.exports );
+  module.exports );
 
   try {
     regeneratorRuntime = runtime;
@@ -1294,26 +1294,24 @@ function getRenderDescFromSkeletonDom(root) {
   var descList = [];
   nodeList.forEach(function (node) {
     var style = node.style;
-    var desc = {
+    ({
       width: style.width || undefined,
       height: style.height || undefined,
       top: style.top || undefined,
       right: style.right || undefined,
       bottom: style.bottom || undefined,
       left: style.left || undefined
-    };
+    });
 
     if (style.borderRadius) {
-      desc.borderRadius = style.borderRadius;
+      style.borderRadius;
     }
 
     if (style.borderWidth) {
-      desc.borderWidth = style.borderWidth;
+      style.borderWidth;
     }
 
-    if (style.background) {
-      desc.backgroundColor = 1;
-    }
+    if (style.background) ;
   });
   return descList;
 }
@@ -1723,8 +1721,8 @@ var Skeleton = /*#__PURE__*/function () {
 
   _createClass(Skeleton, [{
     key: "getRenderData",
-    // private dataString?: string;
-    value: function () {
+    value: // private dataString?: string;
+    function () {
       var _getRenderData2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
         var iframe, innerHtml, _yield$Promise, body2, window2, renderData;
 

@@ -1,24 +1,20 @@
+import { SkeletonRootId } from './consts';
 import 'regenerator-runtime/runtime';
-import { getRenderData } from './skeleton'
-import { renderDescToString } from './data-transform'
+import { getRenderData, RenderData } from './skeleton'
+import { getRenderDescFromSkeletonDom, RenderDesc, renderDescToString } from './data-transform'
 import { renderToHtml } from './render'
 import { RefViewportRatio } from './responsive';
-
+import { joinRenderString } from './data-transform';
 
 export default class Skeleton {
 
-  private dataString?: string;
 
-  public async getHtml(): Promise<string> {
-    const dataString = await this.getDataString()
-    return renderToHtml(dataString);
-  }
+  private renderData: RenderData
 
-  public async getDataString(): Promise<string> {
-    if (this.dataString) return this.dataString;
+  // private dataString?: string;
 
-    console.log('do get date string');
-
+  public async getRenderData(): Promise<RenderData> {
+    if (this.renderData) return this.renderData;
     const iframe = document.createElement('iframe');
     const innerHtml = document.body.innerHTML.replace(/<script\s.*?src=".+?"/, "<script")
     const {
@@ -45,21 +41,27 @@ export default class Skeleton {
       }
     })
 
-    const { data, moduleMap } = getRenderData(document.body, body2, window2);
-    const renderData = data;
-    const renderString = renderData.map(item => renderDescToString(item)).join(',');
-    const moduleString = moduleMap ? JSON.stringify(moduleMap) : undefined
+    const renderData = getRenderData(document.body, body2, window2);
 
     document.body.removeChild(iframe);
 
-    let res = renderString
+    this.renderData = renderData;
+    return renderData;
+  }
 
-    if (moduleString) {
-      res = renderString + '::' + moduleString;
-    };
+  public async getDataString(): Promise<string> {
+    const renderData = await this.getRenderData();
+    return joinRenderString(renderData);
+  }
 
-    this.dataString = res;
+  public async getHtml(): Promise<string> {
+    const dataString = await this.getDataString()
+    return renderToHtml(dataString);
+  }
 
-    return res;
+  public saveRenderData(root: Element): boolean {
+    if (!root) return false;
+    this.renderData.data = getRenderDescFromSkeletonDom(root);
+    return true;
   }
 }

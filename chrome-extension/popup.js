@@ -58,6 +58,7 @@ var createBtn = document.querySelector('#btn-create');
 var rangeInput = document.querySelector('#input-range');
 var clearBtn = document.querySelector('#btn-clear');
 var copyBtn = document.querySelector('#btn-copy');
+var saveBtn = document.querySelector('#btn-save');
 var currentTabId;
 chrome.tabs.query({
   active: true,
@@ -88,9 +89,15 @@ copyBtn.onclick = function () {
 };
 
 rangeInput.onchange = function (e) {
-  console.log(rangeInput.value);
   chrome.tabs.sendMessage(currentTabId, {
     action: 'set-skeleton-container-opcity',
+    data: Number(rangeInput.value) / 100
+  });
+};
+
+saveBtn.onclick = function () {
+  chrome.tabs.sendMessage(currentTabId, {
+    action: 'save-skeleton',
     data: Number(rangeInput.value) / 100
   });
 };
