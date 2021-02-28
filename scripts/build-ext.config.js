@@ -26,7 +26,7 @@ if (process.env.NODE_ENV === 'dev') {
 function copyAssets() {
   fs.existsSync('chrome-extension') || fs.mkdirSync('chrome-extension');
   fs.copyFileSync('src/chrome-extension/manifest.json', 'chrome-extension/manifest.json')
-  fs.copyFileSync('src/chrome-extension/devtools.html', 'chrome-extension/devtools.html')
+  // fs.copyFileSync('src/chrome-extension/devtools.html', 'chrome-extension/devtools.html')
   fs.copyFileSync('src/chrome-extension/popup.html', 'chrome-extension/popup.html')
 }
 
@@ -35,7 +35,7 @@ module.exports = [
   {
     input: [
       'src/chrome-extension/background.ts',
-      'src/chrome-extension/devtools.ts',
+      // 'src/chrome-extension/devtools.ts',
       'src/chrome-extension/popup.ts'
     ],
     plugins: [
@@ -62,6 +62,7 @@ module.exports = [
     ],
     plugins: [
       replace({
+        preventAssignment: true,
         'process.env.NODE_ENV': JSON.stringify('production')
       }),
       commonjs(),

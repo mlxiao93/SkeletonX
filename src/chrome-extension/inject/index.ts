@@ -30,7 +30,8 @@ import { SkeletonRootId } from '../../core/consts'
     textarea.value = await skeleton.getDataString();
     textarea.select(); // 选中文本
     document.execCommand("copy");
-    alert('骨架数据已拷贝到剪切板');
+    alert('骨架屏数据已拷贝到剪切板');
+    console.log(textarea.value);
     document.body.removeChild(textarea);
   }
 
@@ -53,7 +54,7 @@ import { SkeletonRootId } from '../../core/consts'
       const root = document.querySelector(`#${SkeletonRootId}`);
 
       if (!root) {
-        alert('保存骨架数据失败');
+        alert('保存骨架屏数据失败');
         return
       }
 

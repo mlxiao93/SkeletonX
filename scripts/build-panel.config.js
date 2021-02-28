@@ -12,6 +12,7 @@ module.exports = {
   input: ['src/panel-app/index.tsx'],
   plugins: [
     replace({
+      preventAssignment: true,
       'process.env.NODE_ENV': JSON.stringify('production')
     }),
     commonjs(),

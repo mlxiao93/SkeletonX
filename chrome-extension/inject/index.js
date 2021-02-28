@@ -1898,10 +1898,11 @@ var Skeleton = /*#__PURE__*/function () {
               textarea.select(); // 选中文本
 
               document.execCommand("copy");
-              alert('骨架数据已拷贝到剪切板');
+              alert('骨架屏数据已拷贝到剪切板');
+              console.log(textarea.value);
               document.body.removeChild(textarea);
 
-            case 11:
+            case 12:
             case "end":
               return _context2.stop();
           }
@@ -1956,7 +1957,7 @@ var Skeleton = /*#__PURE__*/function () {
                 break;
               }
 
-              alert('保存骨架数据失败');
+              alert('保存骨架屏数据失败');
               return _context.abrupt("return");
 
             case 14:
