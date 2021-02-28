@@ -5,6 +5,7 @@ import { getRenderDescFromSkeletonDom, RenderDesc, renderDescToString } from './
 import { renderToHtml } from './render'
 import { RefViewportRatio } from './responsive';
 import { joinRenderString } from './data-transform';
+import { updateModuleMap } from './module';
 
 export default class Skeleton {
 
@@ -68,5 +69,15 @@ export default class Skeleton {
     if (!root) return false;
     this.renderData.data = getRenderDescFromSkeletonDom(root);
     return true;
+  }
+
+  public updateModuleMap(opt: {
+    addedList?: number[],
+    removedList?: number[]
+  }) {
+    updateModuleMap({
+      moduleMap: this.renderData.moduleMap, 
+      ...opt
+    });
   }
 }

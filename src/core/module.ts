@@ -68,3 +68,27 @@ export function toModuleRelativeDesc(desc: RenderDesc, moduleRootDesc?: RenderDe
   };
   return desc;
 }
+
+export function updateModuleMap(opt: {
+  moduleMap: ModuleMap,
+  addedList?: number[],
+  removedList?: number[]
+}): ModuleMap {
+  const {moduleMap, addedList, removedList} = opt;
+
+  removedList?.map(id => {
+    Object.values(moduleMap).map(item => {
+      if (id <= item[1]) item[1]--;
+      if (id <= item[0]) item[0]--; 
+    });
+  });
+
+  addedList?.map(id => {
+    Object.values(moduleMap).map(item => {
+      if (id < item[1]) item[1]++;
+      if (id < item[0]) item[0]++;
+    });
+  });
+
+  return moduleMap;
+}

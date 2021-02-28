@@ -6,7 +6,7 @@ import { toModuleRelativeDesc } from './module'
  * @param desc 
  * @param moduleRootDesc 如果传递了moduleRootDesc，则骨架基于moduleRootDesc定位
  */
-function descToHtml(desc: RenderDesc, moduleRootDesc?: RenderDesc) {
+function descToHtml(desc: RenderDesc, index: number, moduleRootDesc?: RenderDesc) {
   desc = toModuleRelativeDesc(desc, moduleRootDesc);
   let renderProps = transforRenderDescToRenderProps(desc)
 
@@ -16,7 +16,7 @@ function descToHtml(desc: RenderDesc, moduleRootDesc?: RenderDesc) {
     if (!value) continue;
     style += key.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase() + ':' + renderProps[key] + ';'
   };
-  return '<div class="skeleton-x-node" style="' + style + '"></div>';
+  return '<div id="' + index + '" class="skeleton-x-node" style="' + style + '"></div>';
 }
 
 export function renderToHtml(renderString?: string, moduleId?: string): string {
@@ -40,7 +40,7 @@ export function renderToHtml(renderString?: string, moduleId?: string): string {
 
   let html = '';
   for (let i = 0; i < data.length; i++) {
-    html += descToHtml(data[i], moduleRootDesc);
+    html += descToHtml(data[i], i, moduleRootDesc);
   };
   return html;
 }

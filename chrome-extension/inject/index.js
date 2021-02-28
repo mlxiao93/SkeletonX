@@ -1,3 +1,19 @@
+function _typeof(obj) {
+  "@babel/helpers - typeof";
+
+  if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
+    _typeof = function (obj) {
+      return typeof obj;
+    };
+  } else {
+    _typeof = function (obj) {
+      return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+    };
+  }
+
+  return _typeof(obj);
+}
+
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
   try {
     var info = gen[key](arg);
@@ -1450,6 +1466,24 @@ function toModuleRelativeDesc(desc, moduleRootDesc) {
   }
   return desc;
 }
+function updateModuleMap(opt) {
+  var moduleMap = opt.moduleMap,
+      addedList = opt.addedList,
+      removedList = opt.removedList;
+  removedList === null || removedList === void 0 ? void 0 : removedList.map(function (id) {
+    Object.values(moduleMap).map(function (item) {
+      if (id <= item[1]) item[1]--;
+      if (id <= item[0]) item[0]--;
+    });
+  });
+  addedList === null || addedList === void 0 ? void 0 : addedList.map(function (id) {
+    Object.values(moduleMap).map(function (item) {
+      if (id < item[1]) item[1]++;
+      if (id < item[0]) item[0]++;
+    });
+  });
+  return moduleMap;
+}
 
 var SkeletonRootId = 'skeleton-x-root';
 var IgnoreAttrName = 'skeletonx-ignore';
@@ -1716,7 +1750,7 @@ function getRenderData(root, root2, viewport2) {
  * @param moduleRootDesc 如果传递了moduleRootDesc，则骨架基于moduleRootDesc定位
  */
 
-function descToHtml(desc, moduleRootDesc) {
+function descToHtml(desc, index, moduleRootDesc) {
   desc = toModuleRelativeDesc(desc, moduleRootDesc);
   var renderProps = transforRenderDescToRenderProps(desc);
   var style = 'z-index:9999999;position:absolute;';
@@ -1726,7 +1760,7 @@ function descToHtml(desc, moduleRootDesc) {
     if (!value) continue;
     style += key.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase() + ':' + renderProps[key] + ';';
   }
-  return '<div class="skeleton-x-node" style="' + style + '"></div>';
+  return '<div id="' + index + '" class="skeleton-x-node" style="' + style + '"></div>';
 }
 
 function renderToHtml(renderString, moduleId) {
@@ -1757,7 +1791,7 @@ function renderToHtml(renderString, moduleId) {
   var html = '';
 
   for (var i = 0; i < data.length; i++) {
-    html += descToHtml(data[i], moduleRootDesc);
+    html += descToHtml(data[i], i, moduleRootDesc);
   }
   return html;
 }
@@ -1907,6 +1941,13 @@ var Skeleton = /*#__PURE__*/function () {
       this.renderData.data = getRenderDescFromSkeletonDom(root);
       return true;
     }
+  }, {
+    key: "updateModuleMap",
+    value: function updateModuleMap$1(opt) {
+      updateModuleMap(_objectSpread2({
+        moduleMap: this.renderData.moduleMap
+      }, opt));
+    }
   }]);
 
   return Skeleton;
@@ -1915,11 +1956,79 @@ var Skeleton = /*#__PURE__*/function () {
 (function () {
   var _skltContainer;
 
+  var mutationObserver;
+  var skeleton;
+
+  var mutationObserverCb = function mutationObserverCb(mutationsList, observer) {
+    var _iterator = _createForOfIteratorHelper(mutationsList),
+        _step;
+
+    try {
+      for (_iterator.s(); !(_step = _iterator.n()).done;) {
+        var mutation = _step.value;
+
+        if (mutation.type === 'childList') {
+          var _ret = function () {
+            var _mutation$addedNodes, _mutation$removedNode, _mutation$addedNodes2, _mutation$removedNode2;
+
+            if (((_mutation$addedNodes = mutation.addedNodes) === null || _mutation$addedNodes === void 0 ? void 0 : _mutation$addedNodes.length) > 1 || ((_mutation$removedNode = mutation.removedNodes) === null || _mutation$removedNode === void 0 ? void 0 : _mutation$removedNode.length) > 1) {
+              alert('目前仅支持每次增删一个元素'); // TODO 多个元素，基准id还需要处理
+
+              renderSkeleton();
+              return {
+                v: void 0
+              };
+            }
+
+            if ((_mutation$addedNodes2 = mutation.addedNodes) !== null && _mutation$addedNodes2 !== void 0 && _mutation$addedNodes2.length && (_mutation$removedNode2 = mutation.removedNodes) !== null && _mutation$removedNode2 !== void 0 && _mutation$removedNode2.length) {
+              alert('暂不支持移动元素');
+              renderSkeleton();
+              return {
+                v: void 0
+              };
+            }
+
+            var addedList = void 0;
+            var removedList = void 0;
+
+            if (mutation.addedNodes) {
+              addedList = [];
+              Array.from(mutation.addedNodes).map(function (node) {
+                addedList.push(Number(node.previousSibling.id || -1));
+              });
+            }
+
+            if (mutation.removedNodes) {
+              removedList = [];
+              Array.from(mutation.removedNodes).map(function (node) {
+                removedList.push(Number(node.id));
+              });
+            }
+
+            skeleton.updateModuleMap({
+              addedList: addedList,
+              removedList: removedList
+            });
+            skeleton.saveRenderData(document.querySelector("#".concat(SkeletonRootId)));
+            renderSkeleton();
+          }();
+
+          if (_typeof(_ret) === "object") return _ret.v;
+        }
+      }
+    } catch (err) {
+      _iterator.e(err);
+    } finally {
+      _iterator.f();
+    }
+  };
+
   function getSkltContainer() {
     if (_skltContainer) return _skltContainer;
     _skltContainer = document.createElement('div');
     _skltContainer.id = SkeletonRootId;
     document.body.appendChild(_skltContainer);
+    mutationObserver = new MutationObserver(mutationObserverCb);
     return _skltContainer;
   }
 
@@ -1928,9 +2037,10 @@ var Skeleton = /*#__PURE__*/function () {
       document.body.removeChild(_skltContainer);
       _skltContainer = undefined;
     }
-  }
 
-  var skeleton;
+    mutationObserver && mutationObserver.disconnect();
+    mutationObserver = undefined;
+  }
 
   function copySkeletonData() {
     return _copySkeletonData.apply(this, arguments);
@@ -1969,6 +2079,61 @@ var Skeleton = /*#__PURE__*/function () {
     return _copySkeletonData.apply(this, arguments);
   }
 
+  function generateSkeleton() {
+    return _generateSkeleton.apply(this, arguments);
+  }
+
+  function _generateSkeleton() {
+    _generateSkeleton = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3() {
+      return regeneratorRuntime.wrap(function _callee3$(_context3) {
+        while (1) {
+          switch (_context3.prev = _context3.next) {
+            case 0:
+              skeleton = new Skeleton();
+              _context3.next = 3;
+              return renderSkeleton();
+
+            case 3:
+            case "end":
+              return _context3.stop();
+          }
+        }
+      }, _callee3);
+    }));
+    return _generateSkeleton.apply(this, arguments);
+  }
+
+  function renderSkeleton() {
+    return _renderSkeleton.apply(this, arguments);
+  }
+
+  function _renderSkeleton() {
+    _renderSkeleton = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4() {
+      return regeneratorRuntime.wrap(function _callee4$(_context4) {
+        while (1) {
+          switch (_context4.prev = _context4.next) {
+            case 0:
+              mutationObserver && mutationObserver.disconnect();
+              _context4.next = 3;
+              return skeleton.getHtml();
+
+            case 3:
+              _context4.t0 = _context4.sent;
+              getSkltContainer().innerHTML = "<div style=\"position: absolute; z-index: 9999998; background: #fff; left: 0; right: 0; top: 0; bottom: 0\"></div>" + _context4.t0;
+              mutationObserver.observe(_skltContainer, {
+                childList: true
+              });
+
+            case 6:
+            case "end":
+              return _context4.stop();
+          }
+        }
+      }, _callee4);
+    }));
+    return _renderSkeleton.apply(this, arguments);
+  }
+
   chrome.runtime.onMessage.addListener( /*#__PURE__*/function () {
     var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(request, sender, sendResponse) {
       var root;
@@ -1976,20 +2141,10 @@ var Skeleton = /*#__PURE__*/function () {
         while (1) {
           switch (_context.prev = _context.next) {
             case 0:
-              if (!(request.action === 'generate-skeleton')) {
-                _context.next = 6;
-                break;
+              if (request.action === 'generate-skeleton') {
+                generateSkeleton();
               }
 
-              skeleton = new Skeleton();
-              _context.next = 4;
-              return skeleton.getHtml();
-
-            case 4:
-              _context.t0 = _context.sent;
-              getSkltContainer().innerHTML = "<div style=\"position: absolute; z-index: 9999998; background: #fff; left: 0; right: 0; top: 0; bottom: 0\"></div>" + _context.t0;
-
-            case 6:
               if (request.action === 'clear-skeleton') {
                 clearSkltContainer();
               }
@@ -2003,26 +2158,26 @@ var Skeleton = /*#__PURE__*/function () {
               }
 
               if (!(request.action === 'save-skeleton')) {
-                _context.next = 17;
+                _context.next = 12;
                 break;
               }
 
               root = document.querySelector("#".concat(SkeletonRootId));
 
               if (root) {
-                _context.next = 14;
+                _context.next = 9;
                 break;
               }
 
               alert('保存骨架屏数据失败');
               return _context.abrupt("return");
 
-            case 14:
+            case 9:
               skeleton.saveRenderData(root);
-              _context.next = 17;
+              _context.next = 12;
               return copySkeletonData();
 
-            case 17:
+            case 12:
             case "end":
               return _context.stop();
           }
