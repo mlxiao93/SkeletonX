@@ -1648,7 +1648,7 @@ function reduceSkeletonDescList(list) {
 }
 function getRenderData(root, root2, viewport2) {
   var descList = getSkeletonDescList(root, window);
-  var descList2 = getSkeletonDescList(root2, viewport2);
+  var descList2 = root2 ? getSkeletonDescList(root2, viewport2) : [];
   console.log('desclist', descList);
   console.log('desclist2', descList2);
   var computedSizeList = getComputedSizeList(descList, descList2);
@@ -1748,16 +1748,25 @@ var Skeleton = /*#__PURE__*/function () {
                   iframe.style.zIndex = '-1';
                   iframe.style.top = '0';
                   iframe.style.visibility = 'hidden';
-                  document.body.appendChild(iframe);
-                  iframe.src = location.href;
 
                   iframe.onload = function () {
-                    iframe.contentDocument.body.innerHTML = innerHtml;
-                    resolve({
-                      body: iframe.contentDocument.body,
-                      window: iframe.contentWindow
-                    });
+                    try {
+                      iframe.contentDocument.body.innerHTML = innerHtml;
+                      resolve({
+                        body: iframe.contentDocument.body,
+                        window: iframe.contentWindow
+                      });
+                    } catch (error) {
+                      console.error(error);
+                      resolve({
+                        body: null,
+                        window: null
+                      });
+                    }
                   };
+
+                  document.body.appendChild(iframe);
+                  iframe.src = location.href;
                 });
 
               case 6:

@@ -289,7 +289,7 @@ export interface RenderData {
 
 export function getRenderData(root: Node, root2: Node, viewport2: Window): RenderData {
   const descList = getSkeletonDescList(root, window);
-  const descList2 = getSkeletonDescList(root2, viewport2);
+  const descList2 = root2 ? getSkeletonDescList(root2, viewport2) : [];
 
   console.log('desclist', descList);
   console.log('desclist2', descList2);

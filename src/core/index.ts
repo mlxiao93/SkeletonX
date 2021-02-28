@@ -30,15 +30,20 @@ export default class Skeleton {
       iframe.style.zIndex = '-1';
       iframe.style.top = '0';
       iframe.style.visibility = 'hidden';
+      iframe.onload = function () {
+        try {
+          iframe.contentDocument.body.innerHTML = innerHtml;
+          resolve({
+            body: iframe.contentDocument.body,
+            window: iframe.contentWindow
+          });
+        } catch (error) {
+          console.error(error);
+          resolve({body: null, window: null});
+        }
+      }
       document.body.appendChild(iframe);
       iframe.src = location.href;  
-      iframe.onload = function () {
-        iframe.contentDocument.body.innerHTML = innerHtml;
-        resolve({
-          body: iframe.contentDocument.body,
-          window: iframe.contentWindow
-        });
-      }
     })
 
     const renderData = getRenderData(document.body, body2, window2);
