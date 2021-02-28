@@ -10,10 +10,10 @@ export default function Home() {
   useEffect(() => {
     setTimeout(() => {
       setFormData({});
-    }, 1000)
+    }, 600)
     setTimeout(() => {
       setTableData({});
-    }, 2000)
+    }, 800)
   }, []);
 
   return <div>
@@ -38,7 +38,7 @@ export default function Home() {
     </SkeletonContainer>
 
     <SkeletonContainer  
-      showSkeleton={!tableData} 
+      showSkeleton={!tableData}
       moduleId="2"
       style={{
         background: '#eee',

@@ -155,6 +155,7 @@ export function getRenderDescFromSkeletonDom(root: Element): RenderDesc[] {
     if (style.background) {
       desc.backgroundColor = 1;
     }
+    descList.push(desc);
   });
 
   return descList;

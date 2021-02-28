@@ -80,47 +80,149 @@
         throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
       }
 
-      function parseStringToRenderDesc(str) {
-        var values = str.split('|');
-        return {
-          top: values[0] || undefined,
-          left: values[1] || undefined,
-          height: values[2] || undefined,
-          width: values[3] || undefined,
-          borderTopWidth: values[4] || undefined,
-          borderRightWidth: values[5] || undefined,
-          borderBottomWidth: values[6] || undefined,
-          borderLeftWidth: values[7] || undefined,
-          borderRadius: values[8] || undefined,
-          borderColor: values[9] || undefined,
-          backgroundColor: values[10] || undefined
-        };
-      }
-
       /**
        * 骨架渲染描述转为骨架节点render props
        */
       function transforRenderDescToRenderProps(desc) {
-        var BorderColor = '#8e9097'; // const ColorLevelMap = [
+        // const ColorLevelMap = [
         //   '#D3D4D7',
         //   '#E9EAEB',
         //   '#F4F4F5',
         //   '#FFF'
         // ];
-
         var props = {
-          top: desc.top + 'px',
-          left: desc.left + 'px',
-          height: desc.height + 'px',
-          width: desc.width + 'px'
+          top: desc.top,
+          left: desc.left,
+          height: desc.height,
+          width: desc.width,
+          bottom: desc.bottom,
+          right: desc.right,
+          borderRadius: desc.borderRadius,
+          borderWidth: desc.borderWidth
         };
         if (desc.backgroundColor !== undefined) props.background = 'linear-gradient(90deg,rgb(190 190 190 / 20%) 25%,hsla(0,0%,50.6%,.24) 37%,hsla(0,0%,74.5%,.2) 63%); background-size: 400% 100%;';
-        if (desc.borderColor !== undefined) props.borderColor = BorderColor;
-        if (desc.borderBottomWidth !== undefined) props.borderBottomWidth = desc.borderBottomWidth + 'px';
-        if (desc.borderTopWidth !== undefined) props.borderTopWidth = desc.borderTopWidth + 'px';
-        if (desc.borderRightWidth !== undefined) props.borderRightWidth = desc.borderRightWidth + 'px';
-        if (desc.borderLeftWidth !== undefined) props.borderLeftWidth = desc.borderLeftWidth + 'px';
+        if (desc.borderWidth !== undefined) props.borderColor = 'rgb(190 190 190 / 20%)';
         return props;
+      }
+      var SplitSymbol = '|';
+      function parseStringToRenderDesc(str) {
+        var values = str.split(SplitSymbol);
+        return {
+          width: values[0] || undefined,
+          height: values[1] || undefined,
+          top: values[2] || undefined,
+          right: values[3] || undefined,
+          bottom: values[4] || undefined,
+          left: values[5] || undefined,
+          borderRadius: values[6] || undefined,
+          borderWidth: values[7] || undefined,
+          backgroundColor: values[8] || undefined
+        };
+      }
+      function parseRenderString(renderString) {
+        var _renderString$split = renderString.split('::'),
+          _renderString$split2 = _slicedToArray(_renderString$split, 2),
+          dataString = _renderString$split2[0],
+          moduleString = _renderString$split2[1];
+
+        var data = dataString.split(',').map(function (str) {
+          return parseStringToRenderDesc(str);
+        });
+        var moduleMap = moduleString ? JSON.parse(moduleString) : undefined;
+        return {
+          data: data,
+          moduleMap: moduleMap
+        };
+      }
+
+      /**
+       * 元素是否出现在视口
+       * 只要有一部分在视口返回true
+       */
+      /**
+       * @param size calc(100vw + 100px) - calc(50vw + 60px)
+       * @return calc(50vw - 40px)
+       */
+
+      function countCss(size) {
+        // 去掉calc
+        size = size.replace(/calc\((.+?)\)/g, '($1)'); // 去括号
+
+        var bracketReg = /-\s?\((.+?)\)/;
+        var bracketsMatch = size.match(bracketReg);
+
+        while (bracketsMatch) {
+          var strArr = bracketsMatch[1].split('');
+
+          for (var i = 0; i < strArr.length; i++) {
+            if (strArr[i] === '-') {
+              strArr[i] = '+';
+            } else if (strArr[i] === '+') {
+              strArr[i] = '-';
+            }
+          }
+
+          var str = strArr.join('');
+          size = size.replace(bracketReg, '- ' + str);
+          bracketsMatch = size.match(bracketReg);
+        }
+
+        size = size.replace(/\((.+?)\)/g, '$1');
+        var pxList = size.match(/[+-]?\s?(\d+\.)?\d+px/g);
+        var vwList = size.match(/[+-]?\s?(\d+\.)?\d+vw/g);
+        var vhList = size.match(/[+-]?\s?(\d+\.)?\d+vh/g);
+        var px = pxList && new Function('return ' + pxList.join('').replace(/px/g, ''))();
+        var vw = vwList && new Function('return ' + vwList.join('').replace(/vw/g, ''))();
+        var vh = vhList && new Function('return ' + vhList.join('').replace(/vh/g, ''))();
+        var res = px + 'px' || vw + 'vw' || vh + 'vh';
+
+        if (vw && px) {
+          res = "calc(".concat(vw, "vw + ").concat(px, "px)");
+        } else if (vh && px) {
+          res = "calc(".concat(vh, "vh + ").concat(px, "px)");
+        }
+
+        res = res.replace(/\+\s-/g, '- ').replace(/\+\s\+/g, '+ ').replace(/$\+/, '');
+        return res;
+      }
+
+      function getModuleSize(renderString, moduleId) {
+        var _renderString, _moduleMap$moduleId;
+
+        renderString = (_renderString = renderString) !== null && _renderString !== void 0 ? _renderString : window.__skeleton__x__lib.getData();
+        var size = {
+          height: '0px'
+        };
+        if (!renderString || !moduleId) return size;
+
+        var _parseRenderString = parseRenderString(renderString),
+          data = _parseRenderString.data,
+          moduleMap = _parseRenderString.moduleMap;
+
+        var moduleRootIndex = (_moduleMap$moduleId = moduleMap[moduleId]) === null || _moduleMap$moduleId === void 0 ? void 0 : _moduleMap$moduleId[0];
+        if (moduleRootIndex === undefined) return size;
+        var desc = data[moduleRootIndex];
+        if (!desc) return size;
+        var renderProps = transforRenderDescToRenderProps(desc);
+
+        if (renderProps.height) {
+          size.height = renderProps.height;
+        } else {
+          size.height = countCss("100vh - ".concat(renderProps.bottom, " - ").concat(renderProps.top));
+        }
+
+        return size;
+      }
+      function toModuleRelativeDesc(desc, moduleRootDesc) {
+        desc = JSON.parse(JSON.stringify(desc));
+
+        if (moduleRootDesc) {
+          desc.left = countCss("".concat(desc.left, " - ").concat(moduleRootDesc.left));
+          if (desc.right && moduleRootDesc.right) desc.right = countCss("".concat(desc.right, " - ").concat(moduleRootDesc.right));
+          desc.top = countCss("".concat(desc.top, " - ").concat(moduleRootDesc.top));
+          if (desc.bottom && moduleRootDesc.bottom) desc.bottom = countCss("".concat(desc.bottom, " - ").concat(moduleRootDesc.bottom));
+        }
+        return desc;
       }
 
       /**
@@ -129,86 +231,49 @@
        */
 
       function descToHtml(desc, moduleRootDesc) {
-        desc = JSON.parse(JSON.stringify(desc));
-
-        if (moduleRootDesc) {
-          desc.left = desc.left - moduleRootDesc.left;
-          desc.top = desc.top - moduleRootDesc.top;
-        }
-
+        desc = toModuleRelativeDesc(desc, moduleRootDesc);
         var renderProps = transforRenderDescToRenderProps(desc);
         var style = 'z-index:9999999;position:absolute;';
 
         for (var key in renderProps) {
+          var value = renderProps[key];
+          if (!value) continue;
           style += key.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase() + ':' + renderProps[key] + ';';
         }
         return '<div class="skeleton-x-node" style="' + style + '"></div>';
       }
 
-      function renderToHtml(dataString, moduleId) {
-        var _dataString;
+      function renderToHtml(renderString, moduleId) {
+        var _renderString;
 
-        dataString = (_dataString = dataString) !== null && _dataString !== void 0 ? _dataString : window.__skeleton__x__lib.getData();
-        if (!dataString) return '';
+        renderString = (_renderString = renderString) !== null && _renderString !== void 0 ? _renderString : window.__skeleton__x__lib.getData();
+        if (!renderString) return '';
 
-        var _dataString$split = dataString.split('::'),
-          _dataString$split2 = _slicedToArray(_dataString$split, 2),
-          renderString = _dataString$split2[0],
-          moduleString = _dataString$split2[1];
+        var _parseRenderString = parseRenderString(renderString),
+          data = _parseRenderString.data,
+          moduleMap = _parseRenderString.moduleMap; // 渲染模块骨架的情况
 
-        var renderDescList = renderString.split(',').map(function (str) {
-          return parseStringToRenderDesc(str);
-        }); // 渲染模块骨架的情况
 
         var moduleRootDesc;
 
         if (moduleId !== undefined) {
           var _moduleMap$moduleId, _moduleMap$moduleId2;
 
-          var moduleMap = moduleString ? JSON.parse(moduleString) : undefined;
           var moduleRootIndex = (_moduleMap$moduleId = moduleMap[moduleId]) === null || _moduleMap$moduleId === void 0 ? void 0 : _moduleMap$moduleId[0];
           var moduleLastIndex = (_moduleMap$moduleId2 = moduleMap[moduleId]) === null || _moduleMap$moduleId2 === void 0 ? void 0 : _moduleMap$moduleId2[1];
 
           if (moduleRootIndex !== undefined) {
-            moduleRootDesc = renderDescList[moduleRootIndex];
-            renderDescList = renderDescList.slice(moduleRootIndex, moduleLastIndex + 1);
+            moduleRootDesc = data[moduleRootIndex];
+            data = data.slice(moduleRootIndex, moduleLastIndex + 1);
           }
         }
 
         var html = '';
 
-        for (var i = 0; i < renderDescList.length; i++) {
-          html += descToHtml(renderDescList[i], moduleRootDesc);
+        for (var i = 0; i < data.length; i++) {
+          html += descToHtml(data[i], moduleRootDesc);
         }
         return html;
-      }
-      function getModuleSize(dataString, moduleId) {
-        var _dataString2, _moduleMap$moduleId3;
-
-        dataString = (_dataString2 = dataString) !== null && _dataString2 !== void 0 ? _dataString2 : window.__skeleton__x__lib.getData();
-        var size = {
-          width: '0px',
-          height: '0px'
-        };
-        if (!dataString || !moduleId) return size;
-
-        var _dataString$split3 = dataString.split('::'),
-          _dataString$split4 = _slicedToArray(_dataString$split3, 2),
-          renderString = _dataString$split4[0],
-          moduleString = _dataString$split4[1];
-
-        var renderDescList = renderString.split(',').map(function (str) {
-          return parseStringToRenderDesc(str);
-        });
-        var moduleMap = JSON.parse(moduleString);
-        var moduleRootIndex = (_moduleMap$moduleId3 = moduleMap[moduleId]) === null || _moduleMap$moduleId3 === void 0 ? void 0 : _moduleMap$moduleId3[0];
-        if (moduleRootIndex === undefined) return size;
-        var desc = renderDescList[moduleRootIndex];
-        if (!desc) return size;
-        var renderProps = transforRenderDescToRenderProps(desc);
-        size.width = renderProps.width;
-        size.height = renderProps.height;
-        return size;
       }
 
       function getData() {
@@ -225,10 +290,13 @@
 
     }({}));
 
+
+
+
   </script>
   <script>
     window.__skeleton__x__data_map = {
-      '#/': '15|0|22|43.46875|||||||1,15|142.25|22|91.640625|||||||1,15|332.671875|22|42.3125|||||||1,0|0|595|375|||||||,58|16|148|252|||||10||1,90|32|22|70.046875|||||||1,114|32|21|153|2|2|2|2||0|1,151|32|22|32.34375|||||||1,153|64.34375|21|153|2|2|2|2||0|1,222|16|238|343|||||10||1,254|32|22|311|||||||1,292|32|22|311|||||||1,330|32|22|311|||||||1,368|32|22|311|||||||1,406|32|22|311|||||||1,595|0|22|43.90625|||||||1,617|0|22|43.90625|||||||1,639|0|22|43.90625|||||||1,595|331.09375|22|43.90625|||||||1,617|331.09375|22|43.90625|||||||1,639|331.09375|22|43.90625|||||||1::{"1":[4,8],"2":[9,14],"layout-content":[3,14]}',
+      '#/': '43.46875px|22px|15px|||0px|||1,91.640625px|22px|15px|||calc(50vw - 45.25px)|||1,42.3125px|22px|15px|0.015625px|||||1,||0px|0vw|72px|0vw|||,252px|148px|58px|||16px|10px||1,70.046875px|22px|90px|||32px|||1,153px|21px|114px|||32px||2px|1,32.34375px|22px|151px|||32px|||1,153px|21px|153px|||64.34375px||2px|1,|238px|222px|16px||16px|10px||1,|22px|254px|32px||32px|||1,|22px|292px|32px||32px|||1,|22px|330px|32px||32px|||1,|22px|368px|32px||32px|||1,|22px|406px|32px||32px|||1,43.90625px|22px|90.6vh|||0px|||1,43.90625px|22px|93.47vh|||0px|||1,43.90625px|22px|96.34vh|||0px|||1,43.90625px|22px|90.6vh|0px|||||1,43.90625px|22px|93.47vh|0px|||||1,43.90625px|22px|96.34vh|0px|||||1::{"1":[4,8],"2":[9,14],"layout-content":[3,14]}',
       '#/users': '15|0|22|43.46875|||||||1,15|142.25|22|91.640625|||||||1,15|332.671875|22|42.3125|||||||1,0|0|595|375|||||||,52|0|60|375|||||||1,90|0|22|375|||||||0,595|0|22|43.90625|||||||0,617|0|22|43.90625|||||||0,639|0|22|43.90625|||||||0,595|331.09375|22|43.90625|||||||0,617|331.09375|22|43.90625|||||||0,639|331.09375|22|43.90625|||||||0::{"layout-content":[3,5]}',
       '#/about': '15|0|22|43.46875|||||||1,15|142.25|22|91.640625|||||||1,15|332.671875|22|42.3125|||||||1,0|0|595|375|||||||,52|0|22|375|||||||0,595|0|22|43.90625|||||||0,617|0|22|43.90625|||||||0,639|0|22|43.90625|||||||0,595|331.09375|22|43.90625|||||||0,617|331.09375|22|43.90625|||||||0,639|331.09375|22|43.90625|||||||0::{"layout-content":[3,4]}'
     }
@@ -240,9 +308,9 @@
 </head>
 
 <body>
-  <script>
-
-  </script>
+  <!-- <script>
+    document.write(__skeleton__x__lib.renderToHtml())
+  </script> -->
   <div id="root">
     <script>
       document.write(__skeleton__x__lib.renderToHtml())

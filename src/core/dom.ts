@@ -54,7 +54,7 @@ export function getFixedPosition(element: Element, viewport: Window = window): {
   }
 }
 
-export function countCss(size: string, viewport: Window = window): number {
+export function cssToPx(size: string, viewport: Window = window): number {
   if (!size) return 0;
   
   const vw = viewport.document.documentElement.clientWidth;
@@ -73,4 +73,49 @@ export function countCss(size: string, viewport: Window = window): number {
   const count = new Function(`return ${size}`)
 
   return count();
+}
+
+/**
+ * @param size calc(100vw + 100px) - calc(50vw + 60px)
+ * @return calc(50vw - 40px)
+ */
+export function countCss(size: string): string {
+  // 去掉calc
+  size = size.replace(/calc\((.+?)\)/g, '($1)');   
+
+  // 去括号
+  const bracketReg = /-\s?\((.+?)\)/
+  let bracketsMatch = size.match(bracketReg);
+  while (bracketsMatch) {
+    const strArr = bracketsMatch[1].split('');
+    for (let i = 0; i < strArr.length; i++) {
+      if (strArr[i] === '-') {
+        strArr[i] = '+';
+      } else if (strArr[i] === '+') {
+        strArr[i] = '-';
+      }
+    }
+    const str = strArr.join('')
+    size = size.replace(bracketReg, '- ' + str);
+    bracketsMatch = size.match(bracketReg);
+  }
+  size = size.replace(/\((.+?)\)/g, '$1');
+
+  const pxList = size.match(/[+-]?\s?(\d+\.)?\d+px/g);
+  const vwList = size.match(/[+-]?\s?(\d+\.)?\d+vw/g);
+  const vhList = size.match(/[+-]?\s?(\d+\.)?\d+vh/g);
+
+  const px = pxList && (new Function('return ' + pxList.join('').replace(/px/g, ''))());
+  const vw = vwList && (new Function('return ' + vwList.join('').replace(/vw/g, ''))());
+  const vh = vhList && (new Function('return ' + vhList.join('').replace(/vh/g, ''))());
+
+  let res = px + 'px' || vw + 'vw' || vh + 'vh';
+  if (vw && px) {
+    res = `calc(${vw}vw + ${px}px)`
+  } else if (vh && px) {
+    res = `calc(${vh}vh + ${px}px)`
+  }
+
+  res = res.replace(/\+\s-/g, '- ').replace(/\+\s\+/g, '+ ').replace(/$\+/, '');
+  return res;
 }

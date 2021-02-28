@@ -45,6 +45,7 @@ export default function App() {
 
   const { path } = useLocation();
 
+  // return <SkeletonSupspense moduleId="layout-content" style={{top: -52}} />
   return <Layout>
     <Suspense fallback={<SkeletonSupspense moduleId="layout-content" style={{top: -52}} />}>
       <Switch>

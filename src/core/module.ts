@@ -1,6 +1,6 @@
 import { RenderData, SkeletonDesc } from './skeleton'
-import { parseRenderString, RenderDesc, renderDescToString, transforRenderDescToRenderProps } from './data-transform'
-import { countCss } from './dom';
+import { parseRenderString, RenderDesc, renderDescToString, RenderProps, transforRenderDescToRenderProps } from './data-transform'
+import { cssToPx, countCss } from './dom';
 
 export interface ModuleMap {
   [key: string/*module id*/]: [number/*start index*/, number/*end index*/]
@@ -37,12 +37,11 @@ export function getModuleMap(descList: SkeletonDesc[]): ModuleMap | undefined {
   return ModuleMap;
 }
 
-export function getModuleSize(renderString?: string, moduleId?: string): {width: string, height: string} {
+export function getModuleSize(renderString?: string, moduleId?: string): {height: string} {
   renderString = renderString ?? (window as any).__skeleton__x__lib.getData();
   const size = {
-    width: '0px',
     height: '0px'
-  }
+  };
   if (!renderString || !moduleId) return size;
   let { data, moduleMap } = parseRenderString(renderString);
   const moduleRootIndex = moduleMap[moduleId]?.[0];
@@ -50,16 +49,22 @@ export function getModuleSize(renderString?: string, moduleId?: string): {width:
   const desc = data[moduleRootIndex];
   if (!desc) return size;
   let renderProps = transforRenderDescToRenderProps(desc);
-  size.width = renderProps.width;
-  size.height = renderProps.height;
+  if (renderProps.height) {
+    size.height = renderProps.height
+  } else {
+    size.height = countCss(`100vh - ${renderProps.bottom} - ${renderProps.top}`)
+  }
+  
   return size;
 }
 
 export function toModuleRelativeDesc(desc: RenderDesc, moduleRootDesc?: RenderDesc): RenderDesc {
   desc = JSON.parse(JSON.stringify(desc));
   if (moduleRootDesc) {
-    desc.left = countCss(`${desc.left} - ${moduleRootDesc.left}`) + 'px';
-    desc.top = countCss(`${desc.top} - ${moduleRootDesc.top}`) + 'px';
+    desc.left = countCss(`${desc.left} - ${moduleRootDesc.left}`);
+    if (desc.right && moduleRootDesc.right) desc.right = countCss(`${desc.right} - ${moduleRootDesc.right}`);
+    desc.top = countCss(`${desc.top} - ${moduleRootDesc.top}`);
+    if (desc.bottom && moduleRootDesc.bottom) desc.bottom = countCss(`${desc.bottom} - ${moduleRootDesc.bottom}`);
   };
   return desc;
 }

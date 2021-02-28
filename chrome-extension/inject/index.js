@@ -1030,19 +1030,51 @@ function getFixedPosition(element) {
     vh: viewportHeight
   };
 }
-function countCss(size) {
-  var viewport = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : window;
-  if (!size) return 0;
-  var vw = viewport.document.documentElement.clientWidth;
-  var vh = viewport.document.documentElement.clientHeight;
-  var match = size.match(/calc\((.+?)\)/);
+/**
+ * @param size calc(100vw + 100px) - calc(50vw + 60px)
+ * @return calc(50vw - 40px)
+ */
 
-  if (match !== null && match !== void 0 && match[1]) {
-    size = match === null || match === void 0 ? void 0 : match[1];
+function countCss(size) {
+  // 去掉calc
+  size = size.replace(/calc\((.+?)\)/g, '($1)'); // 去括号
+
+  var bracketReg = /-\s?\((.+?)\)/;
+  var bracketsMatch = size.match(bracketReg);
+
+  while (bracketsMatch) {
+    var strArr = bracketsMatch[1].split('');
+
+    for (var i = 0; i < strArr.length; i++) {
+      if (strArr[i] === '-') {
+        strArr[i] = '+';
+      } else if (strArr[i] === '+') {
+        strArr[i] = '-';
+      }
+    }
+
+    var str = strArr.join('');
+    size = size.replace(bracketReg, '- ' + str);
+    bracketsMatch = size.match(bracketReg);
   }
-  size = size.replace(/calc\((.+?)\)/g, '($1)').replace(/vw/g, " * ".concat(vw / 100)).replace(/vh/g, " * ".concat(vh / 100)).replace(/px/g, '');
-  var count = new Function("return ".concat(size));
-  return count();
+
+  size = size.replace(/\((.+?)\)/g, '$1');
+  var pxList = size.match(/[+-]?\s?(\d+\.)?\d+px/g);
+  var vwList = size.match(/[+-]?\s?(\d+\.)?\d+vw/g);
+  var vhList = size.match(/[+-]?\s?(\d+\.)?\d+vh/g);
+  var px = pxList && new Function('return ' + pxList.join('').replace(/px/g, ''))();
+  var vw = vwList && new Function('return ' + vwList.join('').replace(/vw/g, ''))();
+  var vh = vhList && new Function('return ' + vhList.join('').replace(/vh/g, ''))();
+  var res = px + 'px' || vw + 'vw' || vh + 'vh';
+
+  if (vw && px) {
+    res = "calc(".concat(vw, "vw + ").concat(px, "px)");
+  } else if (vh && px) {
+    res = "calc(".concat(vh, "vh + ").concat(px, "px)");
+  }
+
+  res = res.replace(/\+\s-/g, '- ').replace(/\+\s\+/g, '+ ').replace(/$\+/, '');
+  return res;
 }
 
 var RefViewportRatio = 0.95;
@@ -1294,24 +1326,28 @@ function getRenderDescFromSkeletonDom(root) {
   var descList = [];
   nodeList.forEach(function (node) {
     var style = node.style;
-    ({
+    var desc = {
       width: style.width || undefined,
       height: style.height || undefined,
       top: style.top || undefined,
       right: style.right || undefined,
       bottom: style.bottom || undefined,
       left: style.left || undefined
-    });
+    };
 
     if (style.borderRadius) {
-      style.borderRadius;
+      desc.borderRadius = style.borderRadius;
     }
 
     if (style.borderWidth) {
-      style.borderWidth;
+      desc.borderWidth = style.borderWidth;
     }
 
-    if (style.background) ;
+    if (style.background) {
+      desc.backgroundColor = 1;
+    }
+
+    descList.push(desc);
   });
   return descList;
 }
@@ -1397,8 +1433,10 @@ function toModuleRelativeDesc(desc, moduleRootDesc) {
   desc = JSON.parse(JSON.stringify(desc));
 
   if (moduleRootDesc) {
-    desc.left = countCss("".concat(desc.left, " - ").concat(moduleRootDesc.left)) + 'px';
-    desc.top = countCss("".concat(desc.top, " - ").concat(moduleRootDesc.top)) + 'px';
+    desc.left = countCss("".concat(desc.left, " - ").concat(moduleRootDesc.left));
+    if (desc.right && moduleRootDesc.right) desc.right = countCss("".concat(desc.right, " - ").concat(moduleRootDesc.right));
+    desc.top = countCss("".concat(desc.top, " - ").concat(moduleRootDesc.top));
+    if (desc.bottom && moduleRootDesc.bottom) desc.bottom = countCss("".concat(desc.bottom, " - ").concat(moduleRootDesc.bottom));
   }
   return desc;
 }
