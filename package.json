@@ -8,7 +8,6 @@
     "lib/**/*",
     "index.d.ts"
   ],
-  "types": "index.d.ts",
   "scripts": {
     "start": "npm run dev",
     "build:ext": "rm -rf chorme-extension rollup --config scripts/build-ext.config.js",

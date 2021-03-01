@@ -26,7 +26,7 @@ module.exports = [{
     }),
     nodeResolve({
       extensions: ['.ts', '.js']
-    })
+    }),
   ],
   output: {
     // sourcemap: true,
@@ -54,6 +54,9 @@ module.exports = [{
     nodeResolve({
       extensions: ['.tsx', '.ts', '.jsx', '.js'] 
     }),
+    copy({
+      targets: [{ src: 'src/lib/react/index.d.ts', dest: 'lib/react' }]
+    })
   ],
   external: ['react'],
   output: {
