@@ -1,20 +1,15 @@
 import React, { Suspense, useEffect } from 'react'
 import {
-  HashRouter as Router,
   useLocation,
   Switch,
   Route,
   Link
 } from 'react-router-dom';
-import SkeletonContainer, { SkeletonSupspense } from './components/SkeletonContainer';
+import {SkeletonContainer, SkeletonSupspense } from './components/SkeletonContainer';
 
 const Home = React.lazy(() => import('./pages/Home'));
 const Users = React.lazy(() => import('./pages/Users'));
 const About = React.lazy(() => import('./pages/About'));
-
-// import Home from './pages/Home'
-// import Users from './pages/Users'
-// import About from './pages/About'
 
 const Layout: React.FC<{}> = (props) => {
   return <div className="layout">

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import SkeletonContainer from '../components/SkeletonContainer';
+import { SkeletonContainer } from '../components/SkeletonContainer';
 
 export default function Home() {
 
