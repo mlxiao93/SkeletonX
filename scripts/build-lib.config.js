@@ -5,6 +5,7 @@ const postcss = require('rollup-plugin-postcss');
 const replace = require('@rollup/plugin-replace');
 const commonjs = require('@rollup/plugin-commonjs');
 const copy = require('rollup-plugin-copy');
+import { terser } from "rollup-plugin-terser";
 
 // const rollup = require('rollup');
 // rollup.rollup({
@@ -27,6 +28,7 @@ module.exports = [{
     nodeResolve({
       extensions: ['.ts', '.js']
     }),
+    terser()
   ],
   output: {
     // sourcemap: true,
