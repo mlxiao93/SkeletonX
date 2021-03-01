@@ -1953,6 +1953,19 @@ var Skeleton = /*#__PURE__*/function () {
   return Skeleton;
 }();
 
+function copyData(data) {
+  var textarea = document.createElement('textarea');
+  textarea.style.position = 'fixed';
+  textarea.style.top = '-200px';
+  document.body.appendChild(textarea);
+  textarea.value = data;
+  textarea.select(); // 选中文本
+
+  document.execCommand("copy");
+  document.body.removeChild(textarea);
+  return data;
+}
+
 (function () {
   var _skltContainer;
 
@@ -2048,28 +2061,21 @@ var Skeleton = /*#__PURE__*/function () {
 
   function _copySkeletonData() {
     _copySkeletonData = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2() {
-      var textarea;
+      var data;
       return regeneratorRuntime.wrap(function _callee2$(_context2) {
         while (1) {
           switch (_context2.prev = _context2.next) {
             case 0:
-              textarea = document.createElement('textarea');
-              textarea.style.position = 'fixed';
-              textarea.style.top = '-200px';
-              document.body.appendChild(textarea);
-              _context2.next = 6;
+              _context2.next = 2;
               return skeleton.getDataString();
 
-            case 6:
-              textarea.value = _context2.sent;
-              textarea.select(); // 选中文本
-
-              document.execCommand("copy");
+            case 2:
+              data = _context2.sent;
+              copyData(data);
               alert('骨架屏数据已拷贝到剪切板');
-              console.log(textarea.value);
-              document.body.removeChild(textarea);
+              console.log(data);
 
-            case 12:
+            case 6:
             case "end":
               return _context2.stop();
           }

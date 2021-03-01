@@ -1,6 +1,7 @@
 import './index.scss'
 import Skeleton from '../../core'
 import { SkeletonRootId } from '../../core/consts'
+import { copyData } from './utils';
 
 (function () {
   let _skltContainer: HTMLDivElement;
@@ -67,16 +68,10 @@ import { SkeletonRootId } from '../../core/consts'
   }
 
   async function copySkeletonData() {
-    const textarea = document.createElement('textarea');
-    textarea.style.position = 'fixed';
-    textarea.style.top = '-200px';
-    document.body.appendChild(textarea);
-    textarea.value = await skeleton.getDataString();
-    textarea.select(); // 选中文本
-    document.execCommand("copy");
+    const data = await skeleton.getDataString();
+    copyData(data);
     alert('骨架屏数据已拷贝到剪切板');
-    console.log(textarea.value);
-    document.body.removeChild(textarea);
+    console.log(data);
   }
 
   async function generateSkeleton() {

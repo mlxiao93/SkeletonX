@@ -69,28 +69,6 @@ export function getColorLevelList(descList: SkeletonDesc[], maxLevel: number): n
     }
   }
 
-  // 按照父子关系
-  // for (const index in descList) {
-  //   const node = descList[index];
-  //   const isLeaf = descList.every(item => item.parentId !== node.id);
-  //   if (!isLeaf) continue;
-  //   let parentIndex = descList.findIndex(item => item.id === node.parentId);
-  //   let count = 1;
-  //   while (parentIndex >= 0) {
-  //     const parent = descList[parentIndex];
-  //     if (!nodeNeedBg(parent)) {
-  //       parentIndex = descList.findIndex(item => item.id === parent.parentId);
-  //       continue;
-  //     }
-
-  //     const colorLevel = Math.min(maxLevel, count);
-  //     colorLevelList[parentIndex] = Math.max(colorLevel, colorLevelList[parentIndex]);
-
-  //     parentIndex = descList.findIndex(item => item.id === parent.parentId);
-  //     count++;
-  //   }
-  // }
-
   return colorLevelList;
 }
 
