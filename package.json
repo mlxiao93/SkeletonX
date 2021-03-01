@@ -53,5 +53,9 @@
     "preact-render-to-string": "^5.1.12",
     "react": "^17.0.1",
     "react-dom": "^17.0.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:mlxiao93/SkeletonX.git"
   }
 }
