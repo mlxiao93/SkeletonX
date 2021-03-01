@@ -1,3 +1,4 @@
+const fs = require('fs')
 const { babel } = require('@rollup/plugin-babel');
 const { nodeResolve } = require('@rollup/plugin-node-resolve');
 const postcss = require('rollup-plugin-postcss');
@@ -25,9 +26,6 @@ module.exports = [{
     }),
     nodeResolve({
       extensions: ['.ts', '.js']
-    }),
-    copy({
-      targets: [{ src: 'src/lib/index.d.ts', dest: 'lib' }]
     })
   ],
   output: {
