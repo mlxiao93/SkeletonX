@@ -15,7 +15,7 @@
     "dev:ext": "NODE_ENV=dev rollup --config scripts/build-ext.config.js --watch",
     "//dev:panel": "NODE_ENV=dev rollup --config scripts/build-panel.config.js --watch",
     "dev:lib": "rollup --config scripts/build-lib.config.js --watch",
-    "build": "npm run build:ext & npm run build:panel & npm run build:lib",
+    "build": "npm run build:ext & npm run build:lib",
     "dev": "npm run dev:ext & npm run dev:lib"
   },
   "author": "",
