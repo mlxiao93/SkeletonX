@@ -1,15 +1,20 @@
 const { babel } = require('@rollup/plugin-babel');
 const { nodeResolve } = require('@rollup/plugin-node-resolve');
 const postcss = require('rollup-plugin-postcss');
+const replace = require('@rollup/plugin-replace');
+const commonjs = require('@rollup/plugin-commonjs');
+const copy = require('rollup-plugin-copy');
 
 // const rollup = require('rollup');
-// rollup.rollup({output: {}})
+// rollup.rollup({
+//   output: {}
+// })
 
-module.exports = {
-  input: ['src/lib/index.ts'],
+module.exports = [{
+  input: ['src/lib/global.ts'],
   plugins: [
     babel({
-      babelHelpers: 'bundled', 
+      babelHelpers: 'bundled',
       extensions: ['.ts', '.js'],
       exclude: 'node-modules',
     }),
@@ -19,18 +24,43 @@ module.exports = {
       extensions: ['.css', '.scss']
     }),
     nodeResolve({
-      extensions: ['.ts', '.js'] 
+      extensions: ['.ts', '.js']
     }),
+    copy({
+      targets: [{ src: 'src/lib/index.d.ts', dest: 'lib' }]
+    })
   ],
   output: {
     // sourcemap: true,
     name: '__skeleton__x__lib',
     dir: 'lib',
-    entryFileNames: 'index.js',
-    // format: 'umd',
+    entryFileNames: 'global.js',
     format: 'iife'
   },
   watch: {
     chokidar: true
   }
-}
+}, {
+  input: ['src/lib/react/index.tsx'],
+  plugins: [
+    replace({
+      preventAssignment: true,
+      'process.env.NODE_ENV': JSON.stringify('production')
+    }),
+    commonjs(),
+    babel({
+      babelHelpers: 'bundled', 
+      extensions: ['.tsx', '.ts', '.jsx', '.js'],
+      exclude: 'node-modules'
+    }),
+    nodeResolve({
+      extensions: ['.tsx', '.ts', '.jsx', '.js'] 
+    }),
+  ],
+  external: ['react'],
+  output: {
+    dir: 'lib/react',
+    format: 'esm',
+    entryFileNames: 'index.js'
+  }
+}]

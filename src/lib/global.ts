@@ -1,4 +1,4 @@
-import './index.scss'
+import './global.scss'
 export { renderToHtml } from '../core/render';
 export { getModuleSize } from '../core/module'
 
