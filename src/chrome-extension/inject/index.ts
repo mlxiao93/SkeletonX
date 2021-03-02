@@ -1,7 +1,7 @@
 import './index.scss'
 import Skeleton from '../../core'
 import { IgnoreAttrName, SkeletonRootId } from '../../core/consts'
-import { copyData } from './utils';
+import { copyData, download, getDemo } from './utils';
 
 (function () {
   let _skltContainer: HTMLDivElement;
@@ -69,10 +69,19 @@ import { copyData } from './utils';
   }
 
   async function copySkeletonData() {
+    if (!skeleton) return alert('请先生成骨架屏');
     const data = await skeleton.getDataString();
+    if (!data) return alert('请先生成骨架屏');
     copyData(data);
     alert('骨架屏数据已拷贝到剪切板');
     console.log(data);
+  }
+
+  function saveSkeletonData() {
+    const root = document.querySelector(`#${SkeletonRootId}`);
+      if (root && skeleton) {
+        skeleton.saveRenderData(root);
+      }
   }
 
   async function generateSkeleton() {
@@ -98,7 +107,7 @@ import { copyData } from './utils';
     });
   }
 
-  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
     if (request?.tag === 'content') return;
 
     if (request.action === 'set-tab-id') { 
@@ -118,11 +127,23 @@ import { copyData } from './utils';
     if (request.action === 'set-skeleton-container-opcity') {
       getSkltContainer().style.opacity = request.value;
     }
-    if (request.action === 'copy-skeleton') {
-      const root = document.querySelector(`#${SkeletonRootId}`);
-      if (root) {
-        skeleton.saveRenderData(root);
-      }
+    if (request.action === 'export-data') {
+      saveSkeletonData();
+      copySkeletonData();
+    }
+    if (request.action === 'export-demo') {
+      saveSkeletonData();
+
+      if (!skeleton) return alert('请先生成骨架屏');
+
+      const data = await skeleton.getDataString();
+      
+      if (!data) return alert('请先生成骨架屏');
+
+      download({
+        data: getDemo({ data }),
+        filename: 'skeleton-demo.html'
+      });
       copySkeletonData();
     }
   });

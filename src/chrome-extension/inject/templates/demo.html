@@ -1,0 +1,28 @@
+<html>
+<head>
+
+  <!-- css库，需要引入到项目 -->
+  <style>
+    <%=data.cssLib%>
+  </style>
+
+
+  <!-- js库，需要引入到项目 -->
+  <script>
+    <%=data.jsLib%>
+  </script>
+  <script>
+    // __skeleton__x__lib 为 js库 写入的变量，覆盖getDate方法返回骨架数据
+    __skeleton__x__lib.getData = function () {
+      /** !!! 每次新生成骨架屏，将新生成的数据拷贝过来即可 */
+      return '<%=data.data%>'
+    }
+  </script>
+</head>
+<body>
+  <!-- 输入html -->
+  <script>
+    document.write(__skeleton__x__lib.renderToHtml())
+  </script>
+</body>
+</html>

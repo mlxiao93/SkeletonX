@@ -3,7 +3,8 @@ import './popup.scss'
 const createBtn = document.querySelector('#btn-create') as HTMLButtonElement;
 const rangeInput = document.querySelector('#input-range') as HTMLInputElement;
 const clearBtn = document.querySelector('#btn-clear') as HTMLButtonElement;
-const copyBtn = document.querySelector('#btn-copy') as HTMLButtonElement;
+const exportDataBtn = document.querySelector('#btn-export-data') as HTMLButtonElement;
+const exportDemoBtn = document.querySelector('#btn-export-demo') as HTMLButtonElement;
 const loadingEl = document.querySelector('.loading') as HTMLButtonElement;
 
 let tabId: number;
@@ -54,9 +55,15 @@ clearBtn.onclick = () => {
   })
 }
 
-copyBtn.onclick = () => {
+exportDataBtn.onclick = () => {
   sendMessage({
-    action: 'copy-skeleton'
+    action: 'export-data'
+  })
+}
+
+exportDemoBtn.onclick = () => {
+  sendMessage({
+    action: 'export-demo'
   })
 }
 

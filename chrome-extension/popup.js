@@ -106,7 +106,8 @@ function _nonIterableRest() {
 var createBtn = document.querySelector('#btn-create');
 var rangeInput = document.querySelector('#input-range');
 var clearBtn = document.querySelector('#btn-clear');
-var copyBtn = document.querySelector('#btn-copy');
+var exportDataBtn = document.querySelector('#btn-export-data');
+var exportDemoBtn = document.querySelector('#btn-export-demo');
 var loadingEl = document.querySelector('.loading');
 var tabId;
 chrome.tabs.query({
@@ -173,9 +174,15 @@ clearBtn.onclick = function () {
   });
 };
 
-copyBtn.onclick = function () {
+exportDataBtn.onclick = function () {
   sendMessage({
-    action: 'copy-skeleton'
+    action: 'export-data'
+  });
+};
+
+exportDemoBtn.onclick = function () {
+  sendMessage({
+    action: 'export-demo'
   });
 };
 

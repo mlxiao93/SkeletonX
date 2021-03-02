@@ -98,7 +98,7 @@ export function getComputedSize(item: SkeletonDesc, refItem?: SkeletonDesc, inde
     delete computedSize.bottom;
     computedSize.height = _heightEqual === 10 ? `${itemSize.height}px` : `${itemSize.pHeight}vw`
     const midOffset = document.documentElement.clientHeight * 0.5 - itemSize.top;
-    computedSize.left = midOffset > 0 ? `calc(50vh - ${midOffset}px)` : `calc(50vh + ${-midOffset}px)`
+    computedSize.top = midOffset > 0 ? `calc(50vh - ${midOffset}px)` : `calc(50vh + ${-midOffset}px)`
   }
 
   return computedSize

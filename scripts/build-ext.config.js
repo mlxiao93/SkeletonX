@@ -10,6 +10,7 @@ const rollup = require('rollup');
 const alias = require('@rollup/plugin-alias');
 const replace = require('@rollup/plugin-replace');
 const commonjs = require('@rollup/plugin-commonjs');
+import { string } from "rollup-plugin-string";
 
 if (process.env.NODE_ENV === 'dev') {
   const _copyAssets = debounce(copyAssets, 200)
@@ -80,16 +81,20 @@ module.exports = [
       postcss({
         extract: true,
         minimize: true,
-        extensions: ['.css', '.scss']
+        extensions: ['.scss']
       }),
       babel({
         babelHelpers: 'bundled', 
         extensions: ['.tsx', '.ts', '.jsx', '.js'],
-        exclude: 'node-modules'
+        exclude: ['node-modules', '**/lib/global.js']
       }),
       nodeResolve({
         extensions: ['.tsx', '.ts', '.jsx', '.js'] 
       }),
+      string({
+        // Required to be specified
+        include: ['**/lib/global.js', '**/lib/global.css', '**/templates/demo.html'],
+      })
     ],
     output: {
       dir: 'chrome-extension/inject',

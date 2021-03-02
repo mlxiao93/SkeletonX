@@ -30,6 +30,7 @@ export default class Skeleton {
       iframe.style.position = 'fixed';
       iframe.style.zIndex = '-1';
       iframe.style.top = '0';
+      iframe.style.left = '0'
       iframe.style.visibility = 'hidden';
       iframe.onload = function () {
         try {
@@ -52,7 +53,7 @@ export default class Skeleton {
 
     const renderData = getRenderData(document.body, body2, window2);
 
-    // document.body.removeChild(iframe);
+    document.body.removeChild(iframe);
 
     this.renderData = renderData;
     return renderData;

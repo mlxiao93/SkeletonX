@@ -1196,7 +1196,7 @@ function getComputedSize(item, refItem, index) {
 
     var _midOffset = document.documentElement.clientHeight * 0.5 - itemSize.top;
 
-    computedSize.left = _midOffset > 0 ? "calc(50vh - ".concat(_midOffset, "px)") : "calc(50vh + ".concat(-_midOffset, "px)");
+    computedSize.top = _midOffset > 0 ? "calc(50vh - ".concat(_midOffset, "px)") : "calc(50vh + ".concat(-_midOffset, "px)");
   }
 
   return computedSize;
@@ -1828,6 +1828,7 @@ var Skeleton = /*#__PURE__*/function () {
                   iframe.style.position = 'fixed';
                   iframe.style.zIndex = '-1';
                   iframe.style.top = '0';
+                  iframe.style.left = '0';
                   iframe.style.visibility = 'hidden';
 
                   iframe.onload = function () {
@@ -1856,12 +1857,12 @@ var Skeleton = /*#__PURE__*/function () {
                 _yield$Promise = _context.sent;
                 body2 = _yield$Promise.body;
                 window2 = _yield$Promise.window;
-                renderData = getRenderData(document.body, body2, window2); // document.body.removeChild(iframe);
-
+                renderData = getRenderData(document.body, body2, window2);
+                document.body.removeChild(iframe);
                 this.renderData = renderData;
                 return _context.abrupt("return", renderData);
 
-              case 12:
+              case 13:
               case "end":
                 return _context.stop();
             }
@@ -1954,6 +1955,13 @@ var Skeleton = /*#__PURE__*/function () {
   return Skeleton;
 }();
 
+var template = "<html>\n<head>\n\n  <!-- css库，需要引入到项目 -->\n  <style>\n    <%=data.cssLib%>\n  </style>\n\n\n  <!-- js库，需要引入到项目 -->\n  <script>\n    <%=data.jsLib%>\n  </script>\n  <script>\n    // __skeleton__x__lib 为 js库 写入的变量，覆盖getDate方法返回骨架数据\n    __skeleton__x__lib.getData = function () {\n      /** !!! 每次新生成骨架屏，将新生成的数据拷贝过来即可 */\n      return '<%=data.data%>'\n    }\n  </script>\n</head>\n<body>\n  <!-- 输入html -->\n  <script>\n    document.write(__skeleton__x__lib.renderToHtml())\n  </script>\n</body>\n</html>";
+
+var cssLib = ".skeleton-x-node{animation:skeleton-loading 2.4s ease infinite}@keyframes skeleton-loading{0%{background-position:100% 50%}to{background-position:0 50%}}";
+
+var jsLib = "var __skeleton__x__lib=function(t){\"use strict\";function r(t,r){return function(t){if(Array.isArray(t))return t}(t)||function(t,r){if(\"undefined\"==typeof Symbol||!(Symbol.iterator in Object(t)))return;var o=[],e=!0,n=!1,i=void 0;try{for(var a,c=t[Symbol.iterator]();!(e=(a=c.next()).done)&&(o.push(a.value),!r||o.length!==r);e=!0);}catch(t){n=!0,i=t}finally{try{e||null==c.return||c.return()}finally{if(n)throw i}}return o}(t,r)||function(t,r){if(!t)return;if(\"string\"==typeof t)return o(t,r);var e=Object.prototype.toString.call(t).slice(8,-1);\"Object\"===e&&t.constructor&&(e=t.constructor.name);if(\"Map\"===e||\"Set\"===e)return Array.from(t);if(\"Arguments\"===e||/^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(e))return o(t,r)}(t,r)||function(){throw new TypeError(\"Invalid attempt to destructure non-iterable instance.\\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.\")}()}function o(t,r){(null==r||r>t.length)&&(r=t.length);for(var o=0,e=new Array(r);o<r;o++)e[o]=t[o];return e}function e(t){var r={top:t.top,left:t.left,height:t.height,width:t.width,bottom:t.bottom,right:t.right,borderRadius:t.borderRadius,borderWidth:t.borderWidth};return void 0!==t.backgroundColor&&(r.background=\"linear-gradient(90deg,rgb(190 190 190 / 20%) 25%,hsla(0,0%,50.6%,.24) 37%,hsla(0,0%,74.5%,.2) 63%); background-size: 400% 100%;\"),void 0!==t.borderWidth&&(r.borderColor=\"rgb(190 190 190 / 20%)\"),r}function n(t){var o=r(t.split(\"::\"),2),e=o[0],n=o[1];return{data:e.split(\",\").map((function(t){return function(t){var r=t.split(\"|\");return{width:r[0]||void 0,height:r[1]||void 0,top:r[2]||void 0,right:r[3]||void 0,bottom:r[4]||void 0,left:r[5]||void 0,borderRadius:r[6]||void 0,borderWidth:r[7]||void 0,backgroundColor:r[8]||void 0}}(t)})),moduleMap:n?JSON.parse(n):void 0}}function i(t){for(var r=/-\\s?\\((.+?)\\)/,o=(t=t.replace(/calc\\((.+?)\\)/g,\"($1)\")).match(r);o;){for(var e=o[1].split(\"\"),n=0;n<e.length;n++)\"-\"===e[n]?e[n]=\"+\":\"+\"===e[n]&&(e[n]=\"-\");var i=e.join(\"\");o=(t=t.replace(r,\"- \"+i)).match(r)}var a=(t=t.replace(/\\((.+?)\\)/g,\"$1\")).match(/[+-]?\\s?(\\d+\\.)?\\d+px/g),c=t.match(/[+-]?\\s?(\\d+\\.)?\\d+vw/g),l=t.match(/[+-]?\\s?(\\d+\\.)?\\d+vh/g),d=a&&new Function(\"return \"+a.join(\"\").replace(/px/g,\"\"))(),u=c&&new Function(\"return \"+c.join(\"\").replace(/vw/g,\"\"))(),v=l&&new Function(\"return \"+l.join(\"\").replace(/vh/g,\"\"))(),h=d+\"px\"||u+\"vw\"||v+\"vh\";return u&&d?h=\"calc(\".concat(u,\"vw + \").concat(d,\"px)\"):v&&d&&(h=\"calc(\".concat(v,\"vh + \").concat(d,\"px)\")),h=h.replace(/\\+\\s-/g,\"- \").replace(/\\+\\s\\+/g,\"+ \").replace(/$\\+/,\"\")}function a(t,r,o){var n=e(t=function(t,r){return t=JSON.parse(JSON.stringify(t)),r&&(t.left=i(\"\".concat(t.left,\" - \").concat(r.left)),t.right&&r.right&&(t.right=i(\"\".concat(t.right,\" - \").concat(r.right))),t.top=i(\"\".concat(t.top,\" - \").concat(r.top)),t.bottom&&r.bottom&&(t.bottom=i(\"\".concat(t.bottom,\" - \").concat(r.bottom)))),t}(t,o)),a=\"z-index:9999999;position:absolute;\";for(var c in n){n[c]&&(a+=c.replace(/([a-z])([A-Z])/g,\"$1-$2\").toLowerCase()+\":\"+n[c]+\";\")}return'<div id=\"'+r+'\" class=\"skeleton-x-node\" style=\"'+a+'\"></div>'}return t.getData=function(){},t.getModuleSize=function(t,r){var o,a,c={height:\"0px\"};if(!(t=null!==(o=t)&&void 0!==o?o:window.__skeleton__x__lib.getData())||!r)return c;var l=n(t),d=l.data,u=null===(a=l.moduleMap[r])||void 0===a?void 0:a[0];if(void 0===u)return c;var v=d[u];if(!v)return c;var h=e(v);return h.height?c.height=h.height:c.height=i(\"100vh - \".concat(h.bottom,\" - \").concat(h.top)),c},t.renderToHtml=function(t,r){var o;if(!(t=null!==(o=t)&&void 0!==o?o:window.__skeleton__x__lib.getData()))return\"\";var e,i=n(t),c=i.data,l=i.moduleMap;if(void 0!==r){var d,u,v=null===(d=l[r])||void 0===d?void 0:d[0],h=null===(u=l[r])||void 0===u?void 0:u[1];void 0!==v&&(e=c[v],c=c.slice(v,h+1))}for(var f=\"\",g=0;g<c.length;g++)f+=a(c[g],g,e);return f},Object.defineProperty(t,\"__esModule\",{value:!0}),t}({});\n";
+
+//@ts-ignore
 function copyData(data) {
   var textarea = document.createElement('textarea');
   textarea.style.position = 'fixed';
@@ -1965,6 +1973,31 @@ function copyData(data) {
   document.execCommand("copy");
   document.body.removeChild(textarea);
   return data;
+}
+function download(opt) {
+  var data = opt.data,
+      filename = opt.filename;
+  var url = URL.createObjectURL(new Blob([data]));
+  var aTag = document.createElement('a');
+  aTag.download = filename;
+  aTag.href = url;
+  aTag.click();
+}
+function getDemo(opt) {
+  var data = opt.data;
+  var templateData = {
+    data: data,
+    cssLib: cssLib,
+    jsLib: jsLib
+  };
+  return tmpl(template, templateData);
+}
+
+function tmpl(input, data) {
+  var code = "const result = [];";
+  code += "result.push(`".concat(input.replace(/<%=(.+?)%>/g, '`); result.push($1); result.push(`').replace(/<%(.+?)%>/g, '`); $1 result.push(`'), "`);");
+  code += "return result.join('');";
+  return new Function('data', code)(data);
 }
 
 (function () {
@@ -2062,29 +2095,54 @@ function copyData(data) {
   }
 
   function _copySkeletonData() {
-    _copySkeletonData = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
+    _copySkeletonData = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2() {
       var data;
-      return regeneratorRuntime.wrap(function _callee$(_context) {
+      return regeneratorRuntime.wrap(function _callee2$(_context2) {
         while (1) {
-          switch (_context.prev = _context.next) {
+          switch (_context2.prev = _context2.next) {
             case 0:
-              _context.next = 2;
-              return skeleton.getDataString();
+              if (skeleton) {
+                _context2.next = 2;
+                break;
+              }
+
+              return _context2.abrupt("return", alert('请先生成骨架屏'));
 
             case 2:
-              data = _context.sent;
+              _context2.next = 4;
+              return skeleton.getDataString();
+
+            case 4:
+              data = _context2.sent;
+
+              if (data) {
+                _context2.next = 7;
+                break;
+              }
+
+              return _context2.abrupt("return", alert('请先生成骨架屏'));
+
+            case 7:
               copyData(data);
               alert('骨架屏数据已拷贝到剪切板');
               console.log(data);
 
-            case 6:
+            case 10:
             case "end":
-              return _context.stop();
+              return _context2.stop();
           }
         }
-      }, _callee);
+      }, _callee2);
     }));
     return _copySkeletonData.apply(this, arguments);
+  }
+
+  function saveSkeletonData() {
+    var root = document.querySelector("#".concat(SkeletonRootId));
+
+    if (root && skeleton) {
+      skeleton.saveRenderData(root);
+    }
   }
 
   function generateSkeleton() {
@@ -2092,13 +2150,13 @@ function copyData(data) {
   }
 
   function _generateSkeleton() {
-    _generateSkeleton = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2() {
-      return regeneratorRuntime.wrap(function _callee2$(_context2) {
+    _generateSkeleton = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3() {
+      return regeneratorRuntime.wrap(function _callee3$(_context3) {
         while (1) {
-          switch (_context2.prev = _context2.next) {
+          switch (_context3.prev = _context3.next) {
             case 0:
               skeleton = new Skeleton();
-              _context2.next = 3;
+              _context3.next = 3;
               return renderSkeleton();
 
             case 3:
@@ -2106,10 +2164,10 @@ function copyData(data) {
 
             case 4:
             case "end":
-              return _context2.stop();
+              return _context3.stop();
           }
         }
-      }, _callee2);
+      }, _callee3);
     }));
     return _generateSkeleton.apply(this, arguments);
   }
@@ -2119,28 +2177,28 @@ function copyData(data) {
   }
 
   function _renderSkeleton() {
-    _renderSkeleton = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3() {
-      return regeneratorRuntime.wrap(function _callee3$(_context3) {
+    _renderSkeleton = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4() {
+      return regeneratorRuntime.wrap(function _callee4$(_context4) {
         while (1) {
-          switch (_context3.prev = _context3.next) {
+          switch (_context4.prev = _context4.next) {
             case 0:
               mutationObserver && mutationObserver.disconnect();
-              _context3.next = 3;
+              _context4.next = 3;
               return skeleton.getHtml();
 
             case 3:
-              _context3.t0 = _context3.sent;
-              getSkltContainer().innerHTML = "<div class=\"skeleton-x-mask\"></div>" + _context3.t0;
+              _context4.t0 = _context4.sent;
+              getSkltContainer().innerHTML = "<div class=\"skeleton-x-mask\"></div>" + _context4.t0;
               mutationObserver.observe(_skltContainer, {
                 childList: true
               });
 
             case 6:
             case "end":
-              return _context3.stop();
+              return _context4.stop();
           }
         }
-      }, _callee3);
+      }, _callee4);
     }));
     return _renderSkeleton.apply(this, arguments);
   }
@@ -2152,39 +2210,95 @@ function copyData(data) {
     }, message));
   }
 
-  chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-    if ((request === null || request === void 0 ? void 0 : request.tag) === 'content') return;
+  chrome.runtime.onMessage.addListener( /*#__PURE__*/function () {
+    var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(request, sender, sendResponse) {
+      var data;
+      return regeneratorRuntime.wrap(function _callee$(_context) {
+        while (1) {
+          switch (_context.prev = _context.next) {
+            case 0:
+              if (!((request === null || request === void 0 ? void 0 : request.tag) === 'content')) {
+                _context.next = 2;
+                break;
+              }
 
-    if (request.action === 'set-tab-id') {
-      tabId = request.tabId;
-    }
+              return _context.abrupt("return");
 
-    if (request.action === 'set-loading') {
-      request.loading ? loading(true) : cancleLoading(true);
-    }
+            case 2:
+              if (request.action === 'set-tab-id') {
+                tabId = request.tabId;
+              }
 
-    if (request.action === 'generate-skeleton') {
-      generateSkeleton();
-    }
+              if (request.action === 'set-loading') {
+                request.loading ? loading(true) : cancleLoading(true);
+              }
 
-    if (request.action === 'clear-skeleton') {
-      clearSkltContainer();
-    }
+              if (request.action === 'generate-skeleton') {
+                generateSkeleton();
+              }
 
-    if (request.action === 'set-skeleton-container-opcity') {
-      getSkltContainer().style.opacity = request.value;
-    }
+              if (request.action === 'clear-skeleton') {
+                clearSkltContainer();
+              }
 
-    if (request.action === 'copy-skeleton') {
-      var root = document.querySelector("#".concat(SkeletonRootId));
+              if (request.action === 'set-skeleton-container-opcity') {
+                getSkltContainer().style.opacity = request.value;
+              }
 
-      if (root) {
-        skeleton.saveRenderData(root);
-      }
+              if (request.action === 'export-data') {
+                saveSkeletonData();
+                copySkeletonData();
+              }
 
-      copySkeletonData();
-    }
-  });
+              if (!(request.action === 'export-demo')) {
+                _context.next = 19;
+                break;
+              }
+
+              saveSkeletonData();
+
+              if (skeleton) {
+                _context.next = 12;
+                break;
+              }
+
+              return _context.abrupt("return", alert('请先生成骨架屏'));
+
+            case 12:
+              _context.next = 14;
+              return skeleton.getDataString();
+
+            case 14:
+              data = _context.sent;
+
+              if (data) {
+                _context.next = 17;
+                break;
+              }
+
+              return _context.abrupt("return", alert('请先生成骨架屏'));
+
+            case 17:
+              download({
+                data: getDemo({
+                  data: data
+                }),
+                filename: 'skeleton-demo.html'
+              });
+              copySkeletonData();
+
+            case 19:
+            case "end":
+              return _context.stop();
+          }
+        }
+      }, _callee);
+    }));
+
+    return function (_x, _x2, _x3) {
+      return _ref.apply(this, arguments);
+    };
+  }());
   var loadingEl;
 
   function loading(fromMessage) {
