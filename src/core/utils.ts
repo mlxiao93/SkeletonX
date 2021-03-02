@@ -14,12 +14,12 @@ export function needBorder(borderWidth: string) {
 
 // 两个元素是否有重叠部分
 export function isIntersect(node1: SkeletonDesc, node2: SkeletonDesc): boolean {
-  const x1 = node1.x;
-  const y1 = node1.y;
+  const x1 = node1.left;
+  const y1 = node1.top;
   const w1 = node1.width;
   const h1 = node1.height;
-  const x2 = node2.x;
-  const y2 = node2.y;
+  const x2 = node2.left;
+  const y2 = node2.top;
   const w2 = node2.width;
   const h2 = node2.height;
   if (x1 + w1 <= x2) return false;
@@ -35,10 +35,10 @@ export function isCovered(list: SkeletonDesc[], targetIndex: number): boolean {
   for (let i = targetIndex + 1; i < list.length; i++) {
     const node = list[i];
     if (!nodeNeedBg(node)) continue;
-    if (node.x <= target.x
-      && node.y <= target.y
-      && node.x + node.width >= target.x + target.width
-      && node.y + node.height >= target.y + target.height) {
+    if (node.left <= target.left
+      && node.top <= target.top
+      && node.left + node.width >= target.left + target.width
+      && node.top + node.height >= target.top + target.height) {
       return true;
     }
   }

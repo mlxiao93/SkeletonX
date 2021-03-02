@@ -1,3 +1,5 @@
+import './popup.scss'
+
 const createBtn = document.querySelector('#btn-create') as HTMLButtonElement;
 const rangeInput = document.querySelector('#input-range') as HTMLInputElement;
 const clearBtn = document.querySelector('#btn-clear') as HTMLButtonElement;

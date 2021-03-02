@@ -1,7 +1,7 @@
 import {SkeletonDesc} from './skeleton'
 import { keepDecimals } from './utils';
 
-export const RefViewportRatio = 0.95;
+export const RefViewportRatio = 1.05;
 export interface ComputedSize {
   width?: string
   height?: string

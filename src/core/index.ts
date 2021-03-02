@@ -17,7 +17,7 @@ export default class Skeleton {
   public async getRenderData(): Promise<RenderData> {
     if (this.renderData) return this.renderData;
     const iframe = document.createElement('iframe');
-    const innerHtml = document.body.innerHTML.replace(/<script\s.*?src=".+?"/, "<script")
+    const innerHtml = document.documentElement.innerHTML.replace(/<script\s.*?src=".+?"/, "<script")
     const {
       body: body2,
       window: window2,
@@ -33,13 +33,16 @@ export default class Skeleton {
       iframe.style.visibility = 'hidden';
       iframe.onload = function () {
         try {
-          iframe.contentDocument.body.innerHTML = innerHtml;
-          resolve({
-            body: iframe.contentDocument.body,
-            window: iframe.contentWindow
-          });
+          iframe.contentDocument.documentElement.innerHTML = innerHtml;
+          setTimeout(() => {
+            resolve({
+              body: iframe.contentDocument.body,
+              window: iframe.contentWindow
+            });
+          }, 1000)   // 延迟1s，保证html渲染完成
+          
         } catch (error) {
-          console.error(error);
+          console.warn('iframe error', error);
           resolve({body: null, window: null});
         }
       }
@@ -49,7 +52,7 @@ export default class Skeleton {
 
     const renderData = getRenderData(document.body, body2, window2);
 
-    document.body.removeChild(iframe);
+    // document.body.removeChild(iframe);
 
     this.renderData = renderData;
     return renderData;

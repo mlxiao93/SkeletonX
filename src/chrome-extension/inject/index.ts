@@ -81,7 +81,7 @@ import { copyData } from './utils';
 
   async function renderSkeleton() {
     mutationObserver && mutationObserver.disconnect();
-    getSkltContainer().innerHTML = `<div style="position: absolute; z-index: 9999998; background: #fff; left: 0; right: 0; top: 0; bottom: 0"></div>`
+    getSkltContainer().innerHTML = `<div style="position: absolute; z-index: 9999998; background: #fff; left: 0; right: 0; top: 0; bottom: 0;"></div>`
       + await skeleton.getHtml();
     mutationObserver.observe(_skltContainer, {
       childList: true
@@ -99,18 +99,11 @@ import { copyData } from './utils';
       getSkltContainer().style.opacity = request.data;
     }
     if (request.action === 'copy-skeleton') {
-      copySkeletonData();
-    }
-    if (request.action === 'save-skeleton') {
       const root = document.querySelector(`#${SkeletonRootId}`);
-
-      if (!root) {
-        alert('保存骨架屏数据失败');
-        return
+      if (root) {
+        skeleton.saveRenderData(root);
       }
-
-      skeleton.saveRenderData(root);
-      await copySkeletonData();
+      copySkeletonData();
     }
   });
 })()

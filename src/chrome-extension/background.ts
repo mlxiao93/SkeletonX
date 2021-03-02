@@ -1,3 +1,3 @@
 chrome.runtime.onInstalled.addListener(() => {
-  console.log('SkeletonX installed ..');
+  // console.log('SkeletonX installed ..');
 })

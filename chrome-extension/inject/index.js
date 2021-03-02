@@ -993,7 +993,7 @@ function isCovered(list, targetIndex) {
     var node = list[i];
     if (!nodeNeedBg(node)) continue;
 
-    if (node.x <= target.x && node.y <= target.y && node.x + node.width >= target.x + target.width && node.y + node.height >= target.y + target.height) {
+    if (node.left <= target.left && node.top <= target.top && node.left + node.width >= target.left + target.width && node.top + node.height >= target.top + target.height) {
       return true;
     }
   }
@@ -1103,7 +1103,7 @@ function countCss(size) {
   return res;
 }
 
-var RefViewportRatio = 0.95;
+var RefViewportRatio = 1.05;
 function getComputedSizeList(list, refList) {
   var res = [];
   list.map(function (item, index) {
@@ -1550,17 +1550,14 @@ function getSkeletonDesc(opt) {
     return null;
   }
 
-  var clientRect = element.getBoundingClientRect();
+  element.getBoundingClientRect();
   var nodeSkltModuleId = (_element$getAttribute = element.getAttribute('skeletonx-module-id')) !== null && _element$getAttribute !== void 0 ? _element$getAttribute : undefined;
   return _objectSpread2(_objectSpread2({
     parentId: parentDesc ? parentDesc.id : null,
     id: parentDesc ? "".concat(parentDesc.id, "[").concat(index, "]") : '',
     moduleRoot: nodeSkltModuleId ? true : undefined,
     moduleId: getModuleId(nodeSkltModuleId, parentDesc),
-    tagName: element.tagName,
-    // nodeType: node.nodeType,
-    x: clientRect.left,
-    y: clientRect.top
+    tagName: element.tagName
   }, getFixedPosition(element, viewport)), {}, {
     borderWidth: style.borderWidth,
     borderRadius: style.borderRadius,
@@ -1641,15 +1638,15 @@ function clipSkeletonDescList(list) {
 
         if (node.overflowX !== 'visible') {
           // 横向被裁剪
-          if (child.x < node.x) child.x = node.x;
-          if (child.x + child.width > node.x + node.width) child.width = node.width - (child.x - node.x);
+          if (child.left < node.left) child.left = node.left;
+          if (child.left + child.width > node.left + node.width) child.width = node.width - (child.left - node.left);
         }
 
         if (node.overflowY !== 'visible') {
           // 纵向被裁剪
           //   child.height = node.height;
-          if (child.y < node.y) child.y = node.y;
-          if (child.y + child.height > node.y + node.height) child.height = node.height - (child.y - node.y);
+          if (child.top < node.top) child.top = node.top;
+          if (child.top + child.height > node.top + node.height) child.height = node.height - (child.top - node.top);
         }
 
         var grandChildren = list.filter(function (item) {
@@ -1704,9 +1701,12 @@ function reduceSkeletonDescList(list) {
 
     var noShadow = node.boxShadow === 'none'; // 无尺寸
 
-    var noSize = node.width * node.height <= 0; // 删掉节点
+    var noSize = node.width * node.height <= 0;
+    /** 白色body */
 
-    if (noBg && noText && noBorder && noShadow || noSize || isCovered(list, index)
+    var whiteBody = node.tagName.toLowerCase() === 'body' && node.backgroundColor === 'rgb(255, 255, 255)'; // 删掉节点
+
+    if (noBg && noText && noBorder && noShadow && whiteBody || noSize || isCovered(list, index)
     /*被覆盖*/
     ) {
         // 保存id -> parentId
@@ -1821,7 +1821,7 @@ var Skeleton = /*#__PURE__*/function () {
 
               case 2:
                 iframe = document.createElement('iframe');
-                innerHtml = document.body.innerHTML.replace(/<script\s.*?src=".+?"/, "<script");
+                innerHtml = document.documentElement.innerHTML.replace(/<script\s.*?src=".+?"/, "<script");
                 _context.next = 6;
                 return new Promise(function (resolve) {
                   iframe.style.width = "".concat(RefViewportRatio * 100, "vw");
@@ -1833,13 +1833,15 @@ var Skeleton = /*#__PURE__*/function () {
 
                   iframe.onload = function () {
                     try {
-                      iframe.contentDocument.body.innerHTML = innerHtml;
-                      resolve({
-                        body: iframe.contentDocument.body,
-                        window: iframe.contentWindow
-                      });
+                      iframe.contentDocument.documentElement.innerHTML = innerHtml;
+                      setTimeout(function () {
+                        resolve({
+                          body: iframe.contentDocument.body,
+                          window: iframe.contentWindow
+                        });
+                      }, 1000); // 延迟1s，保证html渲染完成
                     } catch (error) {
-                      console.error(error);
+                      console.warn('iframe error', error);
                       resolve({
                         body: null,
                         window: null
@@ -1855,12 +1857,12 @@ var Skeleton = /*#__PURE__*/function () {
                 _yield$Promise = _context.sent;
                 body2 = _yield$Promise.body;
                 window2 = _yield$Promise.window;
-                renderData = getRenderData(document.body, body2, window2);
-                document.body.removeChild(iframe);
+                renderData = getRenderData(document.body, body2, window2); // document.body.removeChild(iframe);
+
                 this.renderData = renderData;
                 return _context.abrupt("return", renderData);
 
-              case 13:
+              case 12:
               case "end":
                 return _context.stop();
             }
@@ -2125,7 +2127,7 @@ function copyData(data) {
 
             case 3:
               _context4.t0 = _context4.sent;
-              getSkltContainer().innerHTML = "<div style=\"position: absolute; z-index: 9999998; background: #fff; left: 0; right: 0; top: 0; bottom: 0\"></div>" + _context4.t0;
+              getSkltContainer().innerHTML = "<div style=\"position: absolute; z-index: 9999998; background: #fff; left: 0; right: 0; top: 0; bottom: 0;\"></div>" + _context4.t0;
               mutationObserver.observe(_skltContainer, {
                 childList: true
               });
@@ -2160,30 +2162,16 @@ function copyData(data) {
               }
 
               if (request.action === 'copy-skeleton') {
+                root = document.querySelector("#".concat(SkeletonRootId));
+
+                if (root) {
+                  skeleton.saveRenderData(root);
+                }
+
                 copySkeletonData();
               }
 
-              if (!(request.action === 'save-skeleton')) {
-                _context.next = 12;
-                break;
-              }
-
-              root = document.querySelector("#".concat(SkeletonRootId));
-
-              if (root) {
-                _context.next = 9;
-                break;
-              }
-
-              alert('保存骨架屏数据失败');
-              return _context.abrupt("return");
-
-            case 9:
-              skeleton.saveRenderData(root);
-              _context.next = 12;
-              return copySkeletonData();
-
-            case 12:
+            case 4:
             case "end":
               return _context.stop();
           }

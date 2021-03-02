@@ -1,4 +1,4 @@
-import {nodeNeedBg, nodeNeedBorder, isCovered, getColorLevelList} from './utils'
+import {isCovered} from './utils'
 
 /**
  * TODO 
@@ -34,9 +34,6 @@ export interface SkeletonDesc {
   containTextNode?: boolean;
 
   /** 定位 */
-  x: number
-  y: number
-
   left: number,
   right: number,
   top: number,
@@ -96,6 +93,8 @@ export function getSkeletonDesc(opt: {
 
   let element = node as HTMLElement;
 
+  
+
   /** 
    * 文本节点处理
    */
@@ -134,10 +133,6 @@ export function getSkeletonDesc(opt: {
     moduleId: getModuleId(nodeSkltModuleId, parentDesc),
 
     tagName: element.tagName,
-
-    // nodeType: node.nodeType,
-    x: clientRect.left,
-    y: clientRect.top,
 
     ...getFixedPosition(element, viewport),
 
@@ -214,14 +209,14 @@ export function clipSkeletonDescList(list: SkeletonDesc[]): SkeletonDesc[] {
 
       if (node.overflowX !== 'visible') {
         // 横向被裁剪
-        if (child.x < node.x) child.x = node.x;
-        if (child.x + child.width > node.x + node.width) child.width = node.width - (child.x - node.x);
+        if (child.left < node.left) child.left = node.left;
+        if (child.left + child.width > node.left + node.width) child.width = node.width - (child.left - node.left);
       }
       if (node.overflowY !== 'visible') {
         // 纵向被裁剪
         //   child.height = node.height;
-        if (child.y < node.y) child.y = node.y;
-        if (child.y + child.height > node.y + node.height) child.height = node.height - (child.y - node.y)
+        if (child.top < node.top) child.top = node.top;
+        if (child.top + child.height > node.top + node.height) child.height = node.height - (child.top - node.top)
       }
 
       const grandChildren = list.filter(item => item.parentId === child.id);
@@ -248,7 +243,6 @@ export function reduceSkeletonDescList(list: SkeletonDesc[]): SkeletonDesc[] {
     if (node.moduleRoot) {
       return true;
     }
-
     
     // 无背景色
     const noBg = /rgba\((\d+,\s*){3}0\)/.test(node.backgroundColor) && node.backgroundImage === 'none';
@@ -261,8 +255,11 @@ export function reduceSkeletonDescList(list: SkeletonDesc[]): SkeletonDesc[] {
     // 无尺寸
     const noSize = node.width * node.height <= 0;
 
+    /** 白色body */
+    let whiteBody = node.tagName.toLowerCase() === 'body' && node.backgroundColor === 'rgb(255, 255, 255)';
+
     // 删掉节点
-    if ((noBg && noText && noBorder && noShadow)
+    if ((noBg && noText && noBorder && noShadow && whiteBody)
       || noSize
       || isCovered(list, index)/*被覆盖*/
     ) {

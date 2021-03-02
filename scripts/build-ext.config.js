@@ -34,9 +34,9 @@ function copyAssets() {
 module.exports = [
   {
     input: [
-      'src/chrome-extension/background.ts',
+      'src/chrome-extension/popup.ts',
+      'src/chrome-extension/background.ts'
       // 'src/chrome-extension/devtools.ts',
-      'src/chrome-extension/popup.ts'
     ],
     plugins: [
       babel({
@@ -45,6 +45,11 @@ module.exports = [
       }),
       nodeResolve({
         extensions: ['.ts', '.js'] 
+      }),
+      postcss({
+        extract: true,
+        minimize: true,
+        extensions: ['.css', '.scss']
       }),
     ],
     output: {

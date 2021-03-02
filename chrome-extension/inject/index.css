@@ -1,1 +1,1 @@
-.skeleton-x-node{animation:skeleton-loading 2.4s ease infinite}@keyframes skeleton-loading{0%{background-position:100% 50%}to{background-position:0 50%}}
+.skeleton-x-node{animation:skeleton-loading 2.4s ease infinite}@keyframes skeleton-loading{0%{background-position:100% 50%}to{background-position:0 50%}}#skeleton-x-root{position:static!important}

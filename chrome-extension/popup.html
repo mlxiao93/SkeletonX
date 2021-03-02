@@ -1,32 +1,34 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <link rel="stylesheet" href="popup.css"></link>
   </head>
   <body>
-    <p>
-      <button id="btn-create">生成骨架屏</button>
-    </p>
-    <p>
-      <label for="input-range">调节透明度</label>
+    
+    <fieldset>
+      <legend>生成骨架屏</legend>
+      <button id="btn-create" class="btn-primary">开始</button>
+      <button id="btn-clear" class="btn-danger">清除</button>
+    </fieldset>
+
+    <br>
+
+    <fieldset>
+      <legend>导出</legend>
+      <button id="btn-copy" class="btn-success">导出</button>
+    </fieldset>
+
+    <br>
+
+    <fieldset>
+      <legend>调整预览蒙层透明度</legend>
       <input type="range" id="input-range" min="0" max="100" value="100">
-    </p>
-    <p>
-      <button id="btn-clear">清除骨架屏</button>
-    </p>
+    </fieldset>
 
-    <hr />
-
-    <p>
-      <button id="btn-save">保存骨架数据</button>
-    </p>
-    <p>
-      <button id="btn-copy">拷贝骨架数据</button>
-    </p>
-
-    <p>
-      <button>拷贝js lib</button>
-      <button>拷贝css lib</button>
-    </p>
+    <br>
+    <div class="help-block">
+      <a target="_blank" href="https://github.com/mlxiao93/SkeletonX">查看帮助文档</a>
+    </div>
 
     <script src="popup.js"></script>
   </body>

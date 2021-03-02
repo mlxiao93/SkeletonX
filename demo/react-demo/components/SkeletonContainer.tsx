@@ -1,1 +1,1 @@
-export { SkeletonContainer, SkeletonSupspense } from '@alife/skeletonx/lib/react';
+export { SkeletonContainer, SkeletonSupspense } from 'skeletonx/lib/react';
