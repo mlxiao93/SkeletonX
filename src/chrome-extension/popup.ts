@@ -4,42 +4,66 @@ const createBtn = document.querySelector('#btn-create') as HTMLButtonElement;
 const rangeInput = document.querySelector('#input-range') as HTMLInputElement;
 const clearBtn = document.querySelector('#btn-clear') as HTMLButtonElement;
 const copyBtn = document.querySelector('#btn-copy') as HTMLButtonElement;
-const saveBtn = document.querySelector('#btn-save') as HTMLButtonElement;
+const loadingEl = document.querySelector('.loading') as HTMLButtonElement;
 
-let currentTabId: number;
-
+let tabId: number;
 chrome.tabs.query({active: true, currentWindow: true}, function([tab]) {
-  currentTabId = tab.id;
+  tabId = tab.id;
+  sendMessage({
+    action: 'set-tab-id',
+    tabId
+  })
 });
 
+function sendMessage(messsage) {
+  chrome.tabs.sendMessage(tabId, {
+    tag: 'popup',
+    ...messsage
+  })
+}
+
+chrome.runtime.onMessage.addListener((request) => {
+  if (request?.tag === 'topup') return;
+  if (request?.tabId !== tabId) return;
+  if (request.action === 'set-loading') {
+    request.loading ? loading(true) : cancleLoading(true);
+  }
+});
+
+
+function loading(fromMessage?: boolean) {
+  if (!fromMessage) { sendMessage({action: 'set-loading', loading: true})}
+  loadingEl.style.display = 'flex';
+}
+
+function cancleLoading(fromMessage?: boolean) {
+  if (!fromMessage) {sendMessage({action: 'set-loading', loading: false})}
+  loadingEl.style.display = 'none';
+}
+
 createBtn.onclick = () => {
-  chrome.tabs.sendMessage(currentTabId, {
-    action: 'generate-skeleton'
+  loading();
+  sendMessage({
+    action: 'generate-skeleton',
   })
 }
 
 clearBtn.onclick = () => {
-  chrome.tabs.sendMessage(currentTabId, {
+  sendMessage({
     action: 'clear-skeleton'
   })
 }
 
 copyBtn.onclick = () => {
-  chrome.tabs.sendMessage(currentTabId, {
+  sendMessage({
     action: 'copy-skeleton'
   })
 }
 
 rangeInput.onchange = (e) => {
-  chrome.tabs.sendMessage(currentTabId, {
+  sendMessage({
     action: 'set-skeleton-container-opcity',
-    data: Number(rangeInput.value) / 100
+    value: Number(rangeInput.value) / 100
   })
 }
 
-saveBtn.onclick = () => {
-  chrome.tabs.sendMessage(currentTabId, {
-    action: 'save-skeleton',
-    data: Number(rangeInput.value) / 100
-  })
-}

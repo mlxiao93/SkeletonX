@@ -121,8 +121,6 @@ export function getSkeletonDesc(opt: {
     return null;
   }
 
-  const clientRect = element.getBoundingClientRect();
-
   const nodeSkltModuleId = element.getAttribute('skeletonx-module-id') ?? undefined;
 
   return {

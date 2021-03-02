@@ -1550,7 +1550,6 @@ function getSkeletonDesc(opt) {
     return null;
   }
 
-  element.getBoundingClientRect();
   var nodeSkltModuleId = (_element$getAttribute = element.getAttribute('skeletonx-module-id')) !== null && _element$getAttribute !== void 0 ? _element$getAttribute : undefined;
   return _objectSpread2(_objectSpread2({
     parentId: parentDesc ? parentDesc.id : null,
@@ -1973,6 +1972,7 @@ function copyData(data) {
 
   var mutationObserver;
   var skeleton;
+  var tabId;
 
   var mutationObserverCb = function mutationObserverCb(mutationsList, observer) {
     var _iterator = _createForOfIteratorHelper(mutationsList),
@@ -2062,27 +2062,27 @@ function copyData(data) {
   }
 
   function _copySkeletonData() {
-    _copySkeletonData = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2() {
+    _copySkeletonData = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
       var data;
-      return regeneratorRuntime.wrap(function _callee2$(_context2) {
+      return regeneratorRuntime.wrap(function _callee$(_context) {
         while (1) {
-          switch (_context2.prev = _context2.next) {
+          switch (_context.prev = _context.next) {
             case 0:
-              _context2.next = 2;
+              _context.next = 2;
               return skeleton.getDataString();
 
             case 2:
-              data = _context2.sent;
+              data = _context.sent;
               copyData(data);
               alert('骨架屏数据已拷贝到剪切板');
               console.log(data);
 
             case 6:
             case "end":
-              return _context2.stop();
+              return _context.stop();
           }
         }
-      }, _callee2);
+      }, _callee);
     }));
     return _copySkeletonData.apply(this, arguments);
   }
@@ -2092,21 +2092,24 @@ function copyData(data) {
   }
 
   function _generateSkeleton() {
-    _generateSkeleton = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3() {
-      return regeneratorRuntime.wrap(function _callee3$(_context3) {
+    _generateSkeleton = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2() {
+      return regeneratorRuntime.wrap(function _callee2$(_context2) {
         while (1) {
-          switch (_context3.prev = _context3.next) {
+          switch (_context2.prev = _context2.next) {
             case 0:
               skeleton = new Skeleton();
-              _context3.next = 3;
+              _context2.next = 3;
               return renderSkeleton();
 
             case 3:
+              cancleLoading();
+
+            case 4:
             case "end":
-              return _context3.stop();
+              return _context2.stop();
           }
         }
-      }, _callee3);
+      }, _callee2);
     }));
     return _generateSkeleton.apply(this, arguments);
   }
@@ -2116,71 +2119,100 @@ function copyData(data) {
   }
 
   function _renderSkeleton() {
-    _renderSkeleton = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4() {
-      return regeneratorRuntime.wrap(function _callee4$(_context4) {
+    _renderSkeleton = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3() {
+      return regeneratorRuntime.wrap(function _callee3$(_context3) {
         while (1) {
-          switch (_context4.prev = _context4.next) {
+          switch (_context3.prev = _context3.next) {
             case 0:
               mutationObserver && mutationObserver.disconnect();
-              _context4.next = 3;
+              _context3.next = 3;
               return skeleton.getHtml();
 
             case 3:
-              _context4.t0 = _context4.sent;
-              getSkltContainer().innerHTML = "<div style=\"position: absolute; z-index: 9999998; background: #fff; left: 0; right: 0; top: 0; bottom: 0;\"></div>" + _context4.t0;
+              _context3.t0 = _context3.sent;
+              getSkltContainer().innerHTML = "<div class=\"skeleton-x-mask\"></div>" + _context3.t0;
               mutationObserver.observe(_skltContainer, {
                 childList: true
               });
 
             case 6:
             case "end":
-              return _context4.stop();
+              return _context3.stop();
           }
         }
-      }, _callee4);
+      }, _callee3);
     }));
     return _renderSkeleton.apply(this, arguments);
   }
 
-  chrome.runtime.onMessage.addListener( /*#__PURE__*/function () {
-    var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(request, sender, sendResponse) {
-      var root;
-      return regeneratorRuntime.wrap(function _callee$(_context) {
-        while (1) {
-          switch (_context.prev = _context.next) {
-            case 0:
-              if (request.action === 'generate-skeleton') {
-                generateSkeleton();
-              }
+  function sendMessage(message) {
+    chrome.runtime.sendMessage(_objectSpread2({
+      tag: 'content',
+      tabId: tabId
+    }, message));
+  }
 
-              if (request.action === 'clear-skeleton') {
-                clearSkltContainer();
-              }
+  chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+    if ((request === null || request === void 0 ? void 0 : request.tag) === 'content') return;
 
-              if (request.action === 'set-skeleton-container-opcity') {
-                getSkltContainer().style.opacity = request.data;
-              }
+    if (request.action === 'set-tab-id') {
+      tabId = request.tabId;
+    }
 
-              if (request.action === 'copy-skeleton') {
-                root = document.querySelector("#".concat(SkeletonRootId));
+    if (request.action === 'set-loading') {
+      request.loading ? loading(true) : cancleLoading(true);
+    }
 
-                if (root) {
-                  skeleton.saveRenderData(root);
-                }
+    if (request.action === 'generate-skeleton') {
+      generateSkeleton();
+    }
 
-                copySkeletonData();
-              }
+    if (request.action === 'clear-skeleton') {
+      clearSkltContainer();
+    }
 
-            case 4:
-            case "end":
-              return _context.stop();
-          }
-        }
-      }, _callee);
-    }));
+    if (request.action === 'set-skeleton-container-opcity') {
+      getSkltContainer().style.opacity = request.value;
+    }
 
-    return function (_x, _x2, _x3) {
-      return _ref.apply(this, arguments);
-    };
-  }());
+    if (request.action === 'copy-skeleton') {
+      var root = document.querySelector("#".concat(SkeletonRootId));
+
+      if (root) {
+        skeleton.saveRenderData(root);
+      }
+
+      copySkeletonData();
+    }
+  });
+  var loadingEl;
+
+  function loading(fromMessage) {
+    if (!fromMessage) {
+      sendMessage({
+        action: 'set-loading',
+        loading: true
+      });
+    }
+
+    if (!loadingEl) {
+      loadingEl = document.createElement('div');
+      loadingEl.className = 'skeleton-x-loading';
+      loadingEl.setAttribute(IgnoreAttrName, '');
+      loadingEl.innerHTML = "<div class=\"lds-dual-ring\"></div>";
+    }
+
+    if (!document.body.contains(loadingEl)) document.body.appendChild(loadingEl);
+  }
+
+  function cancleLoading(fromMessage) {
+    if (!fromMessage) {
+      sendMessage({
+        action: 'set-loading',
+        loading: false
+      });
+    }
+
+    loadingEl && document.body.removeChild(loadingEl);
+  }
 })();

@@ -1,12 +1,13 @@
 import './index.scss'
 import Skeleton from '../../core'
-import { SkeletonRootId } from '../../core/consts'
+import { IgnoreAttrName, SkeletonRootId } from '../../core/consts'
 import { copyData } from './utils';
 
 (function () {
   let _skltContainer: HTMLDivElement;
   let mutationObserver: MutationObserver;
   let skeleton: Skeleton;
+  let tabId: number;
 
   const mutationObserverCb: MutationCallback = (mutationsList, observer) => {
     for (let mutation of mutationsList) {
@@ -77,18 +78,37 @@ import { copyData } from './utils';
   async function generateSkeleton() {
     skeleton = new Skeleton()
     await renderSkeleton();
+    cancleLoading();
   }
 
   async function renderSkeleton() {
     mutationObserver && mutationObserver.disconnect();
-    getSkltContainer().innerHTML = `<div style="position: absolute; z-index: 9999998; background: #fff; left: 0; right: 0; top: 0; bottom: 0;"></div>`
+    getSkltContainer().innerHTML = `<div class="skeleton-x-mask"></div>`
       + await skeleton.getHtml();
     mutationObserver.observe(_skltContainer, {
       childList: true
     })
   }
 
-  chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
+  function sendMessage(message) {
+    chrome.runtime.sendMessage({
+      tag: 'content',
+      tabId,
+      ...message
+    });
+  }
+
+  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request?.tag === 'content') return;
+
+    if (request.action === 'set-tab-id') { 
+      tabId = request.tabId;
+    }
+
+    if (request.action === 'set-loading') {
+      request.loading ? loading(true) : cancleLoading(true);
+    }
+
     if (request.action === 'generate-skeleton') {
       generateSkeleton();
     }
@@ -96,7 +116,7 @@ import { copyData } from './utils';
       clearSkltContainer();
     }
     if (request.action === 'set-skeleton-container-opcity') {
-      getSkltContainer().style.opacity = request.data;
+      getSkltContainer().style.opacity = request.value;
     }
     if (request.action === 'copy-skeleton') {
       const root = document.querySelector(`#${SkeletonRootId}`);
@@ -106,6 +126,25 @@ import { copyData } from './utils';
       copySkeletonData();
     }
   });
+
+  let loadingEl: HTMLDivElement;
+
+  function loading(fromMessage?: boolean) {
+    if (!fromMessage) { sendMessage({action: 'set-loading', loading: true})}
+    
+    if (!loadingEl) {
+      loadingEl = document.createElement('div');
+      loadingEl.className = 'skeleton-x-loading'
+      loadingEl.setAttribute(IgnoreAttrName, '');
+      loadingEl.innerHTML = `<div class="lds-dual-ring"></div>`
+    }
+    if (!document.body.contains(loadingEl)) document.body.appendChild(loadingEl);
+  }
+  
+  function cancleLoading(fromMessage?: boolean) {
+    if (!fromMessage) {sendMessage({action: 'set-loading', loading: false})}
+    loadingEl && document.body.removeChild(loadingEl);
+  }
 })()
 
 

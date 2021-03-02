@@ -1,35 +1,43 @@
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <link rel="stylesheet" href="popup.css"></link>
-  </head>
-  <body>
-    
-    <fieldset>
-      <legend>生成骨架屏</legend>
-      <button id="btn-create" class="btn-primary">开始</button>
-      <button id="btn-clear" class="btn-danger">清除</button>
-    </fieldset>
 
-    <br>
+<head>
+  <meta charset="utf-8" />
+  <link rel="stylesheet" href="popup.css">
+  </link>
+</head>
 
-    <fieldset>
-      <legend>导出</legend>
-      <button id="btn-copy" class="btn-success">导出</button>
-    </fieldset>
+<body>
 
-    <br>
+  <fieldset>
+    <legend>生成骨架屏</legend>
+    <button id="btn-create" class="btn-primary">开始</button>
+    <button id="btn-clear" class="btn-danger">清除</button>
+  </fieldset>
 
-    <fieldset>
-      <legend>调整预览蒙层透明度</legend>
-      <input type="range" id="input-range" min="0" max="100" value="100">
-    </fieldset>
+  <br>
 
-    <br>
-    <div class="help-block">
-      <a target="_blank" href="https://github.com/mlxiao93/SkeletonX">查看帮助文档</a>
-    </div>
+  <fieldset>
+    <legend>导出</legend>
+    <button id="btn-copy" class="btn-success">导出</button>
+  </fieldset>
 
-    <script src="popup.js"></script>
-  </body>
+  <br>
+
+  <fieldset>
+    <legend>调整预览蒙层透明度</legend>
+    <input type="range" id="input-range" min="0" max="100" value="100">
+  </fieldset>
+
+  <br>
+  <div class="help-block">
+    <a target="_blank" href="https://github.com/mlxiao93/SkeletonX">查看帮助文档</a>
+  </div>
+
+  <div class="loading">
+    <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+
 </html>

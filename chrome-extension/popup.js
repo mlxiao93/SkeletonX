@@ -1,3 +1,52 @@
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+}
+
+function ownKeys(object, enumerableOnly) {
+  var keys = Object.keys(object);
+
+  if (Object.getOwnPropertySymbols) {
+    var symbols = Object.getOwnPropertySymbols(object);
+    if (enumerableOnly) symbols = symbols.filter(function (sym) {
+      return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+    });
+    keys.push.apply(keys, symbols);
+  }
+
+  return keys;
+}
+
+function _objectSpread2(target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i] != null ? arguments[i] : {};
+
+    if (i % 2) {
+      ownKeys(Object(source), true).forEach(function (key) {
+        _defineProperty(target, key, source[key]);
+      });
+    } else if (Object.getOwnPropertyDescriptors) {
+      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+    } else {
+      ownKeys(Object(source)).forEach(function (key) {
+        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+      });
+    }
+  }
+
+  return target;
+}
+
 function _slicedToArray(arr, i) {
   return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest();
 }
@@ -58,8 +107,8 @@ var createBtn = document.querySelector('#btn-create');
 var rangeInput = document.querySelector('#input-range');
 var clearBtn = document.querySelector('#btn-clear');
 var copyBtn = document.querySelector('#btn-copy');
-var saveBtn = document.querySelector('#btn-save');
-var currentTabId;
+var loadingEl = document.querySelector('.loading');
+var tabId;
 chrome.tabs.query({
   active: true,
   currentWindow: true
@@ -67,37 +116,72 @@ chrome.tabs.query({
   var _ref2 = _slicedToArray(_ref, 1),
       tab = _ref2[0];
 
-  currentTabId = tab.id;
+  tabId = tab.id;
+  sendMessage({
+    action: 'set-tab-id',
+    tabId: tabId
+  });
 });
 
+function sendMessage(messsage) {
+  chrome.tabs.sendMessage(tabId, _objectSpread2({
+    tag: 'popup'
+  }, messsage));
+}
+
+chrome.runtime.onMessage.addListener(function (request) {
+  if ((request === null || request === void 0 ? void 0 : request.tag) === 'topup') return;
+  if ((request === null || request === void 0 ? void 0 : request.tabId) !== tabId) return;
+
+  if (request.action === 'set-loading') {
+    request.loading ? loading(true) : cancleLoading(true);
+  }
+});
+
+function loading(fromMessage) {
+  if (!fromMessage) {
+    sendMessage({
+      action: 'set-loading',
+      loading: true
+    });
+  }
+
+  loadingEl.style.display = 'flex';
+}
+
+function cancleLoading(fromMessage) {
+  if (!fromMessage) {
+    sendMessage({
+      action: 'set-loading',
+      loading: false
+    });
+  }
+
+  loadingEl.style.display = 'none';
+}
+
 createBtn.onclick = function () {
-  chrome.tabs.sendMessage(currentTabId, {
+  loading();
+  sendMessage({
     action: 'generate-skeleton'
   });
 };
 
 clearBtn.onclick = function () {
-  chrome.tabs.sendMessage(currentTabId, {
+  sendMessage({
     action: 'clear-skeleton'
   });
 };
 
 copyBtn.onclick = function () {
-  chrome.tabs.sendMessage(currentTabId, {
+  sendMessage({
     action: 'copy-skeleton'
   });
 };
 
 rangeInput.onchange = function (e) {
-  chrome.tabs.sendMessage(currentTabId, {
+  sendMessage({
     action: 'set-skeleton-container-opcity',
-    data: Number(rangeInput.value) / 100
-  });
-};
-
-saveBtn.onclick = function () {
-  chrome.tabs.sendMessage(currentTabId, {
-    action: 'save-skeleton',
-    data: Number(rangeInput.value) / 100
+    value: Number(rangeInput.value) / 100
   });
 };
