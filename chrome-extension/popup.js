@@ -104,11 +104,12 @@ function _nonIterableRest() {
 }
 
 var createBtn = document.querySelector('#btn-create');
-var rangeInput = document.querySelector('#input-range');
+document.querySelector('#input-range');
 var clearBtn = document.querySelector('#btn-clear');
 var exportDataBtn = document.querySelector('#btn-export-data');
 var exportDemoBtn = document.querySelector('#btn-export-demo');
 var loadingEl = document.querySelector('.loading');
+var opcitySelect = document.querySelector('#opcity-select');
 var tabId;
 chrome.tabs.query({
   active: true,
@@ -186,9 +187,9 @@ exportDemoBtn.onclick = function () {
   });
 };
 
-rangeInput.onchange = function (e) {
+opcitySelect.onchange = function (e) {
   sendMessage({
     action: 'set-skeleton-container-opcity',
-    value: Number(rangeInput.value) / 100
+    value: Number(opcitySelect.value)
   });
 };

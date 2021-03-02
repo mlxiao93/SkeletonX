@@ -6,6 +6,7 @@ const clearBtn = document.querySelector('#btn-clear') as HTMLButtonElement;
 const exportDataBtn = document.querySelector('#btn-export-data') as HTMLButtonElement;
 const exportDemoBtn = document.querySelector('#btn-export-demo') as HTMLButtonElement;
 const loadingEl = document.querySelector('.loading') as HTMLButtonElement;
+const opcitySelect = document.querySelector('#opcity-select') as HTMLSelectElement;
 
 let tabId: number;
 chrome.tabs.query({active: true, currentWindow: true}, function([tab]) {
@@ -67,10 +68,11 @@ exportDemoBtn.onclick = () => {
   })
 }
 
-rangeInput.onchange = (e) => {
+opcitySelect.onchange = (e) => {
+  
   sendMessage({
     action: 'set-skeleton-container-opcity',
-    value: Number(rangeInput.value) / 100
+    value: Number(opcitySelect.value)
   })
 }
 

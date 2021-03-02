@@ -1,6 +1,6 @@
 body {
   width: 220px;
-  height: 264px;
+  height: 232px;
   padding: 4px;
 }
 
@@ -78,7 +78,24 @@ a {
 
 .help-block {
   margin-top: 8px;
-  text-align: right;
+  display: flex;
+  justify-content: space-between;
+}
+
+.select-block {
+  color: #595959;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+}
+
+select {
+  color: #595959;
+  flex: 1;
+  margin-left: 8px;
+  border-color:#409eff;
+  border-radius: 4px;
+  padding: 2px;
 }
 
 .loading {
