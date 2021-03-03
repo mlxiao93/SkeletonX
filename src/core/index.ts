@@ -76,6 +76,9 @@ export default class Skeleton {
     addedList?: number[],
     removedList?: number[]
   }) {
+    if (!this.renderData.moduleMap) {
+      return;
+    }
     updateModuleMap({
       moduleMap: this.renderData.moduleMap, 
       ...opt

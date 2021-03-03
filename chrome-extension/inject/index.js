@@ -1014,11 +1014,14 @@ function isCovered(list, targetIndex) {
   var target = list[targetIndex];
 
   for (var i = targetIndex + 1; i < list.length; i++) {
-    if (!isChildren(list, targetIndex, i)) {
+    var node = list[i]; // 是否脱离文档流
+
+    var nodeOutOfDoc = node.position === 'absolute' || node.position === 'fixed';
+
+    if (!nodeOutOfDoc && !isChildren(list, targetIndex, i)) {
       return false;
     }
 
-    var node = list[i];
     if (!nodeNeedBg(node)) continue;
 
     if (node.left <= target.left && node.top <= target.top && node.left + node.width >= target.left + target.width && node.top + node.height >= target.top + target.height) {
@@ -1975,6 +1978,10 @@ var Skeleton = /*#__PURE__*/function () {
   }, {
     key: "updateModuleMap",
     value: function updateModuleMap$1(opt) {
+      if (!this.renderData.moduleMap) {
+        return;
+      }
+
       updateModuleMap(_objectSpread2({
         moduleMap: this.renderData.moduleMap
       }, opt));

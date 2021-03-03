@@ -53,9 +53,13 @@ export function isCovered(list: SkeletonDesc[], targetIndex: number): boolean {
   const target = list[targetIndex];
   for (let i = targetIndex + 1; i < list.length; i++) {
 
-    if (!isChildren(list, targetIndex, i)) {return false}
-
     const node = list[i];
+
+    // 是否脱离文档流
+    const nodeOutOfDoc = node.position === 'absolute' || node.position === 'fixed'
+
+    if (!nodeOutOfDoc && !isChildren(list, targetIndex, i)) {return false}
+    
     if (!nodeNeedBg(node)) continue;
     if (node.left <= target.left
       && node.top <= target.top
