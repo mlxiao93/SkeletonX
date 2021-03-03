@@ -47,24 +47,23 @@ export function isCovered(list: SkeletonDesc[], targetIndex: number): boolean {
 
 /**
  * 重叠元素色差处理
- * 初始颜色级别都为0
- * 位于重叠下一层的元素，颜色级别+1
+ * 初始颜色级别都为1
+ * 上次颜色级别+1
  * 
  * descList
  */
-export function getColorLevelList(descList: SkeletonDesc[], maxLevel: number): number[] {
+export function getColorLevelList(descList: SkeletonDesc[]): number[] {
   // 初始级别都为0
-  const colorLevelList = Array(descList.length).fill(0);
+  const colorLevelList = Array(descList.length).fill(1);
 
   // 按照是否相交
-  for (let i = descList.length - 1; i > 0; i--) {
+  for (let i = 0; i < descList.length; i++) {
     const nodeI = descList[i];
-    for (let j = i - 1; j >= 0; j--) {
+    for (let j = i + 1; j < descList.length; j++) {
       const nodeJ = descList[j];
       if (!nodeNeedBg(nodeJ)) continue;
       if (isIntersect(nodeI, nodeJ)) {
-        const adjustLevel = Math.min(maxLevel, colorLevelList[i] + 1)   // 最大level限制
-        colorLevelList[j] = Math.max(adjustLevel, colorLevelList[j]);
+        colorLevelList[j] = colorLevelList[i] + 1;
       }
     }
   }

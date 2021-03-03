@@ -3,7 +3,7 @@
 // RenderDesc <-> RenderString
 
 import { RenderData, SkeletonDesc } from './skeleton'
-import { nodeNeedBg, needBorder } from './utils';
+import { nodeNeedBg, needBorder, getColorLevelList } from './utils';
 import { ComputedSize } from './responsive'
 import { ModuleMap } from './module';
 
@@ -35,7 +35,7 @@ export function toRenderDescList(descList: SkeletonDesc[], computedSizeList: Com
   //   '#F4F4F5',
   //   '#FFF'
   // ]
-  // const colorLevelList = getColorLevelList(descList, ColorLevelMap.length - 1);
+  // const colorLevelList = getColorLevelList(descList);
 
   // console.log('colorLevelList', colorLevelList);
 
@@ -92,6 +92,7 @@ export function transforRenderDescToRenderProps(desc: RenderDesc): RenderProps {
     borderWidth: desc.borderWidth
   };
   if (desc.backgroundColor !== undefined) props.background = 'linear-gradient(90deg,rgb(190 190 190 / 20%) 25%,hsla(0,0%,50.6%,.24) 37%,hsla(0,0%,74.5%,.2) 63%); background-size: 400% 100%;';
+  // if (desc.backgroundColor !== undefined) props.background = `hsl(0,0%,${(1 - (desc.backgroundColor / 10)) * 100}%)`;
   if (desc.borderWidth !== undefined) props.borderColor = 'rgb(190 190 190 / 20%)';
   return props;
 }

@@ -257,8 +257,9 @@ export function reduceSkeletonDescList(list: SkeletonDesc[]): SkeletonDesc[] {
     let whiteBody = node.tagName.toLowerCase() === 'body' && node.backgroundColor === 'rgb(255, 255, 255)';
 
     // 删掉节点
-    if ((noBg && noText && noBorder && noShadow && whiteBody)
+    if ((noBg && noText && noBorder && noShadow)
       || noSize
+      || whiteBody
       || isCovered(list, index)/*被覆盖*/
     ) {
       // 保存id -> parentId
