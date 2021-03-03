@@ -1,7 +1,7 @@
 import { SkeletonRootId } from './consts';
 import 'regenerator-runtime/runtime';
 import { getRenderData, RenderData } from './skeleton'
-import { getRenderDescFromSkeletonDom, RenderDesc, renderDescToString } from './data-transform'
+import { getRenderDescFromSkeletonDom, parseRenderString, RenderDesc, renderDescToString } from './data-transform'
 import { renderToHtml } from './render'
 import { RefViewportRatio } from './responsive';
 import { joinRenderString } from './data-transform';
@@ -9,10 +9,7 @@ import { updateModuleMap } from './module';
 
 export default class Skeleton {
 
-
   private renderData: RenderData
-
-  // private dataString?: string;
 
   public async getRenderData(): Promise<RenderData> {
     if (this.renderData) return this.renderData;
@@ -65,8 +62,8 @@ export default class Skeleton {
   }
 
   public async getHtml(): Promise<string> {
-    const dataString = await this.getDataString()
-    return renderToHtml(dataString);
+    const renderString = await this.getDataString()
+    return renderToHtml(renderString);
   }
 
   public saveRenderData(root: Element): boolean {
@@ -83,5 +80,15 @@ export default class Skeleton {
       moduleMap: this.renderData.moduleMap, 
       ...opt
     });
+  }
+
+  public importRenderString(renderString: string): boolean {
+    try {
+      this.renderData = parseRenderString(renderString);
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
+    return true
   }
 }

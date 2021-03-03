@@ -29,10 +29,32 @@ export function isIntersect(node1: SkeletonDesc, node2: SkeletonDesc): boolean {
   return true;
 }
 
-// 节点是否被覆盖
+/**
+ * index对应的node是否parentIndex对应node的子孙节点
+ * @param list 
+ * @param parentIndex
+ * @param index 
+ */
+function isChildren(list: SkeletonDesc[], parentIndex: number, index: number): boolean {
+
+  const node = list[index];
+  const parentId = list[parentIndex].id;
+  let parent = list.find(item => item.id === node.parentId);
+  while (parent) {
+    if (parent.id === parentId) return true;
+    parent = list.find(item => item.id === parent.parentId);
+  }
+
+  return false;
+}
+
+// 父节点是否被子节点覆盖
 export function isCovered(list: SkeletonDesc[], targetIndex: number): boolean {
   const target = list[targetIndex];
   for (let i = targetIndex + 1; i < list.length; i++) {
+
+    if (!isChildren(list, targetIndex, i)) {return false}
+
     const node = list[i];
     if (!nodeNeedBg(node)) continue;
     if (node.left <= target.left

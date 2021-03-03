@@ -118,6 +118,14 @@ import { copyData, download, getDemo } from './utils';
       request.loading ? loading(true) : cancleLoading(true);
     }
 
+    if (request.action === 'import-data') {
+      skeleton = new Skeleton();
+      if (skeleton.importRenderString(request.data)) {
+        renderSkeleton();
+      } else {
+        alert('数据解析失败');
+      }
+    }
     if (request.action === 'generate-skeleton') {
       generateSkeleton();
     }

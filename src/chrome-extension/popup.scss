@@ -1,12 +1,12 @@
 body {
-  width: 220px;
-  height: 232px;
+  width: 226px;
+  height: 320px;
   padding: 4px;
 }
 
 fieldset {
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   border: 1px solid #d9d9d9;
   padding: 8px;
   padding-bottom: 10px;
@@ -14,11 +14,17 @@ fieldset {
   legend {
     color: #595959
   }
+  button {
+    flex: 1;
+    margin: 0 8px;
+  }
+}
+
+.export-field {
+  justify-content: start;
 }
 
 button {
-
-  min-width: 80px;
 
   display: inline-block;
   line-height: 1;

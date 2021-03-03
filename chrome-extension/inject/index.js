@@ -985,11 +985,39 @@ function nodeNeedBg(node) {
 function needBorder(borderWidth) {
   return borderWidth !== '0px 0px 0px 0px' && borderWidth !== '0px';
 } // 两个元素是否有重叠部分
+/**
+ * index对应的node是否parentIndex对应node的子孙节点
+ * @param list 
+ * @param parentIndex
+ * @param index 
+ */
+
+function isChildren(list, parentIndex, index) {
+  var node = list[index];
+  var parentId = list[parentIndex].id;
+  var parent = list.find(function (item) {
+    return item.id === node.parentId;
+  });
+
+  while (parent) {
+    if (parent.id === parentId) return true;
+    parent = list.find(function (item) {
+      return item.id === parent.parentId;
+    });
+  }
+
+  return false;
+} // 父节点是否被子节点覆盖
+
 
 function isCovered(list, targetIndex) {
   var target = list[targetIndex];
 
   for (var i = targetIndex + 1; i < list.length; i++) {
+    if (!isChildren(list, targetIndex, i)) {
+      return false;
+    }
+
     var node = list[i];
     if (!nodeNeedBg(node)) continue;
 
@@ -1684,15 +1712,7 @@ function reduceSkeletonDescList(list) {
   // {被删除的节点id: 被删除节点的parentId}
   var IdMap = {};
   var res = list.filter(function (node, index) {
-    if (['img', 'svg'].includes(node.tagName.toLowerCase())) {
-      return true;
-    }
-
-    if (node.moduleRoot) {
-      return true;
-    } // 无背景色
-
-
+    // 无背景色
     var noBg = /rgba\((\d+,\s*){3}0\)/.test(node.backgroundColor) && node.backgroundImage === 'none'; // 无文本
 
     var noText = !node.containTextNode; // 无边框
@@ -1704,15 +1724,24 @@ function reduceSkeletonDescList(list) {
     var noSize = node.width * node.height <= 0;
     /** 白色body */
 
-    var whiteBody = node.tagName.toLowerCase() === 'body' && node.backgroundColor === 'rgb(255, 255, 255)'; // 删掉节点
-
-    if (noBg && noText && noBorder && noShadow || noSize || whiteBody || isCovered(list, index)
+    var whiteBody = node.tagName.toLowerCase() === 'body' && node.backgroundColor === 'rgb(255, 255, 255)';
+    var covered = isCovered(list, index);
     /*被覆盖*/
-    ) {
-        // 保存id -> parentId
-        IdMap[node.id] = node.parentId;
-        return false;
-      }
+
+    if (['img', 'svg'].includes(node.tagName.toLowerCase()) && !noSize && !covered) {
+      return true;
+    }
+
+    if (node.moduleRoot) {
+      return true;
+    } // 删掉节点
+
+
+    if (noBg && noText && noBorder && noShadow || noSize || whiteBody || covered) {
+      // 保存id -> parentId
+      IdMap[node.id] = node.parentId;
+      return false;
+    }
 
     return true;
   }).map(function (node) {
@@ -1803,8 +1832,7 @@ var Skeleton = /*#__PURE__*/function () {
 
   _createClass(Skeleton, [{
     key: "getRenderData",
-    value: // private dataString?: string;
-    function () {
+    value: function () {
       var _getRenderData2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
         var iframe, innerHtml, _yield$Promise, body2, window2, renderData;
 
@@ -1911,7 +1939,7 @@ var Skeleton = /*#__PURE__*/function () {
     key: "getHtml",
     value: function () {
       var _getHtml = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3() {
-        var dataString;
+        var renderString;
         return regeneratorRuntime.wrap(function _callee3$(_context3) {
           while (1) {
             switch (_context3.prev = _context3.next) {
@@ -1920,8 +1948,8 @@ var Skeleton = /*#__PURE__*/function () {
                 return this.getDataString();
 
               case 2:
-                dataString = _context3.sent;
-                return _context3.abrupt("return", renderToHtml(dataString));
+                renderString = _context3.sent;
+                return _context3.abrupt("return", renderToHtml(renderString));
 
               case 4:
               case "end":
@@ -1950,6 +1978,18 @@ var Skeleton = /*#__PURE__*/function () {
       updateModuleMap(_objectSpread2({
         moduleMap: this.renderData.moduleMap
       }, opt));
+    }
+  }, {
+    key: "importRenderString",
+    value: function importRenderString(renderString) {
+      try {
+        this.renderData = parseRenderString(renderString);
+      } catch (err) {
+        console.error(err);
+        return false;
+      }
+
+      return true;
     }
   }]);
 
@@ -2234,6 +2274,16 @@ function tmpl(input, data) {
                 request.loading ? loading(true) : cancleLoading(true);
               }
 
+              if (request.action === 'import-data') {
+                skeleton = new Skeleton();
+
+                if (skeleton.importRenderString(request.data)) {
+                  renderSkeleton();
+                } else {
+                  alert('数据解析失败');
+                }
+              }
+
               if (request.action === 'generate-skeleton') {
                 generateSkeleton();
               }
@@ -2252,34 +2302,34 @@ function tmpl(input, data) {
               }
 
               if (!(request.action === 'export-demo')) {
-                _context.next = 19;
+                _context.next = 20;
                 break;
               }
 
               saveSkeletonData();
 
               if (skeleton) {
-                _context.next = 12;
+                _context.next = 13;
                 break;
               }
 
               return _context.abrupt("return", alert('请先生成骨架屏'));
 
-            case 12:
-              _context.next = 14;
+            case 13:
+              _context.next = 15;
               return skeleton.getDataString();
 
-            case 14:
+            case 15:
               data = _context.sent;
 
               if (data) {
-                _context.next = 17;
+                _context.next = 18;
                 break;
               }
 
               return _context.abrupt("return", alert('请先生成骨架屏'));
 
-            case 17:
+            case 18:
               download({
                 data: getDemo({
                   data: data
@@ -2288,7 +2338,7 @@ function tmpl(input, data) {
               });
               copySkeletonData();
 
-            case 19:
+            case 20:
             case "end":
               return _context.stop();
           }

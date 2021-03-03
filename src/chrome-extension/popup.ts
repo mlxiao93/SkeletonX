@@ -1,9 +1,9 @@
 import './popup.scss'
 
 const createBtn = document.querySelector('#btn-create') as HTMLButtonElement;
-const rangeInput = document.querySelector('#input-range') as HTMLInputElement;
 const clearBtn = document.querySelector('#btn-clear') as HTMLButtonElement;
 const exportDataBtn = document.querySelector('#btn-export-data') as HTMLButtonElement;
+const importDataBtn = document.querySelector('#btn-import-data') as HTMLButtonElement;
 const exportDemoBtn = document.querySelector('#btn-export-demo') as HTMLButtonElement;
 const loadingEl = document.querySelector('.loading') as HTMLButtonElement;
 const opcitySelect = document.querySelector('#opcity-select') as HTMLSelectElement;
@@ -76,3 +76,11 @@ opcitySelect.onchange = (e) => {
   })
 }
 
+importDataBtn.onclick = (e) => {
+  const data = prompt('请输入数据进行二次编辑 (和导出的数据一致)');
+  console.log(data);
+  sendMessage({
+    action: 'import-data',
+    data
+  })
+} 

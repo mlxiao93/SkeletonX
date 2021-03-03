@@ -234,14 +234,6 @@ export function reduceSkeletonDescList(list: SkeletonDesc[]): SkeletonDesc[] {
   const IdMap: { [key: string]: string } = {}
 
   const res = list.filter((node, index) => {
-    if (['img', 'svg'].includes(node.tagName.toLowerCase())) {
-      return true
-    }
-
-    if (node.moduleRoot) {
-      return true;
-    }
-    
     // 无背景色
     const noBg = /rgba\((\d+,\s*){3}0\)/.test(node.backgroundColor) && node.backgroundImage === 'none';
     // 无文本
@@ -256,11 +248,21 @@ export function reduceSkeletonDescList(list: SkeletonDesc[]): SkeletonDesc[] {
     /** 白色body */
     let whiteBody = node.tagName.toLowerCase() === 'body' && node.backgroundColor === 'rgb(255, 255, 255)';
 
+    let covered = isCovered(list, index); /*被覆盖*/
+
+    if (['img', 'svg'].includes(node.tagName.toLowerCase()) && !noSize && !covered) {
+      return true
+    }
+
+    if (node.moduleRoot) {
+      return true;
+    }
+
     // 删掉节点
     if ((noBg && noText && noBorder && noShadow)
       || noSize
       || whiteBody
-      || isCovered(list, index)/*被覆盖*/
+      || covered
     ) {
       // 保存id -> parentId
       IdMap[node.id] = node.parentId

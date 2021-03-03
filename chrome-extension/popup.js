@@ -104,9 +104,9 @@ function _nonIterableRest() {
 }
 
 var createBtn = document.querySelector('#btn-create');
-document.querySelector('#input-range');
 var clearBtn = document.querySelector('#btn-clear');
 var exportDataBtn = document.querySelector('#btn-export-data');
+var importDataBtn = document.querySelector('#btn-import-data');
 var exportDemoBtn = document.querySelector('#btn-export-demo');
 var loadingEl = document.querySelector('.loading');
 var opcitySelect = document.querySelector('#opcity-select');
@@ -191,5 +191,14 @@ opcitySelect.onchange = function (e) {
   sendMessage({
     action: 'set-skeleton-container-opcity',
     value: Number(opcitySelect.value)
+  });
+};
+
+importDataBtn.onclick = function (e) {
+  var data = prompt('请输入数据进行二次编辑 (和导出的数据一致)');
+  console.log(data);
+  sendMessage({
+    action: 'import-data',
+    data: data
   });
 };
