@@ -1223,7 +1223,7 @@ function getComputedSize(item, refItem, index) {
     // 这种情况只可能是height相等（元素居中的情况）
     // TODO 还有情况是改变视口计算的误差需要处理
     delete computedSize.bottom;
-    computedSize.height = _heightEqual === 10 ? "".concat(itemSize.height, "px") : "".concat(itemSize.pHeight, "vw");
+    computedSize.height = _heightEqual === 10 ? "".concat(itemSize.height, "px") : "".concat(itemSize.pHeight, "vh");
 
     var _midOffset = document.documentElement.clientHeight * 0.5 - itemSize.top;
 

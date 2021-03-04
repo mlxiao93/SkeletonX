@@ -96,7 +96,7 @@ export function getComputedSize(item: SkeletonDesc, refItem?: SkeletonDesc, inde
     // 这种情况只可能是height相等（元素居中的情况）
     // TODO 还有情况是改变视口计算的误差需要处理
     delete computedSize.bottom;
-    computedSize.height = _heightEqual === 10 ? `${itemSize.height}px` : `${itemSize.pHeight}vw`
+    computedSize.height = _heightEqual === 10 ? `${itemSize.height}px` : `${itemSize.pHeight}vh`
     const midOffset = document.documentElement.clientHeight * 0.5 - itemSize.top;
     computedSize.top = midOffset > 0 ? `calc(50vh - ${midOffset}px)` : `calc(50vh + ${-midOffset}px)`
   }
