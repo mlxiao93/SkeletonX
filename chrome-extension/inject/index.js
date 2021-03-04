@@ -1016,9 +1016,9 @@ function isCovered(list, targetIndex) {
   for (var i = targetIndex + 1; i < list.length; i++) {
     var node = list[i]; // 是否脱离文档流
 
-    var nodeOutOfDoc = node.position === 'absolute' || node.position === 'fixed';
+    var targetOutOfDoc = target.position === 'absolute' || target.position === 'fixed';
 
-    if (!nodeOutOfDoc && !isChildren(list, targetIndex, i)) {
+    if (!targetOutOfDoc && !isChildren(list, targetIndex, i)) {
       return false;
     }
 
