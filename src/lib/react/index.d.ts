@@ -8,6 +8,6 @@ export const SkeletonContainer: React.FC<{
   style?: React.CSSProperties
 }>
 export const SkeletonSupspense: React.FC<{
-  moduleId: string,
+  moduleId?: string,
   style?: React.CSSProperties
 }>
