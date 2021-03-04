@@ -25,7 +25,7 @@ export const SkeletonContainer: React.FC<{
 }
 
 export const SkeletonSupspense: React.FC<{
-  moduleId: string,
+  moduleId?: string,
   style?: React.CSSProperties
 }> = (props) => {
   const { moduleId, style } = props;
