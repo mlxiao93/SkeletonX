@@ -109,11 +109,17 @@ export function countCss(size: string): string {
   const vw = vwList && (new Function('return ' + vwList.join('').replace(/vw/g, ''))());
   const vh = vhList && (new Function('return ' + vhList.join('').replace(/vh/g, ''))());
 
-  let res = px + 'px' || vw + 'vw' || vh + 'vh';
+  let res = '0'
   if (vw && px) {
     res = `calc(${vw}vw + ${px}px)`
   } else if (vh && px) {
     res = `calc(${vh}vh + ${px}px)`
+  } else if (px) {
+    res = px + 'px'
+  } else if (vw) {
+    res = vw + 'vw'
+  } else if (vh) {
+    res = vh + 'vh'
   }
 
   res = res.replace(/\+\s-/g, '- ').replace(/\+\s\+/g, '+ ').replace(/$\+/, '');

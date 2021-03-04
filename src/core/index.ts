@@ -88,6 +88,7 @@ export default class Skeleton {
   public importRenderString(renderString: string): boolean {
     try {
       this.renderData = parseRenderString(renderString);
+      console.log(this.renderData);
     } catch (err) {
       console.error(err);
       return false;
