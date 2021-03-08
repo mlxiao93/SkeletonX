@@ -1,3 +1,4 @@
+import { RenderDesc } from './data-transform';
 /**
  * 元素是否出现在视口
  * 只要有一部分在视口返回true
@@ -125,3 +126,10 @@ export function countCss(size: string): string {
   res = res.replace(/\+\s-/g, '- ').replace(/\+\s\+/g, '+ ').replace(/$\+/, '');
   return res;
 }
+
+export function cutHeight(desc: RenderDesc): string {
+  if (desc.height && cssToPx(countCss(`${desc.top} + ${desc.height}`)) > document.documentElement.clientHeight) {
+    return countCss(`100vh - ${desc.top || 0}`);
+  }
+  return desc.height;
+} 

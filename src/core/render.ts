@@ -1,5 +1,6 @@
 import { parseRenderString, RenderDesc } from './data-transform'
 import { transforRenderDescToRenderProps } from './data-transform'
+import { countCss, cssToPx, cutHeight } from './dom';
 import { toModuleRelativeDesc } from './module'
 
 /**
@@ -7,16 +8,27 @@ import { toModuleRelativeDesc } from './module'
  * @param moduleRootDesc 如果传递了moduleRootDesc，则骨架基于moduleRootDesc定位
  */
 function descToHtml(desc: RenderDesc, index: number, moduleRootDesc?: RenderDesc) {
+  desc = JSON.parse(JSON.stringify(desc));
+  desc.height = cutHeight(desc);
+
+  if (moduleRootDesc) {
+    moduleRootDesc = JSON.parse(JSON.stringify(moduleRootDesc));
+    moduleRootDesc.height = cutHeight(moduleRootDesc);
+  }
+
   desc = toModuleRelativeDesc(desc, moduleRootDesc);
   let renderProps = transforRenderDescToRenderProps(desc)
-
-  let style = 'z-index:9999999;position:absolute;';
+  let style = `z-index:9999999;position:absolute;`;
+  if (moduleRootDesc) {
+    style = 'position:absolute;'
+  }
   for (let key in renderProps) {
+    if (key === 'background') continue;
     const value = renderProps[key];
     if (!value) continue;
     style += key.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase() + ':' + renderProps[key] + ';'
   };
-  return '<div id="' + index + '" class="skeleton-x-node" style="' + style + '"></div>';
+  return `<div id="${index}" ${renderProps.background ? 'bg' : ''} class="skeleton-x-node" style="${style}"></div>`
 }
 
 export function renderToHtml(renderString?: string, moduleId?: string): string {

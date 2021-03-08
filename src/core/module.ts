@@ -1,6 +1,6 @@
 import { RenderData, SkeletonDesc } from './skeleton'
 import { parseRenderString, RenderDesc, renderDescToString, RenderProps, transforRenderDescToRenderProps } from './data-transform'
-import { cssToPx, countCss } from './dom';
+import { cssToPx, countCss, cutHeight } from './dom';
 
 export interface ModuleMap {
   [key: string/*module id*/]: [number/*start index*/, number/*end index*/]
@@ -48,6 +48,7 @@ export function getModuleSize(renderString?: string, moduleId?: string): {height
   if (moduleRootIndex === undefined) return size;
   const desc = data[moduleRootIndex];
   if (!desc) return size;
+  desc.height = cutHeight(desc);
   let renderProps = transforRenderDescToRenderProps(desc);
   if (renderProps.height) {
     size.height = renderProps.height
@@ -61,9 +62,9 @@ export function getModuleSize(renderString?: string, moduleId?: string): {height
 export function toModuleRelativeDesc(desc: RenderDesc, moduleRootDesc?: RenderDesc): RenderDesc {
   desc = JSON.parse(JSON.stringify(desc));
   if (moduleRootDesc) {
-    desc.left = countCss(`${desc.left} - ${moduleRootDesc.left}`);
+    if (desc.left) desc.left = countCss(`${desc.left} - ${moduleRootDesc.left}`);
     if (desc.right && moduleRootDesc.right) desc.right = countCss(`${desc.right} - ${moduleRootDesc.right}`);
-    desc.top = countCss(`${desc.top} - ${moduleRootDesc.top}`);
+    if (desc.top) desc.top = countCss(`${desc.top} - ${moduleRootDesc.top}`);
     if (desc.bottom && moduleRootDesc.bottom) desc.bottom = countCss(`${desc.bottom} - ${moduleRootDesc.bottom}`);
   };
   return desc;

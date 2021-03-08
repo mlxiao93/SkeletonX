@@ -1,5 +1,7 @@
-.skeleton-x-node {
+.skeleton-x-node[bg] {
   animation: skeleton-loading 2.4s ease infinite;
+  background: linear-gradient(90deg,hsla(0,0%,74.5%,.2) 25%,hsla(0,0%,50.6%,.24) 37%,hsla(0,0%,74.5%,.2) 63%); 
+  background-size: 400% 100%;
 }
 @keyframes skeleton-loading {
   0% {

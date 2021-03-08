@@ -91,8 +91,8 @@ export function transforRenderDescToRenderProps(desc: RenderDesc): RenderProps {
     borderRadius: desc.borderRadius,
     borderWidth: desc.borderWidth
   };
-  if (desc.backgroundColor !== undefined) props.background = 'linear-gradient(90deg,rgb(190 190 190 / 20%) 25%,hsla(0,0%,50.6%,.24) 37%,hsla(0,0%,74.5%,.2) 63%); background-size: 400% 100%;';
-  // if (desc.backgroundColor !== undefined) props.background = `hsl(0,0%,${(1 - (desc.backgroundColor / 10)) * 100}%)`;
+  // if (desc.backgroundColor !== undefined) props.background = 'linear-gradient(90deg,rgb(190 190 190 / 20%) 25%,hsla(0,0%,50.6%,.24) 37%,hsla(0,0%,74.5%,.2) 63%); background-size: 400% 100%;';
+  if (desc.backgroundColor !== undefined) props.background = 'true';
   if (desc.borderWidth !== undefined) props.borderColor = 'rgb(190 190 190 / 20%)';
   return props;
 }
@@ -153,7 +153,7 @@ export function getRenderDescFromSkeletonDom(root: Element): RenderDesc[] {
     if (style.borderWidth) {
       desc.borderWidth = style.borderWidth;
     }
-    if (style.background) {
+    if (style.background || node.getAttribute('bg') !== null) {
       desc.backgroundColor = 1;
     }
     descList.push(desc);

@@ -20,6 +20,9 @@ export function getComputedSizeList(list: SkeletonDesc[], refList: SkeletonDesc[
   return res;
 }
 
+/**
+ * TODO height使用vw做为单位：例如img设置了width: 100%的情况
+ */
 export function getComputedSize(item: SkeletonDesc, refItem?: SkeletonDesc, index?: number): ComputedSize {
   const itemSize = getSkeletonDescSize(item);
 
