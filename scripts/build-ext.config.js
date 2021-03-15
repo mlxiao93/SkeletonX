@@ -52,6 +52,12 @@ module.exports = [
         minimize: true,
         extensions: ['.css', '.scss']
       }),
+      copy({
+        targets: [
+          { src: 'src/chrome-extension/images/**/*', dest: 'chrome-extension/images' }
+        ]
+      }),
+      terser()
     ],
     output: {
       dir: 'chrome-extension',
@@ -94,7 +100,8 @@ module.exports = [
       string({
         // Required to be specified
         include: ['**/lib/global.js', '**/lib/global.css', '**/templates/demo.html'],
-      })
+      }),
+      terser()
     ],
     output: {
       dir: 'chrome-extension/inject',

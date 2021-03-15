@@ -58,7 +58,8 @@ module.exports = [{
     }),
     copy({
       targets: [{ src: 'src/lib/react/index.d.ts', dest: 'lib/react' }]
-    })
+    }),
+    terser()
   ],
   external: ['react'],
   output: {
