@@ -1,7 +1,7 @@
 {
   "name": "SkeletonX",
   "version": "1.1",
-  "description": "生成骨架屏",
+  "description": "骨架屏",
   "background": {
     "scripts": [
       "background.js"
@@ -16,8 +16,7 @@
   },
   "permissions": [
     "http://*/*",
-    "https://*/*",
-    "activeTab"
+    "https://*/*"
   ],
   "content_scripts": [
     {
