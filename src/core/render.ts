@@ -41,7 +41,7 @@ export function renderToHtml(renderString?: string, moduleId?: string): string {
 
   // 渲染模块骨架的情况
   let moduleRootDesc: RenderDesc;
-  if (moduleId !== undefined) {
+  if (moduleId !== undefined && moduleMap !== undefined) {
     const moduleRootIndex = moduleMap[moduleId]?.[0];
     const moduleLastIndex = moduleMap[moduleId]?.[1];
     if (moduleRootIndex !== undefined) {
